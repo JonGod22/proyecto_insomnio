@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { AgentChat } from "@/components/agent-chat";
+import { FloatingAgentChat } from "@/components/floating-agent-chat";
 import type { Json } from "@/lib/types";
 
 type LandingConfig = {
@@ -74,7 +74,7 @@ export default async function BusinessLandingPage({
 
   return (
     <main className="flex-1">
-      {/* Nav: marca + accesos rápidos. El agente vive en el centro del hero. */}
+      {/* Nav: marca + accesos rápidos. El agente vive flotando abajo. */}
       <nav className="surface flex items-center justify-between bg-card px-6 py-4 sm:px-12">
         <div className="flex items-center gap-3">
           <span className="size-3 rotate-45 bg-primary" aria-hidden />
@@ -90,14 +90,29 @@ export default async function BusinessLandingPage({
         </div>
       </nav>
 
-      {/* Hero: el agente es el protagonista, como en Claude o ChatGPT. */}
-      <header className="px-6 pt-16 pb-20 sm:px-12">
-        <AgentChat slug={slug} businessName={business.name} />
-      </header>
-
-      {/* Conocé el estudio: foto real + acceso a la reserva manual para quien la prefiera. */}
-      <section className="px-6 py-16 sm:px-12">
+      {/* Hero: presentación del negocio. El agente queda accesible como chat flotante. */}
+      <header className="px-6 py-16 sm:px-12">
         <div className="mx-auto grid max-w-4xl items-center gap-8 sm:grid-cols-2">
+          <div>
+            {location && <p className="kicker-label mb-3 text-muted-foreground">{location}</p>}
+            <h1 className="type-display mb-4 text-4xl leading-[0.95] sm:text-5xl">{business.name}</h1>
+            {(business.description || config.hero_subtitle) && (
+              <p className="mb-6 text-lg text-foreground/80">
+                {business.description}
+                {config.hero_subtitle ? ` — ${config.hero_subtitle}` : ""}
+              </p>
+            )}
+            <div className="flex flex-wrap items-center gap-3">
+              <Button render={<Link href={`/${slug}/booking`} />} nativeButton={false} variant="dark" size="lg" className="halo">
+                Reservar turno
+              </Button>
+              {config.reviews && (
+                <Badge variant="outline">
+                  {config.reviews.rating.toFixed(1)}/5 · {config.reviews.count} valoraciones
+                </Badge>
+              )}
+            </div>
+          </div>
           <div className="relative aspect-[4/3] overflow-hidden rounded-2xl">
             <Image
               src={STUDIO_PHOTO}
@@ -107,28 +122,8 @@ export default async function BusinessLandingPage({
               className="object-cover"
             />
           </div>
-          <div>
-            {location && <p className="kicker-label mb-3 text-muted-foreground">{location}</p>}
-            <h2 className="type-display mb-4 text-3xl leading-none sm:text-4xl">{business.name}</h2>
-            {(business.description || config.hero_subtitle) && (
-              <p className="mb-6 text-lg text-foreground/80">
-                {business.description}
-                {config.hero_subtitle ? ` — ${config.hero_subtitle}` : ""}
-              </p>
-            )}
-            <div className="flex flex-wrap items-center gap-3">
-              <Button render={<Link href={`/${slug}/booking`} />} nativeButton={false} variant="dark">
-                Reservar turno manualmente
-              </Button>
-              {config.reviews && (
-                <Badge variant="outline">
-                  {config.reviews.rating.toFixed(1)}/5 · {config.reviews.count} valoraciones
-                </Badge>
-              )}
-            </div>
-          </div>
         </div>
-      </section>
+      </header>
 
       {config.benefits && config.benefits.length > 0 && (
         <section className="px-6 py-6 sm:px-12">
@@ -219,6 +214,8 @@ export default async function BusinessLandingPage({
           )}
         </div>
       </footer>
+
+      <FloatingAgentChat slug={slug} businessName={business.name} />
     </main>
   );
 }
