@@ -2,16 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { signOut } from "@/app/(admin)/login/actions";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-
-const NAV = [
-  { href: "/admin/appointments", label: "Turnos" },
-  { href: "/admin/clients", label: "Clientes" },
-  { href: "/admin/services", label: "Servicios" },
-  { href: "/admin/payments", label: "Pagos" },
-  { href: "/admin/knowledge", label: "Base de conocimiento" },
-  { href: "/admin/landing-builder", label: "Landing" },
-];
+import { AdminNav } from "@/components/admin-nav";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
@@ -59,33 +50,35 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   const businessName = (profile.businesses as unknown as { name: string } | null)?.name;
 
   return (
-    <div className="flex min-h-screen">
-      <aside className="surface flex w-60 flex-col justify-between bg-card p-5">
-        <div>
-          <p className="type-display text-xl leading-none">{businessName ?? "Proyecto Insomnio"}</p>
-          <p className="mt-2 mb-6 truncate text-xs text-muted-foreground">{user.email}</p>
-          <nav className="flex flex-col gap-1">
-            {NAV.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="kicker-label px-2.5 py-2 text-foreground hover:bg-muted"
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-        </div>
-        <div className="space-y-4">
-          <Badge variant="live">En vivo</Badge>
-          <form action={signOut}>
-            <Button variant="secondary" size="sm" type="submit" className="w-full">
-              Cerrar sesión
-            </Button>
-          </form>
-        </div>
-      </aside>
-      <div className="flex-1 p-8">{children}</div>
+    <div className="min-h-screen">
+      {/* Banner de tenant activo: contexto de negocio siempre visible. */}
+      <div className="bg-foreground px-6 py-6 text-background sm:px-8">
+        <p className="kicker-label mb-2 text-primary">Tenant activo</p>
+        <h1 className="type-display text-3xl leading-none sm:text-4xl">
+          {businessName ?? "Proyecto Insomnio"}
+        </h1>
+        <p className="mt-3 text-xs text-background/60">
+          business_id · {profile.business_id.slice(0, 8)} · RLS activo en todas las queries
+        </p>
+      </div>
+
+      <div className="flex flex-col gap-6 p-6 sm:flex-row sm:p-8">
+        <aside className="surface flex w-full shrink-0 flex-col justify-between gap-8 bg-card p-5 sm:w-56">
+          <div>
+            <p className="kicker-label mb-3 text-muted-foreground">Módulos</p>
+            <AdminNav />
+          </div>
+          <div className="space-y-3">
+            <p className="truncate text-xs text-muted-foreground">{user.email}</p>
+            <form action={signOut}>
+              <Button variant="secondary" size="sm" type="submit" className="w-full">
+                Cerrar sesión
+              </Button>
+            </form>
+          </div>
+        </aside>
+        <div className="min-w-0 flex-1">{children}</div>
+      </div>
     </div>
   );
 }

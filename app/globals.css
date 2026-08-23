@@ -105,9 +105,10 @@
 }
 
 @layer utilities {
-  /* Superficie elevada sin borde: sombra suave en vez de línea negra. */
+  /* Superficie: borde fino neutro (no negro/2px) + sombra apenas perceptible. */
   .surface {
-    box-shadow: 0 1px 2px rgba(10, 10, 10, 0.06), 0 4px 16px rgba(10, 10, 10, 0.05);
+    border: 1px solid var(--border);
+    box-shadow: 0 1px 2px rgba(10, 10, 10, 0.04);
   }
 
   /* Chip con halo: caja blanca con resplandor amarillo difuso. Un único halo por pantalla. */
