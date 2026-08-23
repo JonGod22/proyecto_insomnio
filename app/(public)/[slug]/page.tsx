@@ -1,11 +1,11 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ChatWidget } from "@/components/chat-widget";
-import { OpenChatButton } from "@/components/open-chat-button";
+import { AgentChat } from "@/components/agent-chat";
 import type { Json } from "@/lib/types";
 
 type LandingConfig = {
@@ -13,6 +13,17 @@ type LandingConfig = {
   benefits?: string[];
   reviews?: { rating: number; count: number };
 };
+
+const STUDIO_PHOTO =
+  "https://images.unsplash.com/photo-1695527081848-1e46c06e6458?auto=format&fit=crop&w=1400&q=80";
+
+const GALLERY_PHOTOS = [
+  "https://images.unsplash.com/photo-1735151226446-1d364b4adc2f?auto=format&fit=crop&w=1200&q=80",
+  "https://images.unsplash.com/photo-1581003250898-36050e78fcd3?auto=format&fit=crop&w=800&q=80",
+  "https://images.unsplash.com/photo-1567629307995-b9f33097bd30?auto=format&fit=crop&w=800&q=80",
+  "https://images.unsplash.com/photo-1492618269284-653dce58fd6d?auto=format&fit=crop&w=800&q=80",
+  "https://images.unsplash.com/photo-1626383137804-ff908d2753a2?auto=format&fit=crop&w=800&q=80",
+];
 
 function formatPrice(service: {
   price: number | null;
@@ -59,60 +70,71 @@ export default async function BusinessLandingPage({
 
   const config = (landing?.config_json ?? {}) as Json as LandingConfig;
   const location = [business.address, business.city].filter(Boolean).join(", ");
+  const mapQuery = encodeURIComponent(location || business.name);
 
   return (
     <main className="flex-1">
-      {/* Nav: marca (rombo) + acciones principales, siempre visible arriba del contenido. */}
-      <nav className="flex items-center justify-between border-b-2 border-foreground bg-card px-6 py-4 sm:px-12">
+      {/* Nav: marca + accesos rápidos. El agente vive en el centro del hero. */}
+      <nav className="surface flex items-center justify-between bg-card px-6 py-4 sm:px-12">
         <div className="flex items-center gap-3">
           <span className="size-3 rotate-45 bg-primary" aria-hidden />
           <span className="type-display text-lg leading-none">{business.name}</span>
         </div>
         <div className="flex items-center gap-3">
+          <Button render={<Link href="#servicios" />} nativeButton={false} variant="ghost" size="sm" className="hidden sm:inline-flex">
+            Servicios
+          </Button>
           <Button render={<Link href={`/${slug}/booking`} />} nativeButton={false} variant="dark" size="sm">
             Reservar
           </Button>
-          <OpenChatButton className="h-8 px-3 text-xs">Hablar con agente</OpenChatButton>
         </div>
       </nav>
 
-      {/* Hero: placa única con placeholder de foto de fondo, un acento y aire generoso. */}
-      <header className="image-placeholder relative overflow-hidden border-b-2 border-foreground px-6 pt-16 pb-6 sm:px-12">
-        <div className="mx-auto max-w-3xl">
-          {location && <p className="kicker-label mb-4 text-muted-foreground">{location}</p>}
-          <h1 className="type-display text-[13vw] leading-[0.9] sm:text-6xl md:text-7xl">
-            {business.name}
-          </h1>
-          {(business.description || config.hero_subtitle) && (
-            <p className="mt-6 max-w-xl text-lg text-foreground/80">
-              {business.description}
-              {config.hero_subtitle ? ` — ${config.hero_subtitle}` : ""}
-            </p>
-          )}
-
-          <div className="mt-8 flex flex-wrap items-center gap-4">
-            <Button render={<Link href={`/${slug}/booking`} />} nativeButton={false} variant="dark" size="lg" className="h-12 px-6 text-base">
-              Reservar turno
-            </Button>
-            <OpenChatButton className="h-12 px-6 text-base">Hablar con agente</OpenChatButton>
-            {config.reviews && (
-              <Badge variant="outline" className="h-8 border-foreground bg-card px-3 text-xs">
-                {config.reviews.rating.toFixed(1)}/5 · {config.reviews.count} valoraciones
-              </Badge>
-            )}
-          </div>
-        </div>
-        <p className="image-placeholder-label absolute right-4 bottom-4">foto del estudio</p>
+      {/* Hero: el agente es el protagonista, como en Claude o ChatGPT. */}
+      <header className="px-6 pt-16 pb-20 sm:px-12">
+        <AgentChat slug={slug} businessName={business.name} />
       </header>
 
+      {/* Conocé el estudio: foto real + acceso a la reserva manual para quien la prefiera. */}
+      <section className="px-6 py-16 sm:px-12">
+        <div className="mx-auto grid max-w-4xl items-center gap-8 sm:grid-cols-2">
+          <div className="relative aspect-[4/3] overflow-hidden rounded-2xl">
+            <Image
+              src={STUDIO_PHOTO}
+              alt={`Espacio de ${business.name}`}
+              fill
+              sizes="(min-width: 640px) 50vw, 100vw"
+              className="object-cover"
+            />
+          </div>
+          <div>
+            {location && <p className="kicker-label mb-3 text-muted-foreground">{location}</p>}
+            <h2 className="type-display mb-4 text-3xl leading-none sm:text-4xl">{business.name}</h2>
+            {(business.description || config.hero_subtitle) && (
+              <p className="mb-6 text-lg text-foreground/80">
+                {business.description}
+                {config.hero_subtitle ? ` — ${config.hero_subtitle}` : ""}
+              </p>
+            )}
+            <div className="flex flex-wrap items-center gap-3">
+              <Button render={<Link href={`/${slug}/booking`} />} nativeButton={false} variant="dark">
+                Reservar turno manualmente
+              </Button>
+              {config.reviews && (
+                <Badge variant="outline">
+                  {config.reviews.rating.toFixed(1)}/5 · {config.reviews.count} valoraciones
+                </Badge>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+
       {config.benefits && config.benefits.length > 0 && (
-        <section className="border-b-2 border-foreground px-6 py-6 sm:px-12">
-          <div className="mx-auto flex max-w-3xl flex-wrap gap-3">
+        <section className="px-6 py-6 sm:px-12">
+          <div className="mx-auto flex max-w-3xl flex-wrap justify-center gap-3">
             {config.benefits.map((benefit) => (
-              <span
-                key={benefit}
-                className="kicker-label border-2 border-foreground bg-card px-3 py-2 text-foreground"
-              >
+              <span key={benefit} className="surface kicker-label rounded-full bg-card px-4 py-2 text-foreground">
                 {benefit}
               </span>
             ))}
@@ -120,7 +142,7 @@ export default async function BusinessLandingPage({
         </section>
       )}
 
-      <section className="border-b-2 border-foreground px-6 py-16 sm:px-12">
+      <section id="servicios" className="scroll-mt-20 px-6 py-16 sm:px-12">
         <div className="mx-auto max-w-3xl">
           <p className="kicker-label mb-2 text-muted-foreground">Servicios</p>
           <h2 className="type-display mb-8 text-3xl leading-none sm:text-4xl">Qué se puede reservar</h2>
@@ -161,29 +183,42 @@ export default async function BusinessLandingPage({
           <p className="kicker-label mb-2 text-muted-foreground">Galería</p>
           <h2 className="type-display mb-8 text-3xl leading-none sm:text-4xl">Trabajos recientes</h2>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <div className="image-placeholder col-span-2 row-span-2 flex aspect-square items-end justify-start border-2 border-foreground p-2 sm:aspect-auto">
-              <span className="image-placeholder-label">foto</span>
+            <div className="relative col-span-2 row-span-2 aspect-square overflow-hidden rounded-2xl sm:aspect-auto">
+              <Image
+                src={GALLERY_PHOTOS[0]}
+                alt="Trabajo realizado"
+                fill
+                sizes="(min-width: 640px) 50vw, 100vw"
+                className="object-cover"
+              />
             </div>
-            {[1, 2, 3, 4].map((n) => (
-              <div
-                key={n}
-                className="image-placeholder flex aspect-square items-end justify-start border-2 border-foreground p-2"
-              >
-                <span className="image-placeholder-label">foto</span>
+            {GALLERY_PHOTOS.slice(1).map((src) => (
+              <div key={src} className="relative aspect-square overflow-hidden rounded-2xl">
+                <Image src={src} alt="Trabajo realizado" fill sizes="25vw" className="object-cover" />
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      <footer className="border-t-2 border-foreground px-6 py-8 sm:px-12">
-        <p className="kicker-label text-center text-muted-foreground">
-          {business.name}
-          {location ? ` · ${location}` : ""}
-        </p>
+      <footer className="px-6 py-16 sm:px-12">
+        <div className="mx-auto max-w-3xl">
+          <p className="kicker-label mb-4 text-center text-muted-foreground">
+            {business.name}
+            {location ? ` · ${location}` : ""}
+          </p>
+          {location && (
+            <div className="surface aspect-[16/7] overflow-hidden rounded-2xl">
+              <iframe
+                src={`https://www.google.com/maps?q=${mapQuery}&output=embed`}
+                className="h-full w-full border-0"
+                loading="lazy"
+                title={`Ubicación de ${business.name}`}
+              />
+            </div>
+          )}
+        </div>
       </footer>
-
-      <ChatWidget slug={slug} businessName={business.name} />
     </main>
   );
 }

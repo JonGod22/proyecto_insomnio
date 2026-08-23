@@ -135,7 +135,7 @@ export function BookingForm({
         )}
 
         {selectedSlot && (
-          <div className="space-y-3 border-t-2 border-foreground pt-4">
+          <div className="space-y-3 border-t border-border pt-4">
             <div>
               <Label className="mb-1 block">Nombre</Label>
               <Input value={clientName} onChange={(e) => setClientName(e.target.value)} />

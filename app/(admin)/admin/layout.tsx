@@ -60,7 +60,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   return (
     <div className="flex min-h-screen">
-      <aside className="flex w-60 flex-col justify-between border-r-2 border-foreground bg-card p-5">
+      <aside className="surface flex w-60 flex-col justify-between bg-card p-5">
         <div>
           <p className="type-display text-xl leading-none">{businessName ?? "Proyecto Insomnio"}</p>
           <p className="mt-2 mb-6 truncate text-xs text-muted-foreground">{user.email}</p>
@@ -69,7 +69,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               <Link
                 key={item.href}
                 href={item.href}
-                className="kicker-label border-2 border-transparent px-2.5 py-2 text-foreground hover:border-foreground hover:bg-muted"
+                className="kicker-label px-2.5 py-2 text-foreground hover:bg-muted"
               >
                 {item.label}
               </Link>

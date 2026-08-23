@@ -8,7 +8,7 @@ function Table({ className, ...props }: React.ComponentProps<"table">) {
   return (
     <div
       data-slot="table-container"
-      className="relative w-full overflow-x-auto border-2 border-foreground bg-card"
+      className="surface relative w-full overflow-x-auto bg-card"
     >
       <table
         data-slot="table"
@@ -23,7 +23,7 @@ function TableHeader({ className, ...props }: React.ComponentProps<"thead">) {
   return (
     <thead
       data-slot="table-header"
-      className={cn("kicker-label [&_tr]:border-b-2 [&_tr]:border-foreground", className)}
+      className={cn("kicker-label bg-muted/40 [&_tr]:border-b [&_tr]:border-border", className)}
       {...props}
     />
   )

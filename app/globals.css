@@ -73,8 +73,8 @@
   --destructive: #e60000; /* rojo vivo: solo estados/errores */
   --destructive-foreground: #ffffff;
   --live: #e60000;
-  --border: #0a0a0a;
-  --input: #c9c9bd; /* bordes finos */
+  --border: #e3e3d4; /* neutro suave: ya no hay líneas negras en el sistema */
+  --input: #e3e3d4;
   --ring: #fab200;
   --chart-1: #fab200;
   --chart-2: #0a0a0a;
@@ -88,7 +88,7 @@
   --sidebar-primary-foreground: #0a0a0a;
   --sidebar-accent: #ffffff;
   --sidebar-accent-foreground: #0a0a0a;
-  --sidebar-border: #0a0a0a;
+  --sidebar-border: #e3e3d4;
   --sidebar-ring: #fab200;
 }
 
@@ -105,49 +105,14 @@
 }
 
 @layer utilities {
-  /* Grilla milimetrada: textura, no dibujo. */
-  .paper-grid {
-    background-image: linear-gradient(to right, #ffffff 2px, transparent 2px),
-      linear-gradient(to bottom, #ffffff 2px, transparent 2px);
-    background-size: 120px 120px;
-  }
-
-  /* Cuadrado sangrado amarillo, esquina superior derecha. */
-  .bleed-square::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 1.5rem;
-    height: 1.5rem;
-    background: var(--primary);
+  /* Superficie elevada sin borde: sombra suave en vez de línea negra. */
+  .surface {
+    box-shadow: 0 1px 2px rgba(10, 10, 10, 0.06), 0 4px 16px rgba(10, 10, 10, 0.05);
   }
 
   /* Chip con halo: caja blanca con resplandor amarillo difuso. Un único halo por pantalla. */
   .halo {
     box-shadow: 0 0 40px 6px rgba(250, 178, 0, 0.45);
-  }
-
-  /* Placeholder de imagen: rayado diagonal sobre crema, con etiqueta monoespaciada. */
-  .image-placeholder {
-    position: relative;
-    background-color: var(--muted);
-    background-image: repeating-linear-gradient(
-      -45deg,
-      var(--input) 0,
-      var(--input) 1.5px,
-      transparent 1.5px,
-      transparent 14px
-    );
-  }
-  .image-placeholder-label {
-    font-family: monospace;
-    font-size: 0.6875rem;
-    letter-spacing: 0.05em;
-    color: var(--muted-foreground);
-    background: var(--background);
-    border: 1px solid var(--input);
-    padding: 0.125rem 0.5rem;
   }
 
   /* Cond 800 mayúsculas: titulares y botones. Jerarquía por tamaño, no por peso. */
