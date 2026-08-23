@@ -7,7 +7,7 @@ export default async function ServicesAdminPage() {
 
   return (
     <div>
-      <h1 className="mb-6 text-xl font-semibold">Servicios</h1>
+      <h1 className="type-display mb-6 text-3xl leading-none">Servicios</h1>
       <ServicesTable services={services ?? []} />
     </div>
   );

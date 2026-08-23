@@ -21,6 +21,7 @@ export function LoginForm() {
   return (
     <Card className="w-full max-w-sm">
       <CardHeader>
+        <p className="kicker-label mb-1 text-muted-foreground">Proyecto Insomnio</p>
         <CardTitle>{mode === "signin" ? "Ingresar al panel" : "Crear cuenta"}</CardTitle>
       </CardHeader>
       <CardContent>
@@ -35,13 +36,13 @@ export function LoginForm() {
           </div>
           {state.error && <p className="text-sm text-destructive">{state.error}</p>}
           {state.message && <p className="text-sm text-muted-foreground">{state.message}</p>}
-          <Button type="submit" className="w-full" disabled={pending}>
+          <Button type="submit" className="halo w-full" disabled={pending}>
             {mode === "signin" ? "Ingresar" : "Crear cuenta"}
           </Button>
         </form>
         <button
           type="button"
-          className="mt-4 text-sm text-muted-foreground underline"
+          className="kicker-label mt-4 text-muted-foreground underline"
           onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
         >
           {mode === "signin" ? "¿No tenés cuenta? Crear una" : "Ya tengo cuenta, ingresar"}

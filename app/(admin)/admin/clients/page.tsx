@@ -10,7 +10,7 @@ export default async function ClientsAdminPage() {
 
   return (
     <div>
-      <h1 className="mb-6 text-xl font-semibold">Clientes</h1>
+      <h1 className="type-display mb-6 text-3xl leading-none">Clientes</h1>
       <Table>
         <TableHeader>
           <TableRow>

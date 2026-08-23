@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -15,8 +15,17 @@ type Service = {
   duration_minutes: number;
 };
 
-export function BookingForm({ businessId, services }: { businessId: string; services: Service[] }) {
-  const [serviceId, setServiceId] = useState(services[0]?.id ?? "");
+export function BookingForm({
+  businessId,
+  services,
+  initialServiceId,
+}: {
+  businessId: string;
+  services: Service[];
+  initialServiceId?: string;
+}) {
+  const preselected = services.find((s) => s.id === initialServiceId)?.id;
+  const [serviceId, setServiceId] = useState(preselected ?? services[0]?.id ?? "");
   const [date, setDate] = useState("");
   const [slots, setSlots] = useState<AvailableSlot[]>([]);
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
@@ -61,9 +70,9 @@ export function BookingForm({ businessId, services }: { businessId: string; serv
   if (status === "confirmed") {
     return (
       <Card>
-        <CardContent className="py-8 text-center">
-          <p className="text-lg font-medium">¡Turno reservado!</p>
-          <p className="text-sm text-muted-foreground">Te esperamos. Cualquier cambio, contactanos.</p>
+        <CardContent className="py-10 text-center">
+          <p className="type-display text-2xl">¡Turno reservado!</p>
+          <p className="mt-2 text-sm text-muted-foreground">Te esperamos. Cualquier cambio, contactanos.</p>
         </CardContent>
       </Card>
     );
@@ -71,9 +80,6 @@ export function BookingForm({ businessId, services }: { businessId: string; serv
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Reservar turno</CardTitle>
-      </CardHeader>
       <CardContent className="space-y-4">
         <div>
           <Label className="mb-1 block">Servicio</Label>
@@ -129,7 +135,7 @@ export function BookingForm({ businessId, services }: { businessId: string; serv
         )}
 
         {selectedSlot && (
-          <div className="space-y-3 border-t pt-4">
+          <div className="space-y-3 border-t-2 border-foreground pt-4">
             <div>
               <Label className="mb-1 block">Nombre</Label>
               <Input value={clientName} onChange={(e) => setClientName(e.target.value)} />
@@ -139,7 +145,7 @@ export function BookingForm({ businessId, services }: { businessId: string; serv
               <Input value={clientPhone} onChange={(e) => setClientPhone(e.target.value)} />
             </div>
             <Button
-              className="w-full"
+              className="halo w-full"
               onClick={confirm}
               disabled={status === "loading" || !clientName || !clientPhone}
             >

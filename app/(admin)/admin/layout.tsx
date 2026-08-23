@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { signOut } from "@/app/(admin)/login/actions";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 
 const NAV = [
   { href: "/admin/appointments", label: "Turnos" },
@@ -23,7 +24,12 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   if (!user) {
     return (
       <main className="flex min-h-screen items-center justify-center p-6 text-center">
-        <p>Necesitás iniciar sesión. <Link href="/login" className="underline">Ir a login</Link></p>
+        <p>
+          Necesitás iniciar sesión.{" "}
+          <Link href="/login" className="underline">
+            Ir a login
+          </Link>
+        </p>
       </main>
     );
   }
@@ -54,25 +60,32 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   return (
     <div className="flex min-h-screen">
-      <aside className="flex w-56 flex-col justify-between border-r p-4">
+      <aside className="flex w-60 flex-col justify-between border-r-2 border-foreground bg-card p-5">
         <div>
-          <p className="mb-1 font-semibold">{businessName ?? "Proyecto Insomnio"}</p>
-          <p className="mb-4 text-xs text-muted-foreground">{user.email}</p>
-          <nav className="flex flex-col gap-1 text-sm">
+          <p className="type-display text-xl leading-none">{businessName ?? "Proyecto Insomnio"}</p>
+          <p className="mt-2 mb-6 truncate text-xs text-muted-foreground">{user.email}</p>
+          <nav className="flex flex-col gap-1">
             {NAV.map((item) => (
-              <Link key={item.href} href={item.href} className="rounded px-2 py-1.5 hover:bg-muted">
+              <Link
+                key={item.href}
+                href={item.href}
+                className="kicker-label border-2 border-transparent px-2.5 py-2 text-foreground hover:border-foreground hover:bg-muted"
+              >
                 {item.label}
               </Link>
             ))}
           </nav>
         </div>
-        <form action={signOut}>
-          <Button variant="ghost" size="sm" type="submit" className="w-full justify-start">
-            Cerrar sesión
-          </Button>
-        </form>
+        <div className="space-y-4">
+          <Badge variant="live">En vivo</Badge>
+          <form action={signOut}>
+            <Button variant="secondary" size="sm" type="submit" className="w-full">
+              Cerrar sesión
+            </Button>
+          </form>
+        </div>
       </aside>
-      <div className="flex-1 p-6">{children}</div>
+      <div className="flex-1 p-8">{children}</div>
     </div>
   );
 }

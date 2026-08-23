@@ -4,8 +4,8 @@ export default function KnowledgeAdminPage() {
   // que se dispare on insert/update de content.
   return (
     <div>
-      <h1 className="text-xl font-semibold">Base de conocimiento</h1>
-      <p className="mt-2 text-sm text-muted-foreground">Próximamente.</p>
+      <h1 className="type-display text-3xl leading-none">Base de conocimiento</h1>
+      <p className="kicker-label mt-3 text-muted-foreground">Próximamente</p>
     </div>
   );
 }

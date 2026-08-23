@@ -7,9 +7,9 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
+  --font-sans: var(--font-bricolage);
+  --font-mono: var(--font-bricolage);
+  --font-heading: var(--font-bricolage);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -39,82 +39,57 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+  --color-live: var(--live);
+  --radius-sm: 0rem;
+  --radius-md: 0rem;
+  --radius-lg: 0rem;
+  --radius-xl: 0rem;
+  --radius-2xl: 0rem;
+  --radius-3xl: 0rem;
+  --radius-4xl: 0rem;
+  --radius-chip: 0.375rem;
 }
 
+/*
+  Kit de marca — Proyecto Insomnio (Jonathan Godoy, v1 2026)
+  Crema de papel + tinta negra, un único acento amarillo, rojo solo para
+  estados en vivo/error. Bordes rectos, sin gradientes ni sombras suaves.
+*/
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-}
-
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --background: #f8f9e9; /* crema papel */
+  --foreground: #0a0a0a; /* negro tinta */
+  --card: #ffffff;
+  --card-foreground: #0a0a0a;
+  --popover: #ffffff;
+  --popover-foreground: #0a0a0a;
+  --primary: #fab200; /* amarillo acento */
+  --primary-foreground: #0a0a0a;
+  --secondary: #ffffff;
+  --secondary-foreground: #0a0a0a;
+  --muted: #efefe2; /* placeholders */
+  --muted-foreground: #7a7a6e; /* etiquetas */
+  --accent: #fab200;
+  --accent-foreground: #0a0a0a;
+  --destructive: #e60000; /* rojo vivo: solo estados/errores */
+  --destructive-foreground: #ffffff;
+  --live: #e60000;
+  --border: #0a0a0a;
+  --input: #c9c9bd; /* bordes finos */
+  --ring: #fab200;
+  --chart-1: #fab200;
+  --chart-2: #0a0a0a;
+  --chart-3: #7a7a6e;
+  --chart-4: #c9c9bd;
+  --chart-5: #e60000;
+  --radius: 0rem;
+  --sidebar: #f8f9e9;
+  --sidebar-foreground: #0a0a0a;
+  --sidebar-primary: #fab200;
+  --sidebar-primary-foreground: #0a0a0a;
+  --sidebar-accent: #ffffff;
+  --sidebar-accent-foreground: #0a0a0a;
+  --sidebar-border: #0a0a0a;
+  --sidebar-ring: #fab200;
 }
 
 @layer base {
@@ -126,5 +101,67 @@
   }
   html {
     @apply font-sans;
+  }
+}
+
+@layer utilities {
+  /* Grilla milimetrada: textura, no dibujo. */
+  .paper-grid {
+    background-image: linear-gradient(to right, #ffffff 2px, transparent 2px),
+      linear-gradient(to bottom, #ffffff 2px, transparent 2px);
+    background-size: 120px 120px;
+  }
+
+  /* Cuadrado sangrado amarillo, esquina superior derecha. */
+  .bleed-square::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 1.5rem;
+    height: 1.5rem;
+    background: var(--primary);
+  }
+
+  /* Chip con halo: caja blanca con resplandor amarillo difuso. Un único halo por pantalla. */
+  .halo {
+    box-shadow: 0 0 40px 6px rgba(250, 178, 0, 0.45);
+  }
+
+  /* Placeholder de imagen: rayado diagonal sobre crema, con etiqueta monoespaciada. */
+  .image-placeholder {
+    position: relative;
+    background-color: var(--muted);
+    background-image: repeating-linear-gradient(
+      -45deg,
+      var(--input) 0,
+      var(--input) 1.5px,
+      transparent 1.5px,
+      transparent 14px
+    );
+  }
+  .image-placeholder-label {
+    font-family: monospace;
+    font-size: 0.6875rem;
+    letter-spacing: 0.05em;
+    color: var(--muted-foreground);
+    background: var(--background);
+    border: 1px solid var(--input);
+    padding: 0.125rem 0.5rem;
+  }
+
+  /* Cond 800 mayúsculas: titulares y botones. Jerarquía por tamaño, no por peso. */
+  .type-display {
+    font-stretch: 75%;
+    font-variation-settings: "wdth" 75, "wght" 800, "opsz" 72;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+  }
+
+  /* Etiqueta chica: tracking abierto, peso medio. */
+  .kicker-label {
+    font-variation-settings: "wdth" 100, "wght" 500, "opsz" 14;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
   }
 }

@@ -18,7 +18,7 @@ export function ServicesTable({ services }: { services: Service[] }) {
   return (
     <div className="space-y-4">
       <div className="flex justify-end">
-        <ServiceDialog trigger={<Button>Nuevo servicio</Button>} />
+        <ServiceDialog trigger={<Button className="halo">Nuevo servicio</Button>} />
       </div>
 
       <Table>
@@ -43,7 +43,7 @@ export function ServicesTable({ services }: { services: Service[] }) {
                 {service.duration_minutes_max ? `-${service.duration_minutes_max}` : ""} min
               </TableCell>
               <TableCell>
-                <Badge variant={service.active ? "default" : "secondary"}>
+                <Badge variant={service.active ? "outline" : "secondary"}>
                   {service.active ? "Activo" : "Inactivo"}
                 </Badge>
               </TableCell>

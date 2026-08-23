@@ -12,7 +12,7 @@ export default async function AppointmentsAdminPage() {
 
   return (
     <div>
-      <h1 className="mb-6 text-xl font-semibold">Turnos</h1>
+      <h1 className="type-display mb-6 text-3xl leading-none">Turnos</h1>
       <AppointmentsTable appointments={(data as unknown as AppointmentRow[]) ?? []} />
     </div>
   );
