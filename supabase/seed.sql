@@ -50,7 +50,7 @@ with biz as (select id from public.businesses where slug = 'yesica-studio')
 insert into public.landing (business_id, config_json)
 select biz.id, '{
   "hero_subtitle": "Extensiones de pestañas, cejas y skincare en San Martín, Mendoza",
-  "benefits": ["Diagnóstico previo", "Cepillo de regalo", "Garantía 3 días", "Masaje 15 min al cierre"],
+  "benefits": ["Diagnóstico previo", "Garantía 3 días", "Masaje 15 min al cierre"],
   "reviews": {"rating": 5.0, "count": 7}
 }'::jsonb
 from biz

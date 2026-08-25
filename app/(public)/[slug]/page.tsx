@@ -15,7 +15,7 @@ type LandingConfig = {
 };
 
 const STUDIO_PHOTO =
-  "https://images.unsplash.com/photo-1695527081848-1e46c06e6458?auto=format&fit=crop&w=1400&q=80";
+  "https://images.unsplash.com/photo-1695527081848-1e46c06e6458?auto=format&fit=crop&w=1920&q=80";
 
 const GALLERY_PHOTOS = [
   "https://images.unsplash.com/photo-1735151226446-1d364b4adc2f?auto=format&fit=crop&w=1200&q=80",
@@ -76,10 +76,7 @@ export default async function BusinessLandingPage({
     <main className="flex-1">
       {/* Nav: marca + accesos rápidos. El agente vive flotando abajo. */}
       <nav className="surface flex items-center justify-between bg-card px-6 py-4 sm:px-12">
-        <div className="flex items-center gap-3">
-          <span className="size-3 rotate-45 bg-primary" aria-hidden />
-          <span className="type-display text-lg leading-none">{business.name}</span>
-        </div>
+        <span className="type-display text-lg leading-none">{business.name}</span>
         <div className="flex items-center gap-3">
           <Button render={<Link href="#servicios" />} nativeButton={false} variant="ghost" size="sm" className="hidden sm:inline-flex">
             Servicios
@@ -90,20 +87,31 @@ export default async function BusinessLandingPage({
         </div>
       </nav>
 
-      {/* Hero: presentación del negocio. El agente queda accesible como chat flotante. */}
-      <header className="px-6 py-16 sm:px-12">
-        <div className="mx-auto grid max-w-4xl items-center gap-8 sm:grid-cols-2">
-          <div>
-            {location && <p className="kicker-label mb-3 text-muted-foreground">{location}</p>}
-            <h1 className="type-display mb-4 text-4xl leading-[0.95] sm:text-5xl">{business.name}</h1>
+      {/* Hero: foto de fondo a todo el ancho, con degradé para legibilidad del texto. */}
+      <header className="relative flex min-h-[560px] items-end overflow-hidden sm:min-h-[640px]">
+        <Image
+          src={STUDIO_PHOTO}
+          alt={`Espacio de ${business.name}`}
+          fill
+          priority
+          sizes="100vw"
+          className="scale-105 object-cover blur-[1px]"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10" />
+        <div className="relative w-full px-6 py-12 sm:px-12 sm:py-16">
+          <div className="mx-auto max-w-3xl">
+            {location && <p className="kicker-label mb-3 text-primary">{location}</p>}
+            <h1 className="type-display mb-4 text-4xl leading-[0.95] text-background sm:text-6xl">
+              {business.name}
+            </h1>
             {(business.description || config.hero_subtitle) && (
-              <p className="mb-6 text-lg text-foreground/80">
+              <p className="mb-6 max-w-xl text-lg text-background/85">
                 {business.description}
                 {config.hero_subtitle ? ` — ${config.hero_subtitle}` : ""}
               </p>
             )}
             <div className="flex flex-wrap items-center gap-3">
-              <Button render={<Link href={`/${slug}/booking`} />} nativeButton={false} variant="dark" size="lg" className="halo">
+              <Button render={<Link href={`/${slug}/booking`} />} nativeButton={false} size="lg" className="halo">
                 Reservar turno
               </Button>
               {config.reviews && (
@@ -113,22 +121,12 @@ export default async function BusinessLandingPage({
               )}
             </div>
           </div>
-          <div className="relative aspect-[4/3] overflow-hidden rounded-2xl">
-            <Image
-              src={STUDIO_PHOTO}
-              alt={`Espacio de ${business.name}`}
-              fill
-              priority
-              sizes="(min-width: 640px) 50vw, 100vw"
-              className="object-cover"
-            />
-          </div>
         </div>
       </header>
 
       {config.benefits && config.benefits.length > 0 && (
-        <section className="px-6 py-6 sm:px-12">
-          <div className="mx-auto flex max-w-3xl flex-wrap justify-center gap-3">
+        <section className="px-6 pt-6 pb-20 sm:px-12 sm:pb-6">
+          <div className="mx-auto flex max-w-5xl flex-wrap justify-center gap-3">
             {config.benefits.map((benefit) => (
               <span key={benefit} className="surface kicker-label rounded-full bg-card px-4 py-2 text-foreground">
                 {benefit}
@@ -139,10 +137,10 @@ export default async function BusinessLandingPage({
       )}
 
       <section id="servicios" className="scroll-mt-20 px-6 py-16 sm:px-12">
-        <div className="mx-auto max-w-3xl">
+        <div className="mx-auto max-w-6xl">
           <p className="kicker-label mb-2 text-muted-foreground">Servicios</p>
           <h2 className="type-display mb-8 text-3xl leading-none sm:text-4xl">Qué se puede reservar</h2>
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {services?.map((service) => (
               <Card key={service.id}>
                 <CardHeader>
@@ -175,7 +173,7 @@ export default async function BusinessLandingPage({
       </section>
 
       <section className="px-6 py-16 sm:px-12">
-        <div className="mx-auto max-w-3xl">
+        <div className="mx-auto max-w-6xl">
           <p className="kicker-label mb-2 text-muted-foreground">Galería</p>
           <h2 className="type-display mb-8 text-3xl leading-none sm:text-4xl">Trabajos recientes</h2>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -198,28 +196,26 @@ export default async function BusinessLandingPage({
         </div>
       </section>
 
-      <footer className="px-6 py-16 sm:px-12">
-        <div className="mx-auto max-w-3xl">
-          <p className="kicker-label mb-4 text-center text-muted-foreground">
-            {business.name}
-            {location ? ` · ${location}` : ""}
-          </p>
-          {location && (
-            <div className="surface aspect-[16/7] overflow-hidden rounded-2xl">
-              <iframe
-                src={`https://www.google.com/maps?q=${mapQuery}&output=embed`}
-                className="h-full w-full border-0"
-                loading="lazy"
-                title={`Ubicación de ${business.name}`}
-              />
-            </div>
-          )}
-        </div>
+      <footer className="py-16">
+        <p className="kicker-label mb-4 px-6 text-center text-muted-foreground sm:px-12">
+          {business.name}
+          {location ? ` · ${location}` : ""}
+        </p>
+        {location && (
+          <div className="aspect-[16/9] w-full overflow-hidden sm:aspect-[21/9]">
+            <iframe
+              src={`https://www.google.com/maps?q=${mapQuery}&output=embed`}
+              className="h-full w-full border-0"
+              loading="lazy"
+              title={`Ubicación de ${business.name}`}
+            />
+          </div>
+        )}
       </footer>
 
       {/* Barra inferior: crédito del desarrollador + contacto/redes. Publicitaria, no del negocio. */}
       <div className="bg-foreground px-6 py-6 text-background sm:px-12">
-        <div className="mx-auto flex max-w-3xl flex-col items-center gap-3 text-center sm:flex-row sm:justify-between sm:text-left">
+        <div className="mx-auto flex max-w-5xl flex-col items-center gap-3 text-center sm:flex-row sm:justify-between sm:text-left">
           <p className="kicker-label text-background/60">Sitio desarrollado por Jonathan Godoy</p>
           <div className="flex items-center gap-5">
             <a
