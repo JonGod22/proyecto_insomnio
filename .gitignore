@@ -34,6 +34,11 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
+# docs de trabajo interno: contienen nombres reales de clientas (reseñas)
+# y estrategia competitiva — no hace falta que estén en el repo público.
+docs/contexto_yesica_studio.md
+docs/informe_analisis_competitivo_agora.md
+
 # vercel
 .vercel
 
