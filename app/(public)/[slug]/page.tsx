@@ -118,6 +118,7 @@ export default async function BusinessLandingPage({
               src={STUDIO_PHOTO}
               alt={`Espacio de ${business.name}`}
               fill
+              priority
               sizes="(min-width: 640px) 50vw, 100vw"
               className="object-cover"
             />
@@ -183,13 +184,14 @@ export default async function BusinessLandingPage({
                 src={GALLERY_PHOTOS[0]}
                 alt="Trabajo realizado"
                 fill
+                priority
                 sizes="(min-width: 640px) 50vw, 100vw"
                 className="object-cover"
               />
             </div>
             {GALLERY_PHOTOS.slice(1).map((src) => (
               <div key={src} className="relative aspect-square overflow-hidden rounded-2xl">
-                <Image src={src} alt="Trabajo realizado" fill sizes="25vw" className="object-cover" />
+                <Image src={src} alt="Trabajo realizado" fill priority sizes="25vw" className="object-cover" />
               </div>
             ))}
           </div>
@@ -214,6 +216,39 @@ export default async function BusinessLandingPage({
           )}
         </div>
       </footer>
+
+      {/* Barra inferior: crédito del desarrollador + contacto/redes. Publicitaria, no del negocio. */}
+      <div className="bg-foreground px-6 py-6 text-background sm:px-12">
+        <div className="mx-auto flex max-w-3xl flex-col items-center gap-3 text-center sm:flex-row sm:justify-between sm:text-left">
+          <p className="kicker-label text-background/60">Sitio desarrollado por Jonathan Godoy</p>
+          <div className="flex items-center gap-5">
+            <a
+              href="https://github.com/JonGod22"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="kicker-label text-background hover:text-primary"
+            >
+              GitHub
+            </a>
+            <a
+              href="https://www.instagram.com/jonathangodoy__/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="kicker-label text-background hover:text-primary"
+            >
+              Instagram
+            </a>
+            <a
+              href="https://wa.me/5492634659520"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="kicker-label text-background hover:text-primary"
+            >
+              WhatsApp
+            </a>
+          </div>
+        </div>
+      </div>
 
       <FloatingAgentChat slug={slug} businessName={business.name} />
     </main>
