@@ -27,7 +27,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("full_name, role, business_id, businesses(name)")
+    .select("full_name, role, business_id, businesses(name, slug)")
     .eq("id", user.id)
     .maybeSingle();
 
@@ -47,28 +47,52 @@ export default async function AdminLayout({ children }: { children: React.ReactN
     );
   }
 
-  const businessName = (profile.businesses as unknown as { name: string } | null)?.name;
+  const business = profile.businesses as unknown as { name: string; slug: string } | null;
 
   return (
     <div className="min-h-screen">
-      {/* Banner de tenant activo: contexto de negocio siempre visible. */}
+      {/* Banner de tenant activo: contexto de negocio siempre visible. El nombre
+          es un link a la landing pública para poder revisarla desde el admin. */}
       <div className="bg-foreground px-6 py-6 text-background sm:px-8">
-        <p className="kicker-label mb-2 text-primary">Tenant activo</p>
-        <h1 className="type-display text-3xl leading-none sm:text-4xl">
-          {businessName ?? "Proyecto Insomnio"}
-        </h1>
-        <p className="mt-3 text-xs text-background/60">
-          business_id · {profile.business_id.slice(0, 8)} · RLS activo en todas las queries
-        </p>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <p className="kicker-label mb-2 text-primary">Tenant activo</p>
+            {business?.slug ? (
+              <Link
+                href={`/${business.slug}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="type-display inline-block text-3xl leading-none hover:text-primary sm:text-4xl"
+              >
+                {business.name}
+              </Link>
+            ) : (
+              <h1 className="type-display text-3xl leading-none sm:text-4xl">
+                {business?.name ?? "Proyecto Insomnio"}
+              </h1>
+            )}
+            <p className="mt-3 text-xs text-background/60">
+              business_id · {profile.business_id.slice(0, 8)} · RLS activo en todas las queries
+            </p>
+          </div>
+          {business?.slug && (
+            <Button
+              render={<Link href={`/${business.slug}`} target="_blank" rel="noopener noreferrer" />}
+              nativeButton={false}
+              variant="secondary"
+              size="sm"
+              className="shrink-0"
+            >
+              Ver landing
+            </Button>
+          )}
+        </div>
       </div>
 
       <div className="flex flex-col gap-6 p-6 sm:flex-row sm:p-8">
-        <aside className="surface flex w-full shrink-0 flex-col justify-between gap-8 bg-card p-5 sm:w-56">
-          <div>
-            <p className="kicker-label mb-3 text-muted-foreground">Módulos</p>
-            <AdminNav />
-          </div>
-          <div className="space-y-3">
+        <aside className="surface w-full shrink-0 bg-card p-5 sm:w-56">
+          <AdminNav />
+          <div className="mt-6 space-y-3 border-t border-border pt-4 sm:mt-8">
             <p className="truncate text-xs text-muted-foreground">{user.email}</p>
             <form action={signOut}>
               <Button variant="secondary" size="sm" type="submit" className="w-full">
