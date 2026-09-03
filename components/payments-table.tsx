@@ -5,6 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 
 export type PaymentRow = {
   id: string;
+  appointment_id: string | null;
   amount: number;
   discount_amount: number | null;
   type: string;
@@ -74,7 +75,9 @@ export function PaymentsTable({ payments }: { payments: PaymentRow[] }) {
               <TableCell>{p.client?.full_name ?? "—"}</TableCell>
               <TableCell>{p.appointment?.service?.name ?? "—"}</TableCell>
               <TableCell>
-                <Badge variant="outline">{METHOD_LABEL[p.method] ?? p.method}</Badge>
+                <Badge variant="outline" className="w-32 justify-center">
+                  {METHOD_LABEL[p.method] ?? p.method}
+                </Badge>
               </TableCell>
               <TableCell>{TYPE_LABEL[p.type] ?? p.type}</TableCell>
               <TableCell>
@@ -84,7 +87,9 @@ export function PaymentsTable({ payments }: { payments: PaymentRow[] }) {
                 ) : null}
               </TableCell>
               <TableCell>
-                <Badge variant={STATUS_VARIANT[p.status] ?? "outline"}>{STATUS_LABEL[p.status] ?? p.status}</Badge>
+                <Badge variant={STATUS_VARIANT[p.status] ?? "outline"} className="w-24 justify-center">
+                  {STATUS_LABEL[p.status] ?? p.status}
+                </Badge>
               </TableCell>
               <TableCell className="max-w-[200px] truncate text-xs text-muted-foreground">{p.notes ?? "—"}</TableCell>
             </TableRow>
