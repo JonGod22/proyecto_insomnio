@@ -241,9 +241,12 @@ export type Database = {
           business_id: string
           client_id: string
           created_at: string
+          discount_amount: number | null
           id: string
           mercadopago_payment_id: string | null
           mercadopago_preference_id: string | null
+          method: string
+          notes: string | null
           status: string
           type: string
         }
@@ -253,9 +256,12 @@ export type Database = {
           business_id: string
           client_id: string
           created_at?: string
+          discount_amount?: number | null
           id?: string
           mercadopago_payment_id?: string | null
           mercadopago_preference_id?: string | null
+          method?: string
+          notes?: string | null
           status?: string
           type: string
         }
@@ -265,9 +271,12 @@ export type Database = {
           business_id?: string
           client_id?: string
           created_at?: string
+          discount_amount?: number | null
           id?: string
           mercadopago_payment_id?: string | null
           mercadopago_preference_id?: string | null
+          method?: string
+          notes?: string | null
           status?: string
           type?: string
         }
@@ -450,6 +459,7 @@ export type Landing = Tables<"landing">
 export type AppointmentStatus = Appointment["status"]
 export type PaymentStatus = Payment["status"]
 export type PaymentType = Payment["type"]
+export type PaymentMethod = Payment["method"]
 export type AppointmentSource = Appointment["source"]
 
 export type AvailableSlot = {

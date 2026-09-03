@@ -5,7 +5,10 @@ import { NextResponse } from "next/server";
  * - Verificar firma del webhook (header x-signature) contra MERCADOPAGO_WEBHOOK_SECRET.
  * - Resolver el payment_id -> buscar preference/external_reference para
  *   encontrar appointment_id + business_id.
- * - Actualizar public.payments.status y, si corresponde, appointments.status.
+ * - Actualizar insomnio.payments.status y, si corresponde, appointments.status.
+ *   Los pagos que crea este webhook siempre son method: 'mercadopago' —
+ *   los otros métodos (efectivo, transferencia, otro) se cargan a mano
+ *   desde Admin > Pagos.
  */
 export async function POST(req: Request) {
   await req.json().catch(() => null);
