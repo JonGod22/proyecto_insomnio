@@ -75,34 +75,11 @@ export default async function AdminLayout({ children }: { children: React.ReactN
               business_id · {profile.business_id.slice(0, 8)} · RLS activo en todas las queries
             </p>
           </div>
-          {business?.slug && (
-            <Button
-              render={<Link href={`/${business.slug}`} target="_blank" rel="noopener noreferrer" />}
-              nativeButton={false}
-              variant="secondary"
-              size="sm"
-              className="shrink-0"
-            >
-              Ver landing
-            </Button>
-          )}
+          <AdminNav userEmail={user.email ?? ""} signOutAction={signOut} />
         </div>
       </div>
 
-      <div className="flex flex-col gap-6 p-6 sm:flex-row sm:p-8">
-        <aside className="surface w-full shrink-0 bg-card p-5 sm:w-56">
-          <AdminNav />
-          <div className="mt-6 space-y-3 border-t border-border pt-4 sm:mt-8">
-            <p className="truncate text-xs text-muted-foreground">{user.email}</p>
-            <form action={signOut}>
-              <Button variant="secondary" size="sm" type="submit" className="w-full">
-                Cerrar sesión
-              </Button>
-            </form>
-          </div>
-        </aside>
-        <div className="min-w-0 flex-1">{children}</div>
-      </div>
+      <div className="min-w-0 p-6 sm:p-8">{children}</div>
     </div>
   );
 }

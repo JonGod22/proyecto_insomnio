@@ -191,6 +191,17 @@ Pendientes concretos de backend, sin orden estricto:
   base de datos; falta un flujo de onboarding para dar de alta un
   segundo negocio sin pasar por SQL manual.
 
+Ideas nuevas de Jonathan (2026-09-03), todavía sin diseñar — para
+retomar cuando toque backend/diseño, no son urgentes:
+- **Asistente de SEO/GEO en el admin:** algo tipo wiki/panel conectado
+  a una IA (GPT o el mismo Claude) que rastree la landing del negocio
+  y sugiera mejoras de posicionamiento — SEO tradicional y "GEO"
+  (posicionamiento en buscadores/asistentes de IA). Falta definir qué
+  IA/API se usa y si el rastreo es on-demand o periódico.
+- **Link tree propio:** que el negocio pueda armar una mini página de
+  links (redes, WhatsApp, catálogo, etc.) sin depender de Linktree u
+  otra herramienta externa — usaría el mismo slug/landing.
+
 ## Seguridad — resumen de la auditoría (2026-08)
 
 - Se revisó todo el historial de git en busca de claves/tokens/
