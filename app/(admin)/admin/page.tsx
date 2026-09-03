@@ -3,13 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { AppointmentsTable, type AppointmentRow } from "@/components/appointments-table";
 import { KpiCard } from "@/components/kpi-card";
 import { Badge } from "@/components/ui/badge";
-import type { Json } from "@/lib/types";
-
-type LandingConfig = {
-  hero_subtitle?: string;
-  benefits?: string[];
-  reviews?: { rating: number; count: number };
-};
+import type { Json, LandingConfig } from "@/lib/types";
 
 function startOfMonth() {
   const d = new Date();

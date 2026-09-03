@@ -1,9 +1,40 @@
-export default function LandingBuilderAdminPage() {
-  // TODO: editor visual sobre public.landing.config_json (hero, beneficios, reseñas).
+import Link from "next/link";
+import { createClient } from "@/lib/supabase/server";
+import { LandingBuilderForm } from "@/components/landing-builder-form";
+import type { Json, LandingConfig } from "@/lib/types";
+
+export default async function LandingBuilderAdminPage() {
+  const supabase = await createClient();
+
+  const { data: businessId } = await supabase.rpc("get_my_business_id");
+  const [{ data: business }, { data: landing }] = await Promise.all([
+    supabase.from("businesses").select("slug").eq("id", businessId as string).maybeSingle(),
+    supabase.from("landing").select("config_json").eq("business_id", businessId as string).maybeSingle(),
+  ]);
+
+  const config = (landing?.config_json ?? {}) as Json as LandingConfig;
+
   return (
-    <div>
-      <h1 className="type-display text-3xl leading-none">Landing</h1>
-      <p className="kicker-label mt-3 text-muted-foreground">Próximamente</p>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <h1 className="type-display text-4xl leading-none">Landing Builder</h1>
+        {business?.slug && (
+          <Link
+            href={`/${business.slug}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="kicker-label text-foreground underline"
+          >
+            Ver landing pública
+          </Link>
+        )}
+      </div>
+      <p className="max-w-2xl text-sm text-muted-foreground">
+        Cada bloque de acá abajo es una sección de la landing pública. Prendé o apagá lo que
+        quieras mostrar y editá su contenido — el resultado se ve en el mismo diseño que ya está
+        en producción, no hay que tocar código.
+      </p>
+      <LandingBuilderForm config={config} />
     </div>
   );
 }

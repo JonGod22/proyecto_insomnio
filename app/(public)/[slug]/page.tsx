@@ -1,18 +1,11 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
 import { createClient } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { FloatingAgentChat } from "@/components/floating-agent-chat";
-import type { Json } from "@/lib/types";
-
-type LandingConfig = {
-  hero_subtitle?: string;
-  benefits?: string[];
-  reviews?: { rating: number; count: number };
-};
+import type { Json, LandingConfig } from "@/lib/types";
 
 const STUDIO_PHOTO =
   "https://images.unsplash.com/photo-1695527081848-1e46c06e6458?auto=format&fit=crop&w=1920&q=80";
@@ -71,6 +64,14 @@ export default async function BusinessLandingPage({
   const config = (landing?.config_json ?? {}) as Json as LandingConfig;
   const location = [business.address, business.city].filter(Boolean).join(", ");
   const mapQuery = encodeURIComponent(location || business.name);
+  const heroPhoto = config.hero_image_url || STUDIO_PHOTO;
+  const galleryPhotos = config.gallery?.length ? config.gallery : GALLERY_PHOTOS;
+  // Bloques prendidos/apagados por defecto: si el negocio nunca tocó el
+  // Landing Builder, config.sections viene undefined y todo se muestra.
+  const showBenefits = config.sections?.benefits ?? true;
+  const showGallery = config.sections?.gallery ?? true;
+  const showReviews = config.sections?.reviews ?? true;
+  const showMap = config.sections?.map ?? true;
 
   return (
     <main className="flex-1">
@@ -89,13 +90,13 @@ export default async function BusinessLandingPage({
 
       {/* Hero: foto de fondo a todo el ancho, con degradé para legibilidad del texto. */}
       <header className="relative flex min-h-[560px] items-end overflow-hidden sm:min-h-[640px]">
-        <Image
-          src={STUDIO_PHOTO}
+        {/* eslint-disable-next-line @next/next/no-img-element -- el dueño del
+            negocio puede pegar cualquier URL desde el Landing Builder, no
+            solo dominios pre-aprobados en next.config para next/image. */}
+        <img
+          src={heroPhoto}
           alt={`Espacio de ${business.name}`}
-          fill
-          priority
-          sizes="100vw"
-          className="scale-105 object-cover blur-[1px]"
+          className="absolute inset-0 h-full w-full scale-105 object-cover blur-[1px]"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10" />
         <div className="relative w-full px-6 py-12 sm:px-12 sm:py-16">
@@ -114,7 +115,7 @@ export default async function BusinessLandingPage({
               <Button render={<Link href={`/${slug}/booking`} />} nativeButton={false} size="lg" className="halo">
                 Reservar turno
               </Button>
-              {config.reviews && (
+              {showReviews && config.reviews && (
                 <Badge variant="outline">
                   {config.reviews.rating.toFixed(1)}/5 · {config.reviews.count} valoraciones
                 </Badge>
@@ -124,7 +125,7 @@ export default async function BusinessLandingPage({
         </div>
       </header>
 
-      {config.benefits && config.benefits.length > 0 && (
+      {showBenefits && config.benefits && config.benefits.length > 0 && (
         <section className="px-6 py-6 sm:px-12">
           <div className="mx-auto flex max-w-5xl flex-wrap justify-center gap-3">
             {config.benefits.map((benefit) => (
@@ -172,36 +173,33 @@ export default async function BusinessLandingPage({
         </div>
       </section>
 
-      <section className="px-6 py-16 sm:px-12">
-        <div className="mx-auto max-w-6xl">
-          <p className="kicker-label mb-2 text-muted-foreground">Galería</p>
-          <h2 className="type-display mb-8 text-3xl leading-none sm:text-4xl">Trabajos recientes</h2>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <div className="relative col-span-2 row-span-2 aspect-square overflow-hidden rounded-2xl sm:aspect-auto">
-              <Image
-                src={GALLERY_PHOTOS[0]}
-                alt="Trabajo realizado"
-                fill
-                priority
-                sizes="(min-width: 640px) 50vw, 100vw"
-                className="object-cover"
-              />
-            </div>
-            {GALLERY_PHOTOS.slice(1).map((src) => (
-              <div key={src} className="relative aspect-square overflow-hidden rounded-2xl">
-                <Image src={src} alt="Trabajo realizado" fill priority sizes="25vw" className="object-cover" />
+      {showGallery && galleryPhotos.length > 0 && (
+        <section className="px-6 py-16 sm:px-12">
+          <div className="mx-auto max-w-6xl">
+            <p className="kicker-label mb-2 text-muted-foreground">Galería</p>
+            <h2 className="type-display mb-8 text-3xl leading-none sm:text-4xl">Trabajos recientes</h2>
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              <div className="relative col-span-2 row-span-2 aspect-square overflow-hidden rounded-2xl sm:aspect-auto">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={galleryPhotos[0]} alt="Trabajo realizado" className="h-full w-full object-cover" />
               </div>
-            ))}
+              {galleryPhotos.slice(1).map((src) => (
+                <div key={src} className="relative aspect-square overflow-hidden rounded-2xl">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={src} alt="Trabajo realizado" className="h-full w-full object-cover" />
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       <footer className="py-16">
         <p className="kicker-label mb-4 px-6 text-center text-muted-foreground sm:px-12">
           {business.name}
           {location ? ` · ${location}` : ""}
         </p>
-        {location && (
+        {showMap && location && (
           <div className="aspect-[16/9] w-full overflow-hidden sm:aspect-[21/9]">
             <iframe
               src={`https://www.google.com/maps?q=${mapQuery}&output=embed`}

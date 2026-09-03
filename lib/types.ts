@@ -462,6 +462,23 @@ export type PaymentType = Payment["type"]
 export type PaymentMethod = Payment["method"]
 export type AppointmentSource = Appointment["source"]
 
+// Forma de landing.config_json — no es una tabla generada (es jsonb), así
+// que el tipo se mantiene a mano. Todas las secciones son opcionales y
+// tienen un fallback razonable en la landing pública si faltan.
+export type LandingConfig = {
+  hero_subtitle?: string
+  hero_image_url?: string
+  benefits?: string[]
+  reviews?: { rating: number; count: number }
+  gallery?: string[]
+  sections?: {
+    benefits?: boolean
+    gallery?: boolean
+    reviews?: boolean
+    map?: boolean
+  }
+}
+
 export type AvailableSlot = {
   slot_start: string
   slot_end: string
