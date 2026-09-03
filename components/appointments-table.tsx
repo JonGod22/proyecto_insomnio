@@ -37,7 +37,7 @@ const STATUS_LABEL: Record<AppointmentStatus, string> = {
 // fila no "salte" de tamaño al cambiar de estado.
 const STATUS_DOT: Record<AppointmentStatus, string> = {
   pending: "bg-primary",
-  confirmed: "bg-foreground",
+  confirmed: "bg-success",
   completed: "bg-foreground",
   cancelled: "bg-destructive",
   no_show: "bg-destructive",

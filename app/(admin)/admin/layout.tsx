@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { signOut } from "@/app/(admin)/login/actions";
 import { Button } from "@/components/ui/button";
 import { AdminSidebarNav, AdminMobileNav } from "@/components/admin-nav";
+import { AdminSidebar } from "@/components/admin-sidebar";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
@@ -72,23 +73,27 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   return (
     <div className="min-h-screen sm:flex">
-      {/* Sidebar fija de desktop: cuarto del ancho, siempre visible, funciona
-          como el navegador de módulos. En mobile no se renderiza (hidden). */}
-      <aside className="hidden shrink-0 flex-col justify-between bg-foreground p-6 text-background sm:flex sm:w-1/4 sm:min-w-[240px] sm:max-w-xs sm:p-8">
-        <div>
-          {tenantHeader}
-          <div className="mt-3">{planBadge}</div>
-          <AdminSidebarNav />
-        </div>
-        <div className="space-y-3 border-t border-background/10 pt-4">
-          <p className="truncate text-xs text-background/60">{user.email}</p>
-          <form action={signOut}>
-            <Button variant="secondary" size="sm" type="submit" className="w-full">
-              Cerrar sesión
-            </Button>
-          </form>
-        </div>
-      </aside>
+      {/* Sidebar fija de desktop: cuarto del ancho, colapsable con la
+          flechita. En mobile no se renderiza (hidden). */}
+      <AdminSidebar
+        header={
+          <>
+            {tenantHeader}
+            <div className="mt-3">{planBadge}</div>
+          </>
+        }
+        nav={<AdminSidebarNav />}
+        footer={
+          <div className="space-y-3 border-t border-background/10 pt-4">
+            <p className="truncate text-xs text-background/60">{user.email}</p>
+            <form action={signOut}>
+              <Button variant="secondary" size="sm" type="submit" className="w-full">
+                Cerrar sesión
+              </Button>
+            </form>
+          </div>
+        }
+      />
 
       <div className="min-w-0 flex-1">
         {/* Header de mobile: mismo banner de tenant + menú hamburguesa reducido. */}

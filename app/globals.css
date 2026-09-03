@@ -40,6 +40,7 @@
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
   --color-live: var(--live);
+  --color-success: var(--success);
   --radius-sm: 0rem;
   --radius-md: 0rem;
   --radius-lg: 0rem;
@@ -73,6 +74,7 @@
   --destructive: #e60000; /* rojo vivo: solo estados/errores */
   --destructive-foreground: #ffffff;
   --live: #e60000;
+  --success: #2e7d32; /* verde, solo para "turno confirmado" — única excepción a la paleta base */
   --border: #e3e3d4; /* neutro suave: ya no hay líneas negras en el sistema */
   --input: #e3e3d4;
   --ring: #fab200;
