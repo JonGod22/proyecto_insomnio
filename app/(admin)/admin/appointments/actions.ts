@@ -8,4 +8,5 @@ export async function updateAppointmentStatus(id: string, status: AppointmentSta
   const supabase = await createClient();
   await supabase.from("appointments").update({ status }).eq("id", id);
   revalidatePath("/admin/appointments");
+  revalidatePath("/admin");
 }

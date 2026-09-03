@@ -2,7 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { signOut } from "@/app/(admin)/login/actions";
 import { Button } from "@/components/ui/button";
-import { AdminNav } from "@/components/admin-nav";
+import { AdminSidebarNav, AdminMobileNav } from "@/components/admin-nav";
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
@@ -49,37 +49,59 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   const business = profile.businesses as unknown as { name: string; slug: string } | null;
 
-  return (
-    <div className="min-h-screen">
-      {/* Banner de tenant activo: contexto de negocio siempre visible. El nombre
-          es un link a la landing pública para poder revisarla desde el admin. */}
-      <div className="bg-foreground px-6 py-6 text-background sm:px-8">
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <p className="kicker-label mb-2 text-primary">Tenant activo</p>
-            {business?.slug ? (
-              <Link
-                href={`/${business.slug}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="type-display inline-block text-3xl leading-none hover:text-primary sm:text-4xl"
-              >
-                {business.name}
-              </Link>
-            ) : (
-              <h1 className="type-display text-3xl leading-none sm:text-4xl">
-                {business?.name ?? "Proyecto Insomnio"}
-              </h1>
-            )}
-            <p className="mt-3 text-xs text-background/60">
-              business_id · {profile.business_id.slice(0, 8)} · RLS activo en todas las queries
-            </p>
-          </div>
-          <AdminNav userEmail={user.email ?? ""} signOutAction={signOut} />
-        </div>
-      </div>
+  const tenantHeader = business?.slug ? (
+    <Link
+      href={`/${business.slug}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="type-display inline-block text-3xl leading-none hover:text-primary sm:text-4xl"
+    >
+      {business.name}
+    </Link>
+  ) : (
+    <h1 className="type-display text-3xl leading-none sm:text-4xl">{business?.name ?? "Proyecto Insomnio"}</h1>
+  );
 
-      <div className="min-w-0 p-6 sm:p-8">{children}</div>
+  return (
+    <div className="min-h-screen sm:flex">
+      {/* Sidebar fija de desktop: cuarto del ancho, siempre visible, funciona
+          como el navegador de módulos. En mobile no se renderiza (hidden). */}
+      <aside className="hidden shrink-0 flex-col justify-between bg-foreground p-6 text-background sm:flex sm:w-1/4 sm:min-w-[240px] sm:max-w-xs sm:p-8">
+        <div>
+          <p className="kicker-label mb-2 text-primary">Tenant activo</p>
+          {tenantHeader}
+          <p className="mt-3 text-xs text-background/60">
+            business_id · {profile.business_id.slice(0, 8)} · RLS activo en todas las queries
+          </p>
+          <AdminSidebarNav />
+        </div>
+        <div className="space-y-3 border-t border-background/10 pt-4">
+          <p className="truncate text-xs text-background/60">{user.email}</p>
+          <form action={signOut}>
+            <Button variant="secondary" size="sm" type="submit" className="w-full">
+              Cerrar sesión
+            </Button>
+          </form>
+        </div>
+      </aside>
+
+      <div className="min-w-0 flex-1">
+        {/* Header de mobile: mismo banner de tenant + menú hamburguesa reducido. */}
+        <div className="bg-foreground px-6 py-6 text-background sm:hidden">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="kicker-label mb-2 text-primary">Tenant activo</p>
+              {tenantHeader}
+              <p className="mt-3 text-xs text-background/60">
+                business_id · {profile.business_id.slice(0, 8)} · RLS activo
+              </p>
+            </div>
+            <AdminMobileNav userEmail={user.email ?? ""} signOutAction={signOut} />
+          </div>
+        </div>
+
+        <div className="p-6 sm:p-8">{children}</div>
+      </div>
     </div>
   );
 }

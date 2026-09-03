@@ -7,7 +7,7 @@ import { MenuIcon, XIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
-const NAV = [
+const NAV_DESKTOP = [
   { href: "/admin/appointments", label: "Turnos" },
   { href: "/admin/clients", label: "Clientes" },
   { href: "/admin/services", label: "Servicios" },
@@ -16,7 +16,44 @@ const NAV = [
   { href: "/admin/landing-builder", label: "Landing Builder" },
 ];
 
-export function AdminNav({
+// En mobile el menú se reduce a los módulos de uso diario — Servicios y
+// Landing Builder quedan solo para desktop por ahora (pedido de Jonathan).
+const NAV_MOBILE = [
+  { href: "/admin/appointments", label: "Turnos" },
+  { href: "/admin/clients", label: "Clientes" },
+  { href: "/admin/payments", label: "Pagos" },
+  { href: "/admin/knowledge", label: "Base de conocimiento" },
+];
+
+function NavLink({ href, label, active, onClick }: { href: string; label: string; active: boolean; onClick?: () => void }) {
+  return (
+    <Link
+      href={href}
+      onClick={onClick}
+      className={cn(
+        "kicker-label rounded-[10px] px-3 py-2.5 transition-colors",
+        active ? "bg-primary text-foreground" : "text-background/80 hover:bg-background/10 hover:text-background"
+      )}
+    >
+      {label}
+    </Link>
+  );
+}
+
+/** Sidebar fija de desktop: vive dentro del panel lateral, siempre visible. */
+export function AdminSidebarNav() {
+  const pathname = usePathname();
+  return (
+    <nav className="mt-8 flex flex-col gap-1">
+      {NAV_DESKTOP.map((item) => (
+        <NavLink key={item.href} href={item.href} label={item.label} active={pathname.startsWith(item.href)} />
+      ))}
+    </nav>
+  );
+}
+
+/** Menú hamburguesa de mobile: lista reducida, colapsado por defecto. */
+export function AdminMobileNav({
   userEmail,
   signOutAction,
 }: {
@@ -40,12 +77,11 @@ export function AdminNav({
 
       {open && (
         <>
-          {/* Backdrop: cierra el menú al tocar afuera. */}
           <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
           <div className="surface absolute right-0 top-14 z-50 w-64 max-w-[calc(100vw-3rem)] rounded-[20px] bg-card p-3 text-foreground">
             <p className="kicker-label mb-2 px-2 text-muted-foreground">Módulos</p>
             <nav className="flex flex-col gap-1">
-              {NAV.map((item) => {
+              {NAV_MOBILE.map((item) => {
                 const active = pathname.startsWith(item.href);
                 return (
                   <Link

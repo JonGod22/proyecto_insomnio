@@ -13,7 +13,7 @@ export async function signIn(_prev: AuthActionState, formData: FormData): Promis
   });
 
   if (error) return { error: error.message };
-  redirect("/admin/appointments");
+  redirect("/admin");
 }
 
 export async function signUp(_prev: AuthActionState, formData: FormData): Promise<AuthActionState> {
