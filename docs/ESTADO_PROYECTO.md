@@ -14,16 +14,45 @@ opera aislado vía `business_id` con Row Level Security en Postgres.
 Primer caso real: **Yésica Studio** (estética — lash/brows/skin, San
 Martín, Mendoza).
 
+## Contexto: ecosistema multi-proyecto de Jonathan (importante)
+
+Jonathan está usando este mismo stack para varios proyectos propios,
+no solo Insomnio. Como el plan gratis de Supabase permite un solo
+proyecto/base de datos por cuenta, la estrategia elegida es:
+
+- **Una única instancia de Supabase** (`ojxjbgmixxzetipjobhn`),
+  compartida entre proyectos.
+- **Cada proyecto vive en su propio *schema* de Postgres** dentro de
+  esa misma base — así los datos quedan separados igual, sin pagar:
+  - `insomnio` → este proyecto (Proyecto Insomnio / Yésica Studio).
+  - `social_post` → otra app de Jonathan, no relacionada.
+  - `landing` → una landing "hub" que Jonathan está armando aparte,
+    para centralizar y mostrar sus proyectos (linkea a las demos
+    públicas de Insomnio y SocialPost). En el futuro también va a
+    tener una sección de contacto. No es prioridad ahora mismo.
+- **Vercel sí tiene un proyecto separado por app** (dentro de lo que
+  permite el plan gratis) — Insomnio despliega solo su propio código,
+  no comparte deploy con las otras.
+- Esta arquitectura (schema compartido en Supabase) es **intencional
+  y debe seguir así**. Si en el futuro alguien pausa/borra el
+  proyecto de Supabase pensando que es solo de otra app, se lleva
+  puesto Insomnio también — tenerlo en cuenta.
+
 ## Pipeline de infraestructura
 
 ```
-GitHub (push a main) → Vercel (build + deploy automático) → Supabase (Postgres, Auth, RLS)
+GitHub (push a main) → Vercel (build + deploy automático) → Supabase, schema "insomnio" (Postgres, Auth, RLS)
 ```
 
 - **Repo:** https://github.com/JonGod22/proyecto_insomnio (público)
 - **Producción:** https://proyectoinsomnio.vercel.app/yesica-studio
 - **Admin:** https://proyectoinsomnio.vercel.app/login
-- **Proyecto Supabase:** `ojxjbgmixxzetipjobhn` (org de Jonathan)
+- **Proyecto Supabase:** `ojxjbgmixxzetipjobhn` (compartido, ver
+  arriba) — este proyecto usa el schema **`insomnio`**, no `public`.
+  Los tres clientes de Supabase (`lib/supabase/{client,server,admin}.ts`)
+  tienen `db: { schema: "insomnio" }` explícito — si algún día se
+  agrega un cliente nuevo hay que repetir esa opción o se conecta al
+  schema `public` (vacío) por error.
 - **Proyecto Vercel:** `proyecto_insomnio`, team `jongod22s-projects`
 
 ## Dónde vive el código
@@ -129,22 +158,38 @@ supabase/seed.sql                   # datos reales de Yésica Studio
   servicios), tabla de turnos con filtro Hoy/Semana/Mes y cambio de
   estado, CRUD completo de Servicios, listado de Clientes.
 
-## Qué falta (pendiente, en orden sugerido)
+## Qué falta (mejora incremental, "de a poco" — no todo junto)
 
-1. **Mercado Pago:** integración real de cobro + webhook (hoy es un
-   stub que solo responde `200 OK`).
-2. **Admin → Pagos:** listar pagos reales una vez haya Mercado Pago.
-3. **Admin → Base de conocimiento:** CRUD para cargar/editar políticas
-   (hoy sólo se ven los datos sembrados por SQL).
-4. **RAG real:** pipeline de embeddings (ej. OpenAI
-   `text-embedding-3-small`, 1536 dims para calzar con la columna
-   `knowledge_base.embedding`) + función de búsqueda vectorial
-   (`<=>` cosine distance) en vez del `ilike` actual.
-5. **Admin → Landing Builder:** editor visual para
-   `landing.config_json` (hoy se edita solo por SQL).
-6. **Multi-negocio real:** el sistema ya es multitenant a nivel de
-   base de datos; falta un flujo de onboarding para dar de alta un
-   segundo negocio sin pasar por SQL manual.
+Dirección que dio Jonathan: ir sumando cosas de a poco tanto a
+Insomnio como a SocialPost y a la landing-hub. Para Insomnio, en este
+orden:
+
+1. **Responsive / mobile:** que la landing y el resto se vean bien en
+   formato vertical/celular. *(en curso — ver más abajo)*
+2. **Backend:** seguir sumando funcionalidad real (Mercado Pago, RAG
+   real, CRUD faltantes — ver detalle abajo).
+3. **Diseño:** seguir puliendo cómo se va a ver el producto terminado.
+4. **Landing Builder con drag-and-drop:** a futuro, que el dueño del
+   negocio pueda armar su propia landing arrastrando módulos, en vez
+   de que se edite por SQL. Es una mejora de mediano plazo, no
+   inmediata.
+
+Pendientes concretos de backend, sin orden estricto:
+- **Mercado Pago:** integración real de cobro + webhook (hoy es un
+  stub que solo responde `200 OK`).
+- **Admin → Pagos:** listar pagos reales una vez haya Mercado Pago.
+- **Admin → Base de conocimiento:** CRUD para cargar/editar políticas
+  (hoy sólo se ven los datos sembrados por SQL).
+- **RAG real:** pipeline de embeddings (ej. OpenAI
+  `text-embedding-3-small`, 1536 dims para calzar con la columna
+  `knowledge_base.embedding`) + función de búsqueda vectorial
+  (`<=>` cosine distance) en vez del `ilike` actual.
+- **Admin → Landing Builder:** editor visual para
+  `landing.config_json` (hoy se edita solo por SQL) — versión simple
+  antes de pensar en el drag-and-drop.
+- **Multi-negocio real:** el sistema ya es multitenant a nivel de
+  base de datos; falta un flujo de onboarding para dar de alta un
+  segundo negocio sin pasar por SQL manual.
 
 ## Seguridad — resumen de la auditoría (2026-08)
 
