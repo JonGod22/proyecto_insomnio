@@ -33,6 +33,7 @@ export function BookingForm({
   const [clientPhone, setClientPhone] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "confirmed" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [hasSearched, setHasSearched] = useState(false);
 
   async function loadSlots() {
     if (!serviceId || !date) return;
@@ -42,6 +43,7 @@ export function BookingForm({
     setSlots(slots);
     setStatus("idle");
     setErrorMessage(error);
+    setHasSearched(true);
   }
 
   async function confirm() {
@@ -83,7 +85,14 @@ export function BookingForm({
       <CardContent className="space-y-4">
         <div>
           <Label className="mb-1 block">Servicio</Label>
-          <Select value={serviceId} onValueChange={(value) => setServiceId(value ?? "")}>
+          <Select
+            value={serviceId}
+            onValueChange={(value) => {
+              setServiceId(value ?? "");
+              setSlots([]);
+              setHasSearched(false);
+            }}
+          >
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Elegí un servicio">
                 {(value: string) => services.find((s) => s.id === value)?.name}
@@ -102,7 +111,15 @@ export function BookingForm({
         <div>
           <Label className="mb-1 block">Fecha</Label>
           <div className="flex gap-2">
-            <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+            <Input
+              type="date"
+              value={date}
+              onChange={(e) => {
+                setDate(e.target.value);
+                setSlots([]);
+                setHasSearched(false);
+              }}
+            />
             <Button variant="secondary" onClick={loadSlots} disabled={!serviceId || !date}>
               Ver horarios
             </Button>
@@ -130,7 +147,7 @@ export function BookingForm({
           </div>
         )}
 
-        {slots.length === 0 && date && status === "idle" && (
+        {hasSearched && slots.length === 0 && status === "idle" && !errorMessage && (
           <p className="text-sm text-muted-foreground">No hay horarios para esa fecha.</p>
         )}
 

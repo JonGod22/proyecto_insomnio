@@ -51,7 +51,7 @@ export function FloatingAgentChat({ slug, businessName }: { slug: string; busine
     return (
       <Button
         size="icon"
-        className="halo fixed right-6 bottom-6 z-40 size-14 rounded-full"
+        className="halo fixed right-4 bottom-24 z-40 size-14 rounded-full sm:right-6 sm:bottom-6"
         onClick={() => setOpen(true)}
         aria-label="Hablar con el agente"
       >
@@ -61,7 +61,7 @@ export function FloatingAgentChat({ slug, businessName }: { slug: string; busine
   }
 
   return (
-    <div className="surface fixed right-6 bottom-6 z-40 flex h-[30rem] w-[22rem] max-w-[calc(100vw-3rem)] flex-col rounded-[24px] bg-card">
+    <div className="surface fixed right-4 bottom-24 z-40 flex h-[28rem] w-[22rem] max-w-[calc(100vw-2rem)] flex-col rounded-[24px] bg-card sm:right-6 sm:bottom-6 sm:h-[30rem]">
       <div className="flex items-center justify-between p-4">
         <p className="kicker-label text-muted-foreground">Agente de {businessName}</p>
         <button onClick={() => setOpen(false)} aria-label="Cerrar" className="text-muted-foreground hover:text-foreground">
