@@ -1,6 +1,9 @@
-// Generado desde el schema real de Supabase (proyecto ojxjbgmixxzetipjobhn).
-// Regenerar con: npx supabase gen types typescript --project-id ojxjbgmixxzetipjobhn
-// (o vía el MCP de Supabase: generate_typescript_types) cada vez que cambie el schema.
+// Generado desde el schema real de Supabase (proyecto ojxjbgmixxzetipjobhn, schema "insomnio").
+// Este proyecto Supabase ahora es compartido: Insomnio vive en el schema
+// "insomnio" y SocialPost en "social_post", separados dentro de la misma base.
+// El generador automático (generate_typescript_types) solo lee "public" por
+// defecto, así que este archivo se mantiene a mano — si cambia el schema de
+// una tabla, actualizar aquí manualmente reflejando la migración SQL aplicada.
 
 export type Json =
   | string
@@ -14,7 +17,7 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.15"
   }
-  public: {
+  insomnio: {
     Tables: {
       appointments: {
         Row: {
@@ -420,7 +423,7 @@ export type Database = {
   }
 }
 
-type DefaultSchema = Database["public"]
+type DefaultSchema = Database["insomnio"]
 
 export type Tables<T extends keyof DefaultSchema["Tables"]> =
   DefaultSchema["Tables"][T]["Row"]

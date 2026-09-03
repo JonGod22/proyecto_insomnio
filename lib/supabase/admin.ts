@@ -14,10 +14,11 @@ import type { Database } from "@/lib/types";
  * to the browser.
  */
 export function createAdminClient() {
-  return createSupabaseClient<Database>(
+  return createSupabaseClient<Database, "insomnio">(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
     {
+      db: { schema: "insomnio" },
       auth: {
         autoRefreshToken: false,
         persistSession: false,
