@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
 const NAV_DESKTOP = [
+  { href: "/admin", label: "Dashboard" },
   { href: "/admin/appointments", label: "Turnos" },
   { href: "/admin/clients", label: "Clientes" },
   { href: "/admin/services", label: "Servicios" },
@@ -19,11 +20,18 @@ const NAV_DESKTOP = [
 // En mobile el menú se reduce a los módulos de uso diario — Servicios y
 // Landing Builder quedan solo para desktop por ahora (pedido de Jonathan).
 const NAV_MOBILE = [
+  { href: "/admin", label: "Dashboard" },
   { href: "/admin/appointments", label: "Turnos" },
   { href: "/admin/clients", label: "Clientes" },
   { href: "/admin/payments", label: "Pagos" },
   { href: "/admin/knowledge", label: "Base de conocimiento" },
 ];
+
+// "/admin" es el home: startsWith lo marcaría activo en cualquier ruta,
+// así que necesita coincidencia exacta; el resto de módulos sigue con prefijo.
+function isActive(pathname: string, href: string) {
+  return href === "/admin" ? pathname === "/admin" : pathname.startsWith(href);
+}
 
 function NavLink({ href, label, active, onClick }: { href: string; label: string; active: boolean; onClick?: () => void }) {
   return (
@@ -46,7 +54,7 @@ export function AdminSidebarNav() {
   return (
     <nav className="mt-8 flex flex-col gap-1">
       {NAV_DESKTOP.map((item) => (
-        <NavLink key={item.href} href={item.href} label={item.label} active={pathname.startsWith(item.href)} />
+        <NavLink key={item.href} href={item.href} label={item.label} active={isActive(pathname, item.href)} />
       ))}
     </nav>
   );
@@ -82,7 +90,7 @@ export function AdminMobileNav({
             <p className="kicker-label mb-2 px-2 text-muted-foreground">Módulos</p>
             <nav className="flex flex-col gap-1">
               {NAV_MOBILE.map((item) => {
-                const active = pathname.startsWith(item.href);
+                const active = isActive(pathname, item.href);
                 return (
                   <Link
                     key={item.href}
