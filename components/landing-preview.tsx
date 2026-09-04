@@ -23,6 +23,7 @@ export type PreviewBusiness = {
   description: string | null;
   address: string | null;
   city: string | null;
+  whatsapp_number: string | null;
 };
 
 function formatPrice(service: { price: number | null; price_on_request: boolean; deposit_amount: number | null }) {
@@ -35,6 +36,10 @@ function formatPrice(service: { price: number | null; price_on_request: boolean;
 function formatDuration(min: number, max: number | null) {
   if (max && max !== min) return `${min}-${max} min`;
   return `${min} min`;
+}
+
+function waLink(number: string) {
+  return `https://wa.me/${number.replace(/[^\d]/g, "")}`;
 }
 
 /**
@@ -57,16 +62,22 @@ export function LandingPreview({
   config: LandingConfig;
   interactive?: boolean;
 }) {
-  const location = [business.address, business.city].filter(Boolean).join(", ");
-  const mapQuery = encodeURIComponent(location || business.name);
+  const computedLocation = [business.address, business.city].filter(Boolean).join(", ");
+  // Título y línea de ubicación son 100% editoriales — a propósito
+  // desconectados del nombre real del negocio (que sigue siendo el que se
+  // ve en el nav y en el admin). Si nunca se tocó el builder, arrancan
+  // mostrando el nombre/dirección real como valor por default razonable.
+  const heroTitle = config.hero_title || business.name;
+  const locationLabel = config.location_label ?? computedLocation;
+  const mapQuery = encodeURIComponent(computedLocation || business.name);
   const heroPhoto = config.hero_image_url;
   const galleryPhotos = config.gallery ?? [];
   const ctaLabel = config.cta_label || "Reservar turno";
   const showBenefits = config.sections?.benefits ?? true;
   const showGallery = config.sections?.gallery ?? true;
-  const showReviews = config.sections?.reviews ?? true;
   const showMap = config.sections?.map ?? true;
-  const mapSrc = config.map_embed_url || (location ? `https://www.google.com/maps?q=${mapQuery}&output=embed` : null);
+  const mapSrc = config.map_embed_url || (computedLocation ? `https://www.google.com/maps?q=${mapQuery}&output=embed` : null);
+  const hasContact = Boolean(business.whatsapp_number || config.instagram_url);
 
   function preventNav(e: React.MouseEvent) {
     if (!interactive) e.preventDefault();
@@ -109,8 +120,8 @@ export function LandingPreview({
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10" />
         <div className="relative w-full px-6 py-12 sm:px-12 sm:py-16">
           <div className="mx-auto max-w-3xl">
-            {location && <p className="kicker-label mb-3 text-primary">{location}</p>}
-            <h1 className="type-display mb-4 text-4xl leading-[0.95] text-background sm:text-6xl">{business.name}</h1>
+            {locationLabel && <p className="kicker-label mb-3 text-primary">{locationLabel}</p>}
+            <h1 className="type-display mb-4 text-4xl leading-[0.95] text-background sm:text-6xl">{heroTitle}</h1>
             {(business.description || config.hero_subtitle) && (
               <p className="mb-6 max-w-xl text-lg text-background/85">
                 {business.description}
@@ -126,11 +137,6 @@ export function LandingPreview({
               >
                 {ctaLabel}
               </Button>
-              {showReviews && config.reviews && (
-                <Badge variant="outline">
-                  {config.reviews.rating.toFixed(1)}/5 · {config.reviews.count} valoraciones
-                </Badge>
-              )}
             </div>
           </div>
         </div>
@@ -138,9 +144,12 @@ export function LandingPreview({
 
       {showBenefits && config.benefits && config.benefits.length > 0 && (
         <section className="px-6 py-6 sm:px-12">
-          <div className="mx-auto flex max-w-5xl flex-wrap justify-center gap-3">
+          <div className="mx-auto flex max-w-5xl flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:justify-center">
             {config.benefits.map((benefit) => (
-              <span key={benefit} className="surface kicker-label rounded-full bg-card px-4 py-2 text-foreground">
+              <span
+                key={benefit}
+                className="surface kicker-label flex h-11 w-full items-center justify-center rounded-full bg-card px-4 text-center text-foreground sm:w-56"
+              >
                 {benefit}
               </span>
             ))}
@@ -152,9 +161,9 @@ export function LandingPreview({
         <div className="mx-auto max-w-6xl">
           <p className="kicker-label mb-2 text-muted-foreground">Servicios</p>
           <h2 className="type-display mb-8 text-3xl leading-none sm:text-4xl">Qué se puede reservar</h2>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {services.map((service) => (
-              <Card key={service.id}>
+              <Card key={service.id} className="flex h-full flex-col">
                 <CardHeader>
                   <CardTitle className="text-lg">{service.name}</CardTitle>
                   <div className="flex flex-wrap gap-2 pt-1">
@@ -167,13 +176,14 @@ export function LandingPreview({
                     )}
                   </div>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="flex flex-1 flex-col">
                   {service.description && <p className="mb-4 text-sm text-foreground/70">{service.description}</p>}
                   <Button
                     render={<Link href={`/${slug}/booking?service=${service.id}`} onClick={preventNav} />}
                     nativeButton={false}
                     variant="dark"
                     size="sm"
+                    className="mt-auto w-fit"
                   >
                     Reservar
                   </Button>
@@ -208,8 +218,32 @@ export function LandingPreview({
       <footer className="py-16">
         <p className="kicker-label mb-4 px-6 text-center text-muted-foreground sm:px-12">
           {business.name}
-          {location ? ` · ${location}` : ""}
+          {computedLocation ? ` · ${computedLocation}` : ""}
         </p>
+
+        {hasContact && (
+          <div className="mb-8 flex justify-center gap-3 px-6 sm:px-12">
+            {business.whatsapp_number && (
+              <Button
+                render={<a href={waLink(business.whatsapp_number)} target="_blank" rel="noopener noreferrer" onClick={preventNav} />}
+                nativeButton={false}
+                className="halo"
+              >
+                WhatsApp
+              </Button>
+            )}
+            {config.instagram_url && (
+              <Button
+                render={<a href={config.instagram_url} target="_blank" rel="noopener noreferrer" onClick={preventNav} />}
+                nativeButton={false}
+                variant="outline"
+              >
+                Instagram
+              </Button>
+            )}
+          </div>
+        )}
+
         {showMap && mapSrc && (
           <div className="aspect-[16/9] w-full overflow-hidden sm:aspect-[21/9]">
             <iframe

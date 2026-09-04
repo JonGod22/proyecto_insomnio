@@ -51,3 +51,13 @@ export async function deleteService(id: string) {
   await supabase.from("services").delete().eq("id", id);
   revalidatePath("/admin/services");
 }
+
+// Independiente de "active": se usa desde el Landing Builder para
+// prender/apagar un servicio de la landing sin tocar si sigue siendo
+// reservable (por link directo o por el agente).
+export async function toggleServiceOnLanding(id: string, showOnLanding: boolean) {
+  const supabase = await createClient();
+  await supabase.from("services").update({ show_on_landing: showOnLanding }).eq("id", id);
+  revalidatePath("/admin/landing-builder");
+  revalidatePath("/admin/services");
+}

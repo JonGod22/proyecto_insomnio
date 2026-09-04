@@ -3,14 +3,13 @@
 import { useRef, useState } from "react";
 import { GripVerticalIcon } from "lucide-react";
 import { LandingBuilderForm } from "@/components/landing-builder-form";
-import { LandingPreview, type PreviewBusiness, type PreviewService } from "@/components/landing-preview";
+import { LandingPreview, type PreviewBusiness } from "@/components/landing-preview";
+import { toggleServiceOnLanding } from "@/app/(admin)/admin/services/actions";
 import { cn } from "@/lib/utils";
-import type { LandingConfig } from "@/lib/types";
+import type { LandingConfig, Service } from "@/lib/types";
 
 const MIN_PREVIEW_PCT = 20;
 const MAX_PREVIEW_PCT = 60;
-
-type LiveBusiness = PreviewBusiness & { address: string | null; city: string | null };
 
 export function LandingBuilderWorkspace({
   config,
@@ -20,13 +19,13 @@ export function LandingBuilderWorkspace({
 }: {
   config: LandingConfig;
   slug: string;
-  business: LiveBusiness;
-  services: PreviewService[];
+  business: PreviewBusiness;
+  services: Service[];
 }) {
   const [previewPct, setPreviewPct] = useState(32);
   const [dragging, setDragging] = useState(false);
   const [liveConfig, setLiveConfig] = useState(config);
-  const [liveBusiness, setLiveBusiness] = useState<LiveBusiness>(business);
+  const [servicesState, setServicesState] = useState(services);
   const containerRef = useRef<HTMLDivElement>(null);
 
   function onPointerMove(e: React.PointerEvent<HTMLButtonElement>) {
@@ -46,10 +45,23 @@ export function LandingBuilderWorkspace({
     setDragging(false);
   }
 
+  function handleToggleService(id: string, value: boolean) {
+    setServicesState((prev) => prev.map((s) => (s.id === id ? { ...s, show_on_landing: value } : s)));
+    toggleServiceOnLanding(id, value);
+  }
+
+  const visibleServices = servicesState.filter((s) => s.active && s.show_on_landing);
+
   return (
     <div ref={containerRef} className="flex flex-col gap-2 lg:flex-row lg:items-stretch lg:gap-0">
       <div className="min-w-0 flex-1 lg:pr-4">
-        <LandingBuilderForm config={config} business={business} onLiveChange={(c, b) => { setLiveConfig(c); setLiveBusiness(b); }} />
+        <LandingBuilderForm
+          config={config}
+          whatsappNumber={business.whatsapp_number}
+          services={servicesState}
+          onToggleService={handleToggleService}
+          onLiveChange={setLiveConfig}
+        />
       </div>
 
       {/* Divisor arrastrable: ajusta el ancho de la vista previa (solo desktop).
@@ -78,7 +90,7 @@ export function LandingBuilderWorkspace({
             <p className="kicker-label text-muted-foreground">Vista previa (en vivo, sin guardar todavía)</p>
           </div>
           <div className="min-h-0 flex-1 overflow-y-auto">
-            <LandingPreview slug={slug} business={liveBusiness} services={services} config={liveConfig} interactive={false} />
+            <LandingPreview slug={slug} business={business} services={visibleServices} config={liveConfig} interactive={false} />
           </div>
         </div>
       </div>

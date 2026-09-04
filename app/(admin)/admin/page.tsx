@@ -87,10 +87,10 @@ export default async function DashboardPage() {
   const config = (landing?.config_json ?? {}) as Json as LandingConfig;
 
   const landingSections = [
-    { label: "Identidad", done: true },
+    { label: "Título principal", done: Boolean(config.hero_title) },
     { label: "Hero", done: true },
-    { label: "Beneficios", done: Boolean(config.benefits?.length) },
-    { label: "Reseñas", done: Boolean(config.reviews) },
+    { label: "Destacados", done: Boolean(config.benefits?.length) },
+    { label: "Galería", done: Boolean(config.gallery?.length) },
   ];
 
   return (

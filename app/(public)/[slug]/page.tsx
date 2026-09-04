@@ -25,7 +25,8 @@ export default async function BusinessLandingPage({
       .from("services")
       .select("id, name, description, price, price_on_request, deposit_amount, duration_minutes, duration_minutes_max")
       .eq("business_id", business.id)
-      .eq("active", true),
+      .eq("active", true)
+      .eq("show_on_landing", true),
     supabase.from("landing").select("config_json").eq("business_id", business.id).maybeSingle(),
   ]);
 

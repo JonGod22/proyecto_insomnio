@@ -359,6 +359,7 @@ export type Database = {
           name: string
           price: number | null
           price_on_request: boolean
+          show_on_landing: boolean
         }
         Insert: {
           active?: boolean
@@ -372,6 +373,7 @@ export type Database = {
           name: string
           price?: number | null
           price_on_request?: boolean
+          show_on_landing?: boolean
         }
         Update: {
           active?: boolean
@@ -385,6 +387,7 @@ export type Database = {
           name?: string
           price?: number | null
           price_on_request?: boolean
+          show_on_landing?: boolean
         }
         Relationships: [
           {
@@ -476,17 +479,22 @@ export type AppointmentSource = Appointment["source"]
 // que el tipo se mantiene a mano. Todas las secciones son opcionales y
 // tienen un fallback razonable en la landing pública si faltan.
 export type LandingConfig = {
+  /** Título grande del hero — independiente de businesses.name a propósito
+   * (ese sigue siendo el "símbolo" del nav/admin, este es 100% editorial). */
+  hero_title?: string
+  /** Línea chica arriba del título (reemplaza el "dirección, ciudad"
+   * calculado — texto libre, editorial). */
+  location_label?: string
   hero_subtitle?: string
   hero_image_url?: string
   cta_label?: string
   map_embed_url?: string
+  instagram_url?: string
   benefits?: string[]
-  reviews?: { rating: number; count: number }
   gallery?: string[]
   sections?: {
     benefits?: boolean
     gallery?: boolean
-    reviews?: boolean
     map?: boolean
   }
 }
