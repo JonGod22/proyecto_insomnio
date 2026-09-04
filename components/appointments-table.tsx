@@ -66,7 +66,7 @@ const ACTIONS: Record<AppointmentStatus, { label: string; next: AppointmentStatu
   no_show: [],
 };
 
-type Range = "hoy" | "semana" | "mes";
+type Range = "hoy" | "manana";
 
 function formatTime(iso: string) {
   return new Date(iso).toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit", hour12: false });
@@ -86,14 +86,9 @@ function inRange(iso: string, range: Range) {
   if (range === "hoy") {
     return date.toDateString() === now.toDateString();
   }
-  if (range === "semana") {
-    const in7Days = new Date(now);
-    in7Days.setDate(in7Days.getDate() + 7);
-    return date >= now && date <= in7Days;
-  }
-  const in30Days = new Date(now);
-  in30Days.setDate(in30Days.getDate() + 30);
-  return date >= now && date <= in30Days;
+  const tomorrow = new Date(now);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  return date.toDateString() === tomorrow.toDateString();
 }
 
 function PaymentBadge({ appointment }: { appointment: AppointmentRow }) {
@@ -138,15 +133,15 @@ function AppointmentActions({ appointment }: { appointment: AppointmentRow }) {
 }
 
 export function AppointmentsTable({ appointments }: { appointments: AppointmentRow[] }) {
-  const [range, setRange] = useState<Range>("semana");
+  const [range, setRange] = useState<Range>("hoy");
   const filtered = useMemo(() => appointments.filter((a) => inRange(a.starts_at, range)), [appointments, range]);
 
   return (
     <div className="surface bg-card">
       <div className="flex items-center justify-between p-4">
-        <p className="type-display text-xl leading-none">Próximos turnos</p>
+        <p className="type-display text-xl leading-none">Turnos en detalle</p>
         <div className="flex gap-1">
-          {(["hoy", "semana", "mes"] as Range[]).map((r) => (
+          {(["hoy", "manana"] as Range[]).map((r) => (
             <button
               key={r}
               onClick={() => setRange(r)}
@@ -155,7 +150,7 @@ export function AppointmentsTable({ appointments }: { appointments: AppointmentR
                 range === r ? "bg-foreground text-background" : "text-muted-foreground hover:bg-muted"
               )}
             >
-              {r === "hoy" ? "Hoy" : r === "semana" ? "Semana" : "Mes"}
+              {r === "hoy" ? "Hoy" : "Mañana"}
             </button>
           ))}
         </div>

@@ -1,19 +1,21 @@
 import { createClient } from "@/lib/supabase/server";
 import { AppointmentsTable, type AppointmentRow } from "@/components/appointments-table";
+import { AppointmentsCalendar } from "@/components/appointments-calendar";
 import { paidForAppointment, priceForBalance } from "@/lib/payments";
 
 export default async function AppointmentsAdminPage() {
   const supabase = await createClient();
   const now = new Date();
-  const in90Days = new Date(now.getTime() + 90 * 24 * 60 * 60 * 1000).toISOString();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const in60Days = new Date(now.getTime() + 60 * 24 * 60 * 60 * 1000);
 
   const { data: appointments } = await supabase
     .from("appointments")
     .select(
       "id, starts_at, ends_at, status, source, client:clients(full_name, phone), service:services(name, price, price_on_request)"
     )
-    .gte("starts_at", now.toISOString())
-    .lte("starts_at", in90Days)
+    .gte("starts_at", monthStart.toISOString())
+    .lte("starts_at", in60Days.toISOString())
     .order("starts_at");
 
   const ids = (appointments ?? []).map((a) => a.id);
@@ -51,6 +53,7 @@ export default async function AppointmentsAdminPage() {
     <div className="space-y-6">
       <h1 className="type-display text-4xl leading-none">Turnos</h1>
       <AppointmentsTable appointments={rows} />
+      <AppointmentsCalendar appointments={rows} />
     </div>
   );
 }
