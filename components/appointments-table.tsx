@@ -72,10 +72,6 @@ function formatTime(iso: string) {
   return new Date(iso).toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit", hour12: false });
 }
 
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit" });
-}
-
 function formatCurrency(n: number) {
   return new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0 }).format(n);
 }
@@ -112,9 +108,9 @@ function AppointmentActions({ appointment }: { appointment: AppointmentRow }) {
     <DropdownMenu>
       <DropdownMenuTrigger
         render={
-          <Button variant="outline" size="sm" className="gap-1">
+          <Button variant="outline" size="sm" className="h-7 gap-1 px-2 text-xs">
             Acción
-            <ChevronDownIcon className="size-3.5" />
+            <ChevronDownIcon className="size-3" />
           </Button>
         }
       />
@@ -138,15 +134,15 @@ export function AppointmentsTable({ appointments }: { appointments: AppointmentR
 
   return (
     <div className="surface bg-card">
-      <div className="flex items-center justify-between p-4">
-        <p className="type-display text-xl leading-none">Turnos en detalle</p>
+      <div className="flex items-center justify-between p-3">
+        <p className="type-display text-lg leading-none">Turnos en detalle</p>
         <div className="flex gap-1">
           {(["hoy", "manana"] as Range[]).map((r) => (
             <button
               key={r}
               onClick={() => setRange(r)}
               className={cn(
-                "kicker-label rounded-md px-3 py-1.5 transition-colors",
+                "kicker-label rounded-md px-2.5 py-1 transition-colors",
                 range === r ? "bg-foreground text-background" : "text-muted-foreground hover:bg-muted"
               )}
             >
@@ -159,42 +155,40 @@ export function AppointmentsTable({ appointments }: { appointments: AppointmentR
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-20">Día</TableHead>
-            <TableHead className="w-16">Hora</TableHead>
-            <TableHead>Cliente</TableHead>
-            <TableHead>Servicio</TableHead>
-            <TableHead className="w-32">Estado</TableHead>
-            <TableHead className="w-32">Pago</TableHead>
-            <TableHead className="w-28 text-right">Acción</TableHead>
+            <TableHead className="h-8 w-14 text-xs">Hora</TableHead>
+            <TableHead className="h-8 text-xs">Cliente</TableHead>
+            <TableHead className="h-8 text-xs">Servicio</TableHead>
+            <TableHead className="h-8 w-28 text-xs">Estado</TableHead>
+            <TableHead className="h-8 w-28 text-xs">Pago</TableHead>
+            <TableHead className="h-8 w-24 text-right text-xs">Acción</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {filtered.map((a) => (
             <TableRow key={a.id}>
-              <TableCell className="tabular-nums text-sm">{formatDate(a.starts_at)}</TableCell>
-              <TableCell className="tabular-nums">{formatTime(a.starts_at)}</TableCell>
-              <TableCell>
+              <TableCell className="p-1.5 tabular-nums text-sm">{formatTime(a.starts_at)}</TableCell>
+              <TableCell className="p-1.5 text-sm leading-tight">
                 <p>{a.client?.full_name ?? "—"}</p>
                 <p className="text-xs text-muted-foreground">{a.client?.phone}</p>
               </TableCell>
-              <TableCell className="text-sm">{a.service?.name ?? "—"}</TableCell>
-              <TableCell>
-                <Badge variant="outline" className="w-28 justify-start gap-2">
-                  <span className={cn("size-2 rounded-full", STATUS_DOT[a.status])} />
+              <TableCell className="p-1.5 text-sm">{a.service?.name ?? "—"}</TableCell>
+              <TableCell className="p-1.5">
+                <Badge variant="outline" className="w-24 justify-start gap-1.5">
+                  <span className={cn("size-1.5 rounded-full", STATUS_DOT[a.status])} />
                   {STATUS_LABEL[a.status]}
                 </Badge>
               </TableCell>
-              <TableCell>
+              <TableCell className="p-1.5">
                 <PaymentBadge appointment={a} />
               </TableCell>
-              <TableCell className="text-right">
+              <TableCell className="p-1.5 text-right">
                 <AppointmentActions appointment={a} />
               </TableCell>
             </TableRow>
           ))}
           {filtered.length === 0 && (
             <TableRow>
-              <TableCell colSpan={7} className="text-center text-muted-foreground">
+              <TableCell colSpan={6} className="p-3 text-center text-muted-foreground">
                 No hay turnos en este rango.
               </TableCell>
             </TableRow>

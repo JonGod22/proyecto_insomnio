@@ -1,9 +1,10 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { RefreshCwIcon, GripVerticalIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LandingBuilderForm } from "@/components/landing-builder-form";
+import { cn } from "@/lib/utils";
 import type { LandingConfig } from "@/lib/types";
 
 const MIN_PREVIEW_PCT = 20;
@@ -20,27 +21,28 @@ export function LandingBuilderWorkspace({
 }) {
   const [reloadKey, setReloadKey] = useState(0);
   const [previewPct, setPreviewPct] = useState(28);
+  const [dragging, setDragging] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-  const dragging = useRef(false);
   const previewUrl = `/${slug}`;
 
-  const onPointerMove = useCallback((e: PointerEvent) => {
-    if (!dragging.current || !containerRef.current) return;
+  function onPointerMove(e: React.PointerEvent<HTMLButtonElement>) {
+    if (!containerRef.current) return;
     const rect = containerRef.current.getBoundingClientRect();
     const pctFromRight = ((rect.right - e.clientX) / rect.width) * 100;
     setPreviewPct(Math.min(MAX_PREVIEW_PCT, Math.max(MIN_PREVIEW_PCT, pctFromRight)));
-  }, []);
+  }
 
-  const stopDragging = useCallback(() => {
-    dragging.current = false;
-    window.removeEventListener("pointermove", onPointerMove);
-    window.removeEventListener("pointerup", stopDragging);
-  }, [onPointerMove]);
+  function startDragging(e: React.PointerEvent<HTMLButtonElement>) {
+    // setPointerCapture ata todos los eventos siguientes a este botón, aunque
+    // el mouse pase por arriba del iframe de la vista previa (que si no,
+    // "roba" los eventos de mouse y corta el arrastre a mitad de camino).
+    e.currentTarget.setPointerCapture(e.pointerId);
+    setDragging(true);
+  }
 
-  function startDragging() {
-    dragging.current = true;
-    window.addEventListener("pointermove", onPointerMove);
-    window.addEventListener("pointerup", stopDragging);
+  function stopDragging(e: React.PointerEvent<HTMLButtonElement>) {
+    e.currentTarget.releasePointerCapture(e.pointerId);
+    setDragging(false);
   }
 
   return (
@@ -49,14 +51,27 @@ export function LandingBuilderWorkspace({
         <LandingBuilderForm config={config} business={business} onSaved={() => setReloadKey((k) => k + 1)} />
       </div>
 
-      {/* Divisor arrastrable: ajusta el ancho de la vista previa (solo desktop). */}
+      {/* Divisor arrastrable: ajusta el ancho de la vista previa (solo desktop).
+          La línea queda siempre visible, no solo al pasar el mouse, para que
+          se note que ese sector se puede arrastrar. */}
       <button
         type="button"
         onPointerDown={startDragging}
+        onPointerMove={onPointerMove}
+        onPointerUp={stopDragging}
         aria-label="Arrastrar para cambiar el tamaño de la vista previa"
-        className="hidden shrink-0 cursor-col-resize items-center justify-center px-1 text-muted-foreground hover:text-foreground lg:flex"
+        className={cn(
+          "relative hidden shrink-0 cursor-col-resize items-center justify-center px-2 text-muted-foreground hover:text-foreground lg:flex",
+          dragging && "text-foreground"
+        )}
       >
-        <GripVerticalIcon className="size-4" />
+        <span
+          className={cn(
+            "absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-border",
+            dragging && "bg-primary"
+          )}
+        />
+        <GripVerticalIcon className="relative size-4 bg-card" />
       </button>
 
       {/* Vista previa en vivo: mismo diseño que la landing pública, se
@@ -70,7 +85,12 @@ export function LandingBuilderWorkspace({
               Actualizar
             </Button>
           </div>
-          <iframe key={reloadKey} src={previewUrl} title="Vista previa de la landing" className="min-h-0 flex-1" />
+          <div className="relative min-h-0 flex-1">
+            <iframe key={reloadKey} src={previewUrl} title="Vista previa de la landing" className="size-full" />
+            {/* Mientras se arrastra, un overlay transparente evita que el
+                iframe capture el mouse y corte el resize. */}
+            {dragging && <div className="absolute inset-0" />}
+          </div>
         </div>
       </div>
 
