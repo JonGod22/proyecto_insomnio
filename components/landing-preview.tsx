@@ -94,39 +94,46 @@ export function LandingPreview({
 
   return (
     <main className="@container flex-1">
-      <nav className="surface flex items-center justify-between bg-card px-6 py-4 @sm:px-12">
-        <span className="type-display text-lg leading-none">{business.name}</span>
-        <div className="flex items-center gap-3">
-          <Button
-            render={<Link href="#servicios" onClick={preventNav} />}
-            nativeButton={false}
-            variant="ghost"
-            size="sm"
-            className="hidden @sm:inline-flex"
-          >
-            Servicios
-          </Button>
-          <Button
-            render={<Link href={`/${slug}/booking`} onClick={preventNav} />}
-            nativeButton={false}
-            variant="dark"
-            size="sm"
-          >
-            Reservar
-          </Button>
-        </div>
-      </nav>
+      <div className="relative">
+        {/* Flota transparente/vidrio sobre la foto del hero, no ocupa su
+            propio bloque blanco — por eso vive adentro del <header>. */}
+        <nav className="absolute inset-x-0 top-0 z-10 flex items-center justify-between bg-black/25 px-6 py-4 backdrop-blur-md @sm:px-12">
+          {config.logo_url ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={config.logo_url} alt={business.name} className="h-8 w-auto max-w-40 object-contain" />
+          ) : (
+            <span className="type-display text-lg leading-none text-background">{business.name}</span>
+          )}
+          <div className="flex items-center gap-3">
+            <Button
+              render={<Link href="#servicios" onClick={preventNav} />}
+              nativeButton={false}
+              variant="ghost"
+              size="sm"
+              className="hidden text-background hover:bg-background/10 hover:text-background @sm:inline-flex"
+            >
+              Servicios
+            </Button>
+            <Button
+              render={<Link href={`/${slug}/booking`} onClick={preventNav} />}
+              nativeButton={false}
+              size="sm"
+            >
+              Reservar
+            </Button>
+          </div>
+        </nav>
 
-      <header className="relative flex min-h-[560px] items-end overflow-hidden bg-foreground @sm:min-h-[640px]">
-        {heroPhoto && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={heroPhoto}
-            alt={`Espacio de ${business.name}`}
-            className="absolute inset-0 h-full w-full scale-105 object-cover blur-[1px]"
-          />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10" />
+        <header className="relative flex min-h-[560px] items-end overflow-hidden bg-foreground @sm:min-h-[640px]">
+          {heroPhoto && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img
+              src={heroPhoto}
+              alt={`Espacio de ${business.name}`}
+              className="absolute inset-0 h-full w-full scale-105 object-cover blur-[1px]"
+            />
+          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10" />
         <div className="relative w-full px-6 py-12 @sm:px-12 @sm:py-16">
           <div className="mx-auto max-w-3xl">
             {locationLabel && <p className="kicker-label mb-3 text-primary">{locationLabel}</p>}
@@ -144,7 +151,8 @@ export function LandingPreview({
             </div>
           </div>
         </div>
-      </header>
+        </header>
+      </div>
 
       {showBenefits && config.benefits && config.benefits.length > 0 && (
         <section className="px-6 py-6 @sm:px-12">

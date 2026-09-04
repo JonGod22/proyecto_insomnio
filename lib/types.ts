@@ -482,6 +482,8 @@ export type LandingConfig = {
   /** Título grande del hero — independiente de businesses.name a propósito
    * (ese sigue siendo el "símbolo" del nav/admin, este es 100% editorial). */
   hero_title?: string
+  /** Logo en el encabezado (PNG/SVG) — si no está, se muestra el título como texto. */
+  logo_url?: string
   /** Línea chica arriba del título (reemplaza el "dirección, ciudad"
    * calculado — texto libre, editorial). */
   location_label?: string

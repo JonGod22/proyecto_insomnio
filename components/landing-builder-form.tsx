@@ -73,6 +73,7 @@ export function LandingBuilderForm({
   const [locationLabel, setLocationLabel] = useState(config.location_label ?? "");
   const [heroSubtitle, setHeroSubtitle] = useState(config.hero_subtitle ?? "");
   const [heroImageUrl, setHeroImageUrl] = useState(config.hero_image_url ?? "");
+  const [logoUrl, setLogoUrl] = useState(config.logo_url ?? "");
   const [ctaLabel, setCtaLabel] = useState(config.cta_label ?? "Reservar turno");
 
   const [showBenefits, setShowBenefits] = useState(config.sections?.benefits ?? true);
@@ -93,6 +94,7 @@ export function LandingBuilderForm({
   useEffect(() => {
     onLiveChange?.({
       hero_title: heroTitle || undefined,
+      logo_url: logoUrl || undefined,
       location_label: locationLabel || undefined,
       hero_subtitle: heroSubtitle || undefined,
       hero_image_url: heroImageUrl || undefined,
@@ -106,6 +108,7 @@ export function LandingBuilderForm({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     heroTitle,
+    logoUrl,
     locationLabel,
     heroSubtitle,
     heroImageUrl,
@@ -158,6 +161,21 @@ export function LandingBuilderForm({
         <p className="type-display text-lg leading-none">Título secundario 2</p>
         <p className="text-sm text-muted-foreground">El texto debajo del título principal.</p>
         <Input name="hero_subtitle" value={heroSubtitle} onChange={(e) => setHeroSubtitle(e.target.value)} placeholder="Ej: Turnos de lunes a sábado" />
+      </div>
+
+      <div className="surface space-y-3 bg-card p-5">
+        <p className="type-display text-lg leading-none">Logo</p>
+        <p className="text-sm text-muted-foreground">
+          Logo en el encabezado (PNG o SVG). Si lo dejás vacío, se muestra el título principal como
+          texto.
+        </p>
+        <Input name="logo_url" value={logoUrl} onChange={(e) => setLogoUrl(e.target.value)} placeholder="https://..." />
+        {logoUrl && (
+          <div className="mt-2 flex h-16 items-center rounded-[6px] bg-foreground px-4">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={logoUrl} alt="Vista previa del logo" className="h-8 w-auto max-w-40 object-contain" />
+          </div>
+        )}
       </div>
 
       <div className="surface space-y-3 bg-card p-5">

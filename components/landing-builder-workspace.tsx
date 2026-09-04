@@ -98,7 +98,7 @@ export function LandingBuilderWorkspace({
       <div className="preview-pane shrink-0" style={{ ["--preview-pct" as string]: `${previewPct}%` }}>
         <div className="surface flex h-[70vh] flex-col overflow-hidden bg-card lg:sticky lg:top-6 lg:h-[calc(100vh-6rem)]">
           <div className="flex items-center gap-2 border-b border-border p-3">
-            <Button type="submit" form={FORM_ID} disabled={pending} className="halo flex-1">
+            <Button type="submit" form={FORM_ID} disabled={pending} className="flex-1">
               {pending ? "Guardando..." : "Guardar cambios"}
             </Button>
             <Button

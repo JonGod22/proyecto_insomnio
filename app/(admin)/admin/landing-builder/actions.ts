@@ -25,6 +25,7 @@ export async function updateLandingConfig(
   }
 
   const heroTitle = (formData.get("hero_title") as string)?.trim() || undefined;
+  const logoUrl = (formData.get("logo_url") as string)?.trim() || undefined;
   const locationLabel = (formData.get("location_label") as string)?.trim() || undefined;
   const heroSubtitle = (formData.get("hero_subtitle") as string)?.trim() || undefined;
   const heroImageUrl = (formData.get("hero_image_url") as string)?.trim() || undefined;
@@ -43,6 +44,7 @@ export async function updateLandingConfig(
 
   const config: LandingConfig = {
     hero_title: heroTitle,
+    logo_url: logoUrl,
     location_label: locationLabel,
     hero_subtitle: heroSubtitle,
     hero_image_url: heroImageUrl,
