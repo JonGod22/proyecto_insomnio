@@ -11,11 +11,12 @@ import { updateLandingConfig, type LandingFormState } from "@/app/(admin)/admin/
 import type { LandingConfig, Service } from "@/lib/types";
 
 const initialState: LandingFormState = { error: null };
+const BENEFIT_MAX_CHARS = 40;
 
 function linesToList(text: string) {
   return text
     .split("\n")
-    .map((line) => line.trim())
+    .map((line) => line.trim().slice(0, BENEFIT_MAX_CHARS))
     .filter(Boolean);
 }
 
@@ -185,7 +186,7 @@ export function LandingBuilderForm({
 
       <Block
         title="Destacados"
-        description="Botones cortos debajo del hero, uno por línea. No tienen que ser 'beneficios' — pueden ser lo que quieras."
+        description={`Botones cortos debajo del hero, uno por línea (máx. ${BENEFIT_MAX_CHARS} caracteres cada uno). No tienen que ser 'beneficios' — pueden ser lo que quieras.`}
         enabled={showBenefits}
         onToggle={setShowBenefits}
       >

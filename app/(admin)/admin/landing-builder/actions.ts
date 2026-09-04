@@ -34,7 +34,7 @@ export async function updateLandingConfig(
   const mapEmbedUrl = mapEmbedUrlRaw ? extractMapUrl(mapEmbedUrlRaw) : undefined;
   const benefits = String(formData.get("benefits") ?? "")
     .split("\n")
-    .map((line) => line.trim())
+    .map((line) => line.trim().slice(0, 40))
     .filter(Boolean);
   const gallery = formData
     .getAll("gallery_url")

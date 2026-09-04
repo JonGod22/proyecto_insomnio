@@ -48,6 +48,15 @@ function waLink(number: string) {
  * `interactive`) y la vista previa en vivo del Landing Builder (client,
  * alimentada por el estado del formulario sin guardar todavía) — así
  * garantizamos que editor y página real rendericen exactamente lo mismo.
+ *
+ * Todo el layout responsive de acá adentro usa container queries (@sm/@lg,
+ * variantes nativas de Tailwind v4) en vez de sm:/lg: por viewport. La vista
+ * previa del builder vive en un panel angosto dentro de una pantalla de
+ * escritorio ancha — con breakpoints de viewport, ese panel nunca se ve
+ * "mobile" aunque sea angosto, porque lo que mide Tailwind es el ancho de
+ * toda la ventana, no el del panel. Con @container, el mismo componente
+ * responde a su propio ancho tanto en el panel angosto como en la página
+ * pública real (que ahí sí ocupa todo el viewport).
  */
 export function LandingPreview({
   slug,
@@ -84,8 +93,8 @@ export function LandingPreview({
   }
 
   return (
-    <main className="flex-1">
-      <nav className="surface flex items-center justify-between bg-card px-6 py-4 sm:px-12">
+    <main className="@container flex-1">
+      <nav className="surface flex items-center justify-between bg-card px-6 py-4 @sm:px-12">
         <span className="type-display text-lg leading-none">{business.name}</span>
         <div className="flex items-center gap-3">
           <Button
@@ -93,7 +102,7 @@ export function LandingPreview({
             nativeButton={false}
             variant="ghost"
             size="sm"
-            className="hidden sm:inline-flex"
+            className="hidden @sm:inline-flex"
           >
             Servicios
           </Button>
@@ -108,7 +117,7 @@ export function LandingPreview({
         </div>
       </nav>
 
-      <header className="relative flex min-h-[560px] items-end overflow-hidden bg-foreground sm:min-h-[640px]">
+      <header className="relative flex min-h-[560px] items-end overflow-hidden bg-foreground @sm:min-h-[640px]">
         {heroPhoto && (
           // eslint-disable-next-line @next/next/no-img-element
           <img
@@ -118,16 +127,11 @@ export function LandingPreview({
           />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10" />
-        <div className="relative w-full px-6 py-12 sm:px-12 sm:py-16">
+        <div className="relative w-full px-6 py-12 @sm:px-12 @sm:py-16">
           <div className="mx-auto max-w-3xl">
             {locationLabel && <p className="kicker-label mb-3 text-primary">{locationLabel}</p>}
-            <h1 className="type-display mb-4 text-4xl leading-[0.95] text-background sm:text-6xl">{heroTitle}</h1>
-            {(business.description || config.hero_subtitle) && (
-              <p className="mb-6 max-w-xl text-lg text-background/85">
-                {business.description}
-                {config.hero_subtitle ? ` — ${config.hero_subtitle}` : ""}
-              </p>
-            )}
+            <h1 className="type-display mb-4 text-4xl leading-[0.95] text-background @sm:text-6xl">{heroTitle}</h1>
+            {config.hero_subtitle && <p className="mb-6 max-w-xl text-lg text-background/85">{config.hero_subtitle}</p>}
             <div className="flex flex-wrap items-center gap-3">
               <Button
                 render={<Link href={`/${slug}/booking`} onClick={preventNav} />}
@@ -143,12 +147,12 @@ export function LandingPreview({
       </header>
 
       {showBenefits && config.benefits && config.benefits.length > 0 && (
-        <section className="px-6 py-6 sm:px-12">
-          <div className="mx-auto flex max-w-5xl flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:justify-center">
+        <section className="px-6 py-6 @sm:px-12">
+          <div className="mx-auto flex max-w-5xl flex-col items-stretch gap-3 @sm:flex-row @sm:flex-wrap @sm:justify-center">
             {config.benefits.map((benefit) => (
               <span
                 key={benefit}
-                className="surface kicker-label flex h-11 w-full items-center justify-center rounded-full bg-card px-4 text-center text-foreground sm:w-56"
+                className="surface kicker-label flex min-h-16 w-full items-center justify-center rounded-[24px] bg-card px-6 py-3 text-center leading-snug text-foreground @sm:w-64"
               >
                 {benefit}
               </span>
@@ -157,11 +161,11 @@ export function LandingPreview({
         </section>
       )}
 
-      <section id="servicios" className="scroll-mt-20 px-6 py-16 sm:px-12">
+      <section id="servicios" className="scroll-mt-20 px-6 py-16 @sm:px-12">
         <div className="mx-auto max-w-6xl">
           <p className="kicker-label mb-2 text-muted-foreground">Servicios</p>
-          <h2 className="type-display mb-8 text-3xl leading-none sm:text-4xl">Qué se puede reservar</h2>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <h2 className="type-display mb-8 text-3xl leading-none @sm:text-4xl">Qué se puede reservar</h2>
+          <div className="grid grid-cols-1 gap-4 @sm:grid-cols-2 @lg:grid-cols-3">
             {services.map((service) => (
               <Card key={service.id} className="flex h-full flex-col">
                 <CardHeader>
@@ -195,17 +199,13 @@ export function LandingPreview({
       </section>
 
       {showGallery && galleryPhotos.length > 0 && (
-        <section className="px-6 py-16 sm:px-12">
+        <section className="px-6 py-16 @sm:px-12">
           <div className="mx-auto max-w-6xl">
             <p className="kicker-label mb-2 text-muted-foreground">Galería</p>
-            <h2 className="type-display mb-8 text-3xl leading-none sm:text-4xl">Trabajos recientes</h2>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-              <div className="relative col-span-2 row-span-2 aspect-square overflow-hidden rounded-2xl sm:aspect-auto">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={galleryPhotos[0]} alt="Trabajo realizado" className="h-full w-full object-cover" />
-              </div>
-              {galleryPhotos.slice(1).map((src) => (
-                <div key={src} className="relative aspect-square overflow-hidden rounded-2xl">
+            <h2 className="type-display mb-8 text-3xl leading-none @sm:text-4xl">Trabajos recientes</h2>
+            <div className="grid grid-cols-1 gap-3 @sm:grid-cols-2 @lg:grid-cols-3">
+              {galleryPhotos.map((src) => (
+                <div key={src} className="relative aspect-[2/1] overflow-hidden rounded-2xl">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={src} alt="Trabajo realizado" className="h-full w-full object-cover" />
                 </div>
@@ -216,13 +216,13 @@ export function LandingPreview({
       )}
 
       <footer className="py-16">
-        <p className="kicker-label mb-4 px-6 text-center text-muted-foreground sm:px-12">
+        <p className="kicker-label mb-4 px-6 text-center text-muted-foreground @sm:px-12">
           {business.name}
           {computedLocation ? ` · ${computedLocation}` : ""}
         </p>
 
         {hasContact && (
-          <div className="mb-8 flex justify-center gap-3 px-6 sm:px-12">
+          <div className="mb-8 flex justify-center gap-3 px-6 @sm:px-12">
             {business.whatsapp_number && (
               <Button
                 render={<a href={waLink(business.whatsapp_number)} target="_blank" rel="noopener noreferrer" onClick={preventNav} />}
@@ -245,7 +245,7 @@ export function LandingPreview({
         )}
 
         {showMap && mapSrc && (
-          <div className="aspect-[16/9] w-full overflow-hidden sm:aspect-[21/9]">
+          <div className="aspect-[16/9] w-full overflow-hidden @sm:aspect-[21/9]">
             <iframe
               src={mapSrc}
               className={cn("h-full w-full border-0", !interactive && "pointer-events-none")}
@@ -256,8 +256,8 @@ export function LandingPreview({
         )}
       </footer>
 
-      <div className="bg-foreground px-6 py-6 text-background sm:px-12">
-        <div className="mx-auto flex max-w-5xl flex-col items-center gap-3 text-center sm:flex-row sm:justify-between sm:text-left">
+      <div className="bg-foreground px-6 py-6 text-background @sm:px-12">
+        <div className="mx-auto flex max-w-5xl flex-col items-center gap-3 text-center @sm:flex-row @sm:justify-between @sm:text-left">
           <p className="kicker-label text-background/60">Sitio desarrollado por Jonathan Godoy</p>
           <div className="flex items-center gap-5">
             <a href="https://github.com/JonGod22" target="_blank" rel="noopener noreferrer" className="kicker-label text-background hover:text-primary">
