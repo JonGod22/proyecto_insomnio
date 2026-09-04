@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,6 +23,10 @@ export type AppointmentRow = {
   source: string;
   client: { full_name: string; phone: string } | null;
   service: { name: string } | null;
+  /** Pagado hasta ahora (aprobado, neto de descuento) contra el precio del
+   * servicio — null si el servicio es a consultar / no tiene precio. */
+  paid: number;
+  price: number | null;
 };
 
 const STATUS_LABEL: Record<AppointmentStatus, string> = {
@@ -44,7 +48,9 @@ const STATUS_DOT: Record<AppointmentStatus, string> = {
 };
 
 // Próxima acción disponible según el estado actual — el menú siempre
-// arranca en "Acción" en vez de mostrar todos los botones a la vez.
+// arranca en "Acción" en vez de mostrar todos los botones a la vez. El
+// pase a "confirmado" es siempre una decisión manual del staff, nunca
+// automática por un pago (aunque haya cobrado el 100% por adelantado).
 const ACTIONS: Record<AppointmentStatus, { label: string; next: AppointmentStatus }[]> = {
   pending: [
     { label: "Confirmar", next: "confirmed" },
@@ -67,7 +73,11 @@ function formatTime(iso: string) {
 }
 
 function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString("es-AR", { weekday: "short", day: "2-digit", month: "2-digit" });
+  return new Date(iso).toLocaleDateString("es-AR", { day: "2-digit", month: "2-digit" });
+}
+
+function formatCurrency(n: number) {
+  return new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0 }).format(n);
 }
 
 function inRange(iso: string, range: Range) {
@@ -84,6 +94,19 @@ function inRange(iso: string, range: Range) {
   const in30Days = new Date(now);
   in30Days.setDate(in30Days.getDate() + 30);
   return date >= now && date <= in30Days;
+}
+
+function PaymentBadge({ appointment }: { appointment: AppointmentRow }) {
+  if (appointment.price === null) return <span className="text-xs text-muted-foreground">—</span>;
+
+  const balance = appointment.price - appointment.paid;
+  if (appointment.paid <= 0) {
+    return <Badge variant="destructive">Sin pago</Badge>;
+  }
+  if (balance <= 0) {
+    return <Badge>Pagado</Badge>;
+  }
+  return <Badge variant="outline">Falta {formatCurrency(balance)}</Badge>;
 }
 
 function AppointmentActions({ appointment }: { appointment: AppointmentRow }) {
@@ -114,32 +137,8 @@ function AppointmentActions({ appointment }: { appointment: AppointmentRow }) {
   );
 }
 
-function AppointmentDetails({ appointment }: { appointment: AppointmentRow }) {
-  return (
-    <div className="grid grid-cols-2 gap-3 border-t border-border bg-muted/30 px-4 py-3 text-xs text-muted-foreground sm:grid-cols-4">
-      <div>
-        <p className="kicker-label mb-1">Fecha completa</p>
-        <p>{formatDate(appointment.starts_at)}, {formatTime(appointment.starts_at)}–{formatTime(appointment.ends_at)}</p>
-      </div>
-      <div>
-        <p className="kicker-label mb-1">Teléfono</p>
-        <p>{appointment.client?.phone ?? "—"}</p>
-      </div>
-      <div>
-        <p className="kicker-label mb-1">Origen</p>
-        <p>{appointment.source === "agent" ? "Agente IA" : "Manual"}</p>
-      </div>
-      <div>
-        <p className="kicker-label mb-1">Estado</p>
-        <p>{STATUS_LABEL[appointment.status]}</p>
-      </div>
-    </div>
-  );
-}
-
 export function AppointmentsTable({ appointments }: { appointments: AppointmentRow[] }) {
   const [range, setRange] = useState<Range>("semana");
-  const [expanded, setExpanded] = useState<string | null>(null);
   const filtered = useMemo(() => appointments.filter((a) => inRange(a.starts_at, range)), [appointments, range]);
 
   return (
@@ -165,49 +164,42 @@ export function AppointmentsTable({ appointments }: { appointments: AppointmentR
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-24">Hora</TableHead>
+            <TableHead className="w-20">Día</TableHead>
+            <TableHead className="w-16">Hora</TableHead>
             <TableHead>Cliente</TableHead>
             <TableHead>Servicio</TableHead>
             <TableHead className="w-32">Estado</TableHead>
+            <TableHead className="w-32">Pago</TableHead>
             <TableHead className="w-28 text-right">Acción</TableHead>
-            <TableHead className="w-8" />
           </TableRow>
         </TableHeader>
         <TableBody>
-          {filtered.map((a) => {
-            const isOpen = expanded === a.id;
-            return (
-              <Fragment key={a.id}>
-                <TableRow className="cursor-pointer" onClick={() => setExpanded(isOpen ? null : a.id)}>
-                  <TableCell className="tabular-nums">{formatTime(a.starts_at)}</TableCell>
-                  <TableCell>{a.client?.full_name ?? "—"}</TableCell>
-                  <TableCell className="text-sm">{a.service?.name ?? "—"}</TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className="w-28 justify-start gap-2">
-                      <span className={cn("size-2 rounded-full", STATUS_DOT[a.status])} />
-                      {STATUS_LABEL[a.status]}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
-                    <AppointmentActions appointment={a} />
-                  </TableCell>
-                  <TableCell>
-                    <ChevronDownIcon className={cn("size-4 text-muted-foreground transition-transform", isOpen && "rotate-180")} />
-                  </TableCell>
-                </TableRow>
-                {isOpen && (
-                  <TableRow className="hover:bg-transparent">
-                    <TableCell colSpan={6} className="p-0">
-                      <AppointmentDetails appointment={a} />
-                    </TableCell>
-                  </TableRow>
-                )}
-              </Fragment>
-            );
-          })}
+          {filtered.map((a) => (
+            <TableRow key={a.id}>
+              <TableCell className="tabular-nums text-sm">{formatDate(a.starts_at)}</TableCell>
+              <TableCell className="tabular-nums">{formatTime(a.starts_at)}</TableCell>
+              <TableCell>
+                <p>{a.client?.full_name ?? "—"}</p>
+                <p className="text-xs text-muted-foreground">{a.client?.phone}</p>
+              </TableCell>
+              <TableCell className="text-sm">{a.service?.name ?? "—"}</TableCell>
+              <TableCell>
+                <Badge variant="outline" className="w-28 justify-start gap-2">
+                  <span className={cn("size-2 rounded-full", STATUS_DOT[a.status])} />
+                  {STATUS_LABEL[a.status]}
+                </Badge>
+              </TableCell>
+              <TableCell>
+                <PaymentBadge appointment={a} />
+              </TableCell>
+              <TableCell className="text-right">
+                <AppointmentActions appointment={a} />
+              </TableCell>
+            </TableRow>
+          ))}
           {filtered.length === 0 && (
             <TableRow>
-              <TableCell colSpan={6} className="text-center text-muted-foreground">
+              <TableCell colSpan={7} className="text-center text-muted-foreground">
                 No hay turnos en este rango.
               </TableCell>
             </TableRow>

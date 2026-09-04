@@ -4,6 +4,7 @@ import { AppointmentsTable, type AppointmentRow } from "@/components/appointment
 import { KpiCard } from "@/components/kpi-card";
 import { Badge } from "@/components/ui/badge";
 import type { Json, LandingConfig } from "@/lib/types";
+import { paidForAppointment, priceForBalance } from "@/lib/payments";
 
 function startOfMonth() {
   const d = new Date();
@@ -41,11 +42,44 @@ export default async function DashboardPage() {
     supabase.from("landing").select("config_json").maybeSingle(),
     supabase
       .from("appointments")
-      .select("id, starts_at, ends_at, status, source, client:clients(full_name, phone), service:services(name)")
+      .select(
+        "id, starts_at, ends_at, status, source, client:clients(full_name, phone), service:services(name, price, price_on_request)"
+      )
       .gte("starts_at", now.toISOString())
       .lte("starts_at", in31Days)
       .order("starts_at"),
   ]);
+
+  const appointmentIds = (appointments ?? []).map((a) => a.id);
+  const { data: appointmentPayments } = appointmentIds.length
+    ? await supabase
+        .from("payments")
+        .select("appointment_id, status, type, amount, discount_amount")
+        .in("appointment_id", appointmentIds)
+    : { data: [] };
+
+  const appointmentRows: AppointmentRow[] = (appointments ?? []).map((a) => {
+    const appt = a as unknown as {
+      id: string;
+      starts_at: string;
+      ends_at: string;
+      status: AppointmentRow["status"];
+      source: string;
+      client: { full_name: string; phone: string } | null;
+      service: { name: string; price: number | null; price_on_request: boolean } | null;
+    };
+    return {
+      id: appt.id,
+      starts_at: appt.starts_at,
+      ends_at: appt.ends_at,
+      status: appt.status,
+      source: appt.source,
+      client: appt.client,
+      service: appt.service ? { name: appt.service.name } : null,
+      price: priceForBalance(appt.service),
+      paid: paidForAppointment(appointmentPayments ?? [], appt.id),
+    };
+  });
 
   const revenue = (payments ?? []).reduce((sum, p) => sum + Number(p.amount), 0);
   const monthLabel = now.toLocaleDateString("es-AR", { month: "long" });
@@ -75,14 +109,14 @@ export default async function DashboardPage() {
         />
         <KpiCard
           label="Ingresos"
-          value={new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0, notation: "compact" }).format(revenue)}
+          value={new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0 }).format(revenue)}
           caption={`${monthLabel}, acreditado`}
           accent
         />
         <KpiCard label="Servicios" value={String(servicesActive ?? 0)} caption="activos en la landing" />
       </div>
 
-      <AppointmentsTable appointments={(appointments as unknown as AppointmentRow[]) ?? []} />
+      <AppointmentsTable appointments={appointmentRows} />
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="surface bg-card p-5">
