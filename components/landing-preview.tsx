@@ -245,7 +245,7 @@ export function LandingPreview({
         )}
 
         {showMap && mapSrc && (
-          <div className="aspect-[16/9] w-full overflow-hidden @sm:aspect-[21/9]">
+          <div className="aspect-[4/5] w-full overflow-hidden @sm:aspect-[21/9]">
             <iframe
               src={mapSrc}
               className={cn("h-full w-full border-0", !interactive && "pointer-events-none")}

@@ -1,15 +1,20 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { GripVerticalIcon } from "lucide-react";
+import { useActionState, useRef, useState } from "react";
+import Link from "next/link";
+import { GripVerticalIcon, ExternalLinkIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { LandingBuilderForm } from "@/components/landing-builder-form";
 import { LandingPreview, type PreviewBusiness } from "@/components/landing-preview";
+import { updateLandingConfig, type LandingFormState } from "@/app/(admin)/admin/landing-builder/actions";
 import { toggleServiceOnLanding } from "@/app/(admin)/admin/services/actions";
 import { cn } from "@/lib/utils";
 import type { LandingConfig, Service } from "@/lib/types";
 
 const MIN_PREVIEW_PCT = 20;
 const MAX_PREVIEW_PCT = 60;
+const FORM_ID = "landing-builder-form";
+const initialState: LandingFormState = { error: null };
 
 export function LandingBuilderWorkspace({
   config,
@@ -22,6 +27,7 @@ export function LandingBuilderWorkspace({
   business: PreviewBusiness;
   services: Service[];
 }) {
+  const [state, formAction, pending] = useActionState(updateLandingConfig, initialState);
   const [previewPct, setPreviewPct] = useState(32);
   const [dragging, setDragging] = useState(false);
   const [liveConfig, setLiveConfig] = useState(config);
@@ -56,6 +62,9 @@ export function LandingBuilderWorkspace({
     <div ref={containerRef} className="flex flex-col gap-2 lg:flex-row lg:items-stretch lg:gap-0">
       <div className="min-w-0 flex-1 lg:pr-4">
         <LandingBuilderForm
+          formId={FORM_ID}
+          formAction={formAction}
+          error={state.error}
           config={config}
           whatsappNumber={business.whatsapp_number}
           services={servicesState}
@@ -83,12 +92,28 @@ export function LandingBuilderWorkspace({
 
       {/* Vista previa en vivo: mismo componente que renderiza la landing
           pública real, alimentado con el estado del formulario sin guardar
-          — cero desfasaje entre lo que se edita y lo que se ve. */}
+          — cero desfasaje entre lo que se edita y lo que se ve. El botón
+          Guardar vive acá (referencia el <form> por id) junto con el link a
+          la landing real, siempre a mano en el mismo lugar. */}
       <div className="preview-pane shrink-0" style={{ ["--preview-pct" as string]: `${previewPct}%` }}>
         <div className="surface flex h-[70vh] flex-col overflow-hidden bg-card lg:sticky lg:top-6 lg:h-[calc(100vh-6rem)]">
-          <div className="border-b border-border p-3">
-            <p className="kicker-label text-muted-foreground">Vista previa (en vivo, sin guardar todavía)</p>
+          <div className="flex items-center gap-2 border-b border-border p-3">
+            <Button type="submit" form={FORM_ID} disabled={pending} className="halo flex-1">
+              {pending ? "Guardando..." : "Guardar cambios"}
+            </Button>
+            <Button
+              render={<Link href={`/${slug}`} target="_blank" rel="noopener noreferrer" />}
+              nativeButton={false}
+              variant="outline"
+              className="flex-1 gap-1.5"
+            >
+              Abrir landing pública
+              <ExternalLinkIcon className="size-3.5" />
+            </Button>
           </div>
+          {!pending && !state.error && state !== initialState && (
+            <p className="kicker-label border-b border-border px-3 py-2 text-muted-foreground">Guardado.</p>
+          )}
           <div className="min-h-0 flex-1 overflow-y-auto">
             <LandingPreview slug={slug} business={business} services={visibleServices} config={liveConfig} interactive={false} />
           </div>

@@ -1,16 +1,14 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { XIcon, PlusIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import { updateLandingConfig, type LandingFormState } from "@/app/(admin)/admin/landing-builder/actions";
 import type { LandingConfig, Service } from "@/lib/types";
 
-const initialState: LandingFormState = { error: null };
 const BENEFIT_MAX_CHARS = 40;
 
 function linesToList(text: string) {
@@ -53,22 +51,24 @@ function Block({
 }
 
 export function LandingBuilderForm({
+  formId,
+  formAction,
+  error,
   config,
   whatsappNumber,
   services,
   onToggleService,
-  onSaved,
   onLiveChange,
 }: {
+  formId: string;
+  formAction: (formData: FormData) => void;
+  error: string | null;
   config: LandingConfig;
   whatsappNumber: string | null;
   services: Service[];
   onToggleService: (id: string, value: boolean) => void;
-  onSaved?: () => void;
   onLiveChange?: (config: LandingConfig) => void;
 }) {
-  const [state, formAction, pending] = useActionState(updateLandingConfig, initialState);
-
   const [heroTitle, setHeroTitle] = useState(config.hero_title ?? "");
   const [locationLabel, setLocationLabel] = useState(config.location_label ?? "");
   const [heroSubtitle, setHeroSubtitle] = useState(config.hero_subtitle ?? "");
@@ -119,13 +119,6 @@ export function LandingBuilderForm({
     showMap,
   ]);
 
-  useEffect(() => {
-    if (!pending && !state.error && state !== initialState) {
-      onSaved?.();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state, pending]);
-
   function addGalleryUrl() {
     const url = newGalleryUrl.trim();
     if (!url) return;
@@ -138,7 +131,7 @@ export function LandingBuilderForm({
   }
 
   return (
-    <form action={formAction} className="space-y-4">
+    <form id={formId} action={formAction} className="space-y-4">
       <input type="hidden" name="section_benefits" value={showBenefits ? "on" : ""} />
       <input type="hidden" name="section_gallery" value={showGallery ? "on" : ""} />
       <input type="hidden" name="section_map" value={showMap ? "on" : ""} />
@@ -282,6 +275,9 @@ export function LandingBuilderForm({
         <div>
           <Label className="mb-1 block">WhatsApp</Label>
           <Input name="whatsapp_number" value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} placeholder="+5492634659520" />
+          <p className="mt-1 text-xs text-muted-foreground">
+            Solo el número, con código de país. El link de WhatsApp (wa.me) se arma solo.
+          </p>
         </div>
         <div>
           <Label className="mb-1 block">Instagram (opcional)</Label>
@@ -289,14 +285,7 @@ export function LandingBuilderForm({
         </div>
       </div>
 
-      {state.error && <p className="text-sm text-destructive">{state.error}</p>}
-
-      <Button type="submit" disabled={pending} className="halo">
-        {pending ? "Guardando..." : "Guardar cambios"}
-      </Button>
-      {!pending && !state.error && state !== initialState && (
-        <p className="text-sm text-muted-foreground">Guardado. Ya se ve en la landing pública.</p>
-      )}
+      {error && <p className="text-sm text-destructive">{error}</p>}
     </form>
   );
 }
