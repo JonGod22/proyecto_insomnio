@@ -468,6 +468,7 @@ export type AppointmentSource = Appointment["source"]
 export type LandingConfig = {
   hero_subtitle?: string
   hero_image_url?: string
+  cta_label?: string
   benefits?: string[]
   reviews?: { rating: number; count: number }
   gallery?: string[]

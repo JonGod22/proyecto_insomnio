@@ -7,17 +7,6 @@ import { Badge } from "@/components/ui/badge";
 import { FloatingAgentChat } from "@/components/floating-agent-chat";
 import type { Json, LandingConfig } from "@/lib/types";
 
-const STUDIO_PHOTO =
-  "https://images.unsplash.com/photo-1695527081848-1e46c06e6458?auto=format&fit=crop&w=1920&q=80";
-
-const GALLERY_PHOTOS = [
-  "https://images.unsplash.com/photo-1735151226446-1d364b4adc2f?auto=format&fit=crop&w=1200&q=80",
-  "https://images.unsplash.com/photo-1581003250898-36050e78fcd3?auto=format&fit=crop&w=800&q=80",
-  "https://images.unsplash.com/photo-1567629307995-b9f33097bd30?auto=format&fit=crop&w=800&q=80",
-  "https://images.unsplash.com/photo-1492618269284-653dce58fd6d?auto=format&fit=crop&w=800&q=80",
-  "https://images.unsplash.com/photo-1626383137804-ff908d2753a2?auto=format&fit=crop&w=800&q=80",
-];
-
 function formatPrice(service: {
   price: number | null;
   price_on_request: boolean;
@@ -64,8 +53,11 @@ export default async function BusinessLandingPage({
   const config = (landing?.config_json ?? {}) as Json as LandingConfig;
   const location = [business.address, business.city].filter(Boolean).join(", ");
   const mapQuery = encodeURIComponent(location || business.name);
-  const heroPhoto = config.hero_image_url || STUDIO_PHOTO;
-  const galleryPhotos = config.gallery?.length ? config.gallery : GALLERY_PHOTOS;
+  // Sin fallback a fotos de stock hardcodeadas: lo que se ve acá tiene que
+  // coincidir exactamente con lo que hay cargado en el Landing Builder.
+  const heroPhoto = config.hero_image_url;
+  const galleryPhotos = config.gallery ?? [];
+  const ctaLabel = config.cta_label || "Reservar turno";
   // Bloques prendidos/apagados por defecto: si el negocio nunca tocó el
   // Landing Builder, config.sections viene undefined y todo se muestra.
   const showBenefits = config.sections?.benefits ?? true;
@@ -89,15 +81,17 @@ export default async function BusinessLandingPage({
       </nav>
 
       {/* Hero: foto de fondo a todo el ancho, con degradé para legibilidad del texto. */}
-      <header className="relative flex min-h-[560px] items-end overflow-hidden sm:min-h-[640px]">
-        {/* eslint-disable-next-line @next/next/no-img-element -- el dueño del
-            negocio puede pegar cualquier URL desde el Landing Builder, no
-            solo dominios pre-aprobados en next.config para next/image. */}
-        <img
-          src={heroPhoto}
-          alt={`Espacio de ${business.name}`}
-          className="absolute inset-0 h-full w-full scale-105 object-cover blur-[1px]"
-        />
+      <header className="relative flex min-h-[560px] items-end overflow-hidden bg-foreground sm:min-h-[640px]">
+        {heroPhoto && (
+          // eslint-disable-next-line @next/next/no-img-element -- el dueño del
+          // negocio puede pegar cualquier URL desde el Landing Builder, no
+          // solo dominios pre-aprobados en next.config para next/image.
+          <img
+            src={heroPhoto}
+            alt={`Espacio de ${business.name}`}
+            className="absolute inset-0 h-full w-full scale-105 object-cover blur-[1px]"
+          />
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-black/10" />
         <div className="relative w-full px-6 py-12 sm:px-12 sm:py-16">
           <div className="mx-auto max-w-3xl">
@@ -113,7 +107,7 @@ export default async function BusinessLandingPage({
             )}
             <div className="flex flex-wrap items-center gap-3">
               <Button render={<Link href={`/${slug}/booking`} />} nativeButton={false} size="lg" className="halo">
-                Reservar turno
+                {ctaLabel}
               </Button>
               {showReviews && config.reviews && (
                 <Badge variant="outline">

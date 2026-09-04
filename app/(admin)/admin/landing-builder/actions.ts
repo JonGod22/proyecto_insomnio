@@ -24,8 +24,27 @@ export async function updateLandingConfig(
     return { error: "No se pudo determinar tu negocio. Volvé a iniciar sesión." };
   }
 
+  // Identidad (nombre, dirección, ciudad) vive en businesses, no en el
+  // config_json de landing — es el mismo dato que usa el resto del admin
+  // y la reserva, así que se edita en la tabla real.
+  const businessName = (formData.get("business_name") as string)?.trim();
+  const address = (formData.get("address") as string)?.trim() || null;
+  const city = (formData.get("city") as string)?.trim() || null;
+
+  if (!businessName) {
+    return { error: "El nombre del negocio es obligatorio." };
+  }
+
+  const { error: bizUpdateError } = await supabase
+    .from("businesses")
+    .update({ name: businessName, address, city })
+    .eq("id", businessId);
+
+  if (bizUpdateError) return { error: bizUpdateError.message };
+
   const heroSubtitle = (formData.get("hero_subtitle") as string)?.trim() || undefined;
   const heroImageUrl = (formData.get("hero_image_url") as string)?.trim() || undefined;
+  const ctaLabel = (formData.get("cta_label") as string)?.trim() || undefined;
   const benefits = linesToList(formData.get("benefits"));
   const gallery = linesToList(formData.get("gallery"));
   const reviewsRating = formData.get("reviews_rating") ? Number(formData.get("reviews_rating")) : null;
@@ -34,6 +53,7 @@ export async function updateLandingConfig(
   const config: LandingConfig = {
     hero_subtitle: heroSubtitle,
     hero_image_url: heroImageUrl,
+    cta_label: ctaLabel,
     benefits: benefits.length ? benefits : undefined,
     gallery: gallery.length ? gallery : undefined,
     reviews: reviewsRating && reviewsCount ? { rating: reviewsRating, count: reviewsCount } : undefined,

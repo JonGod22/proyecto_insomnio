@@ -8,7 +8,7 @@ export default async function LandingBuilderAdminPage() {
 
   const { data: businessId } = await supabase.rpc("get_my_business_id");
   const [{ data: business }, { data: landing }] = await Promise.all([
-    supabase.from("businesses").select("slug").eq("id", businessId as string).maybeSingle(),
+    supabase.from("businesses").select("slug, name, address, city").eq("id", businessId as string).maybeSingle(),
     supabase.from("landing").select("config_json").eq("business_id", businessId as string).maybeSingle(),
   ]);
 
@@ -35,7 +35,11 @@ export default async function LandingBuilderAdminPage() {
         y la vista previa de la derecha se recarga sola para que lo veas al instante.
       </p>
       {business?.slug ? (
-        <LandingBuilderWorkspace config={config} slug={business.slug} />
+        <LandingBuilderWorkspace
+          config={config}
+          slug={business.slug}
+          business={{ name: business.name, address: business.address, city: business.city }}
+        />
       ) : (
         <p className="text-sm text-destructive">
           Tu negocio todavía no tiene slug configurado — no se puede mostrar la vista previa.
