@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { XIcon, PlusIcon } from "lucide-react";
+import { useEffect, useRef, useState, useTransition } from "react";
+import { XIcon, PlusIcon, UploadIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
+import { uploadLandingLogo } from "@/app/(admin)/admin/landing-builder/actions";
 import type { LandingConfig, Service } from "@/lib/types";
 
 const BENEFIT_MAX_CHARS = 40;
@@ -89,6 +90,22 @@ export function LandingBuilderForm({
   const [whatsapp, setWhatsapp] = useState(whatsappNumber ?? "");
   const [instagramUrl, setInstagramUrl] = useState(config.instagram_url ?? "");
 
+  const [logoError, setLogoError] = useState<string | null>(null);
+  const [uploadingLogo, startLogoUpload] = useTransition();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  function handleLogoFile(file: File | undefined) {
+    if (!file) return;
+    setLogoError(null);
+    const fd = new FormData();
+    fd.set("file", file);
+    startLogoUpload(async () => {
+      const result = await uploadLandingLogo(fd);
+      if (result.error) setLogoError(result.error);
+      else if (result.url) setLogoUrl(result.url);
+    });
+  }
+
   // Cada cambio (todavía sin guardar) se manda al padre para que la vista
   // previa se actualice al instante — nada de esperar al submit.
   useEffect(() => {
@@ -142,40 +159,77 @@ export function LandingBuilderForm({
         <input key={url} type="hidden" name="gallery_url" value={url} />
       ))}
 
-      <div className="surface space-y-3 bg-card p-5">
-        <p className="type-display text-lg leading-none">Título principal</p>
-        <p className="text-sm text-muted-foreground">
-          El título grande del hero. A propósito es independiente del nombre del negocio que se ve
-          en el menú y en el admin — podés poner otra cosa acá sin que se cambie nada más.
-        </p>
-        <Input name="hero_title" value={heroTitle} onChange={(e) => setHeroTitle(e.target.value)} placeholder="Ej: Yésica Studio" />
-      </div>
+      <div className="surface space-y-5 bg-card p-5">
+        <div>
+          <p className="kicker-label text-primary">Encabezado</p>
+          <p className="type-display text-lg leading-none">Logo y títulos</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Todo lo que se ve arriba, sobre la foto del hero — va junto porque forma una sola
+            sección visual de la página.
+          </p>
+        </div>
 
-      <div className="surface space-y-3 bg-card p-5">
-        <p className="type-display text-lg leading-none">Título secundario 1</p>
-        <p className="text-sm text-muted-foreground">Línea chica arriba del título — normalmente la ubicación, pero es texto libre.</p>
-        <Input name="location_label" value={locationLabel} onChange={(e) => setLocationLabel(e.target.value)} placeholder="Ej: Bailén 102, San Martín, Mendoza" />
-      </div>
-
-      <div className="surface space-y-3 bg-card p-5">
-        <p className="type-display text-lg leading-none">Título secundario 2</p>
-        <p className="text-sm text-muted-foreground">El texto debajo del título principal.</p>
-        <Input name="hero_subtitle" value={heroSubtitle} onChange={(e) => setHeroSubtitle(e.target.value)} placeholder="Ej: Turnos de lunes a sábado" />
-      </div>
-
-      <div className="surface space-y-3 bg-card p-5">
-        <p className="type-display text-lg leading-none">Logo</p>
-        <p className="text-sm text-muted-foreground">
-          Logo en el encabezado (PNG o SVG). Si lo dejás vacío, se muestra el título principal como
-          texto.
-        </p>
-        <Input name="logo_url" value={logoUrl} onChange={(e) => setLogoUrl(e.target.value)} placeholder="https://..." />
-        {logoUrl && (
-          <div className="mt-2 flex h-16 items-center rounded-[6px] bg-foreground px-4">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={logoUrl} alt="Vista previa del logo" className="h-8 w-auto max-w-40 object-contain" />
+        <div className="space-y-2 border-t border-border pt-4">
+          <Label className="mb-1 block">Logo</Label>
+          <p className="text-sm text-muted-foreground">
+            PNG o SVG (ideal, se ve nítido en cualquier tamaño). Si no cargás uno, se muestra el
+            título principal como texto.
+          </p>
+          <div className="flex gap-2">
+            <Input
+              name="logo_url"
+              value={logoUrl}
+              onChange={(e) => setLogoUrl(e.target.value)}
+              placeholder="https://... o subilo desde tu computadora"
+              className="flex-1"
+            />
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploadingLogo}
+              className="shrink-0 gap-1.5"
+            >
+              <UploadIcon className="size-4" />
+              {uploadingLogo ? "Subiendo..." : "Subir archivo"}
+            </Button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".png,.svg,image/png,image/svg+xml"
+              className="hidden"
+              onChange={(e) => handleLogoFile(e.target.files?.[0])}
+            />
           </div>
-        )}
+          {logoError && <p className="text-xs text-destructive">{logoError}</p>}
+          {logoUrl && (
+            <div className="mt-2 flex h-16 items-center rounded-[6px] bg-foreground px-4">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={logoUrl} alt="Vista previa del logo" className="h-8 w-auto max-w-40 object-contain" />
+            </div>
+          )}
+        </div>
+
+        <div className="space-y-2 border-t border-border pt-4">
+          <Label className="mb-1 block">Título principal</Label>
+          <p className="text-sm text-muted-foreground">
+            Independiente del nombre del negocio que se ve en el menú y en el admin — podés poner
+            otra cosa acá sin que se cambie nada más.
+          </p>
+          <Input name="hero_title" value={heroTitle} onChange={(e) => setHeroTitle(e.target.value)} placeholder="Ej: Yésica Studio" />
+        </div>
+
+        <div className="space-y-2 border-t border-border pt-4">
+          <Label className="mb-1 block">Título secundario 1</Label>
+          <p className="text-sm text-muted-foreground">Línea chica arriba del título — normalmente la ubicación, pero es texto libre.</p>
+          <Input name="location_label" value={locationLabel} onChange={(e) => setLocationLabel(e.target.value)} placeholder="Ej: Bailén 102, San Martín, Mendoza" />
+        </div>
+
+        <div className="space-y-2 border-t border-border pt-4">
+          <Label className="mb-1 block">Título secundario 2</Label>
+          <p className="text-sm text-muted-foreground">El texto debajo del título principal.</p>
+          <Input name="hero_subtitle" value={heroSubtitle} onChange={(e) => setHeroSubtitle(e.target.value)} placeholder="Ej: Turnos de lunes a sábado" />
+        </div>
       </div>
 
       <div className="surface space-y-3 bg-card p-5">
@@ -197,7 +251,7 @@ export function LandingBuilderForm({
 
       <Block
         title="Destacados"
-        description={`Botones cortos debajo del hero, uno por línea (máx. ${BENEFIT_MAX_CHARS} caracteres cada uno). No tienen que ser 'beneficios' — pueden ser lo que quieras.`}
+        description={`Se muestran como iconitos debajo del hero — el texto aparece al pasar el mouse (o al tocarlos en el celular). Uno por línea, máx. ${BENEFIT_MAX_CHARS} caracteres cada uno.`}
         enabled={showBenefits}
         onToggle={setShowBenefits}
       >

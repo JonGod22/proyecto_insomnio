@@ -6,6 +6,34 @@ import type { LandingConfig } from "@/lib/types";
 
 export type LandingFormState = { error: string | null };
 
+const LOGO_ALLOWED_EXT = ["png", "svg"];
+
+export async function uploadLandingLogo(formData: FormData): Promise<{ url?: string; error?: string }> {
+  const supabase = await createClient();
+
+  const { data: businessId, error: bizError } = await supabase.rpc("get_my_business_id");
+  if (bizError || !businessId) {
+    return { error: "No se pudo determinar tu negocio. Volvé a iniciar sesión." };
+  }
+
+  const file = formData.get("file") as File | null;
+  if (!file || file.size === 0) return { error: "No se seleccionó ningún archivo." };
+
+  const ext = file.name.split(".").pop()?.toLowerCase();
+  if (!ext || !LOGO_ALLOWED_EXT.includes(ext)) {
+    return { error: "Solo se aceptan archivos PNG o SVG." };
+  }
+
+  const path = `${businessId}/logo-${Date.now()}.${ext}`;
+  const { error: uploadError } = await supabase.storage
+    .from("landing-assets")
+    .upload(path, file, { contentType: file.type, upsert: true });
+  if (uploadError) return { error: uploadError.message };
+
+  const { data } = supabase.storage.from("landing-assets").getPublicUrl(path);
+  return { url: data.publicUrl };
+}
+
 // Si alguien pega el <iframe ...> completo en vez de solo la URL, se
 // extrae el src en vez de guardar HTML roto.
 function extractMapUrl(raw: string) {

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { CircleHelpIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -156,14 +157,20 @@ export function LandingPreview({
 
       {showBenefits && config.benefits && config.benefits.length > 0 && (
         <section className="px-6 py-6 @sm:px-12">
-          <div className="mx-auto flex max-w-5xl flex-col items-stretch gap-3 @sm:flex-row @sm:flex-wrap @sm:justify-center">
+          <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-center gap-4">
             {config.benefits.map((benefit) => (
-              <span
-                key={benefit}
-                className="surface kicker-label flex min-h-16 w-full items-center justify-center rounded-[24px] bg-card px-6 py-3 text-center leading-snug text-foreground @sm:w-64"
-              >
-                {benefit}
-              </span>
+              <div key={benefit} className="group relative">
+                <button
+                  type="button"
+                  aria-label={benefit}
+                  className="surface flex size-10 items-center justify-center rounded-full bg-card text-foreground"
+                >
+                  <CircleHelpIcon className="size-4" />
+                </button>
+                <span className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 w-max max-w-56 -translate-x-1/2 rounded-[8px] bg-foreground px-3 py-1.5 text-center text-xs leading-snug text-background opacity-0 shadow-lg transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
+                  {benefit}
+                </span>
+              </div>
             ))}
           </div>
         </section>
