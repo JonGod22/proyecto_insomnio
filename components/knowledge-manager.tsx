@@ -14,7 +14,17 @@ import type { KnowledgeBaseEntry } from "@/lib/types";
 
 const initialState: KnowledgeFormState = { error: null };
 
-export function KnowledgeManager({ entries }: { entries: KnowledgeBaseEntry[] }) {
+export function KnowledgeManager({
+  entries,
+  serviceId,
+  compact = false,
+}: {
+  entries: KnowledgeBaseEntry[];
+  /** Si viene, las entradas nuevas quedan ligadas a este servicio. */
+  serviceId?: string;
+  /** Versión reducida para usar adentro de un popup (menos aire, sin líneas de ayuda largas). */
+  compact?: boolean;
+}) {
   const [editing, setEditing] = useState<KnowledgeBaseEntry | null>(null);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -51,15 +61,18 @@ export function KnowledgeManager({ entries }: { entries: KnowledgeBaseEntry[] })
   }
 
   return (
-    <div className="space-y-6">
+    <div className={compact ? "space-y-4" : "space-y-6"}>
       <div className="surface space-y-3 bg-card p-5">
         <p className="type-display text-lg leading-none">{editing ? "Editar fragmento" : "Cargar información"}</p>
-        <p className="text-sm text-muted-foreground">
-          Escribí acá abajo o adjuntá un archivo de texto (.txt o .md) — es lo único que el agente
-          va a poder usar para responder, se guarda tal cual, sin reentrenamiento.
-        </p>
+        {!compact && (
+          <p className="text-sm text-muted-foreground">
+            Escribí acá abajo o adjuntá un archivo de texto (.txt o .md) — es lo único que el agente
+            va a poder usar para responder, se guarda tal cual, sin reentrenamiento.
+          </p>
+        )}
         <form action={formAction} className="space-y-3">
           {editing && <input type="hidden" name="id" value={editing.id} />}
+          {serviceId && !editing && <input type="hidden" name="service_id" value={serviceId} />}
           <div>
             <Label className="mb-1 block">Título</Label>
             <Input name="title" value={title} onChange={(e) => setTitle(e.target.value)} required />

@@ -177,6 +177,7 @@ export type Database = {
           created_at: string
           embedding: string | null
           id: string
+          service_id: string | null
           title: string
         }
         Insert: {
@@ -185,6 +186,7 @@ export type Database = {
           created_at?: string
           embedding?: string | null
           id?: string
+          service_id?: string | null
           title: string
         }
         Update: {
@@ -193,6 +195,7 @@ export type Database = {
           created_at?: string
           embedding?: string | null
           id?: string
+          service_id?: string | null
           title?: string
         }
         Relationships: [
@@ -201,6 +204,13 @@ export type Database = {
             columns: ["business_id"]
             isOneToOne: false
             referencedRelation: "businesses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "knowledge_base_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
             referencedColumns: ["id"]
           },
         ]
@@ -469,6 +479,7 @@ export type LandingConfig = {
   hero_subtitle?: string
   hero_image_url?: string
   cta_label?: string
+  map_embed_url?: string
   benefits?: string[]
   reviews?: { rating: number; count: number }
   gallery?: string[]

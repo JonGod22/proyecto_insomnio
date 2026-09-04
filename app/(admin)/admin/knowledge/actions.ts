@@ -13,6 +13,7 @@ export async function upsertKnowledgeEntry(
   const id = formData.get("id") as string;
   const title = String(formData.get("title") ?? "").trim();
   const content = String(formData.get("content") ?? "").trim();
+  const serviceId = (formData.get("service_id") as string) || null;
 
   if (!title || !content) {
     return { error: "Título y contenido son obligatorios." };
@@ -26,11 +27,14 @@ export async function upsertKnowledgeEntry(
     if (bizError || !businessId) {
       return { error: "No se pudo determinar tu negocio. Volvé a iniciar sesión." };
     }
-    const { error } = await supabase.from("knowledge_base").insert({ title, content, business_id: businessId });
+    const { error } = await supabase
+      .from("knowledge_base")
+      .insert({ title, content, business_id: businessId, service_id: serviceId });
     if (error) return { error: error.message };
   }
 
   revalidatePath("/admin/knowledge");
+  revalidatePath("/admin/services");
   revalidatePath("/admin");
   return { error: null };
 }
@@ -39,5 +43,6 @@ export async function deleteKnowledgeEntry(id: string) {
   const supabase = await createClient();
   await supabase.from("knowledge_base").delete().eq("id", id);
   revalidatePath("/admin/knowledge");
+  revalidatePath("/admin/services");
   revalidatePath("/admin");
 }

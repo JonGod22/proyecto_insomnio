@@ -58,7 +58,7 @@ export const agentTools: Anthropic.Tool[] = [
   {
     name: "search_knowledge_base",
     description:
-      "Busca políticas, FAQs, cuidados y tono de marca del negocio (contenido NO transaccional). Nunca la uses para precio, duración o disponibilidad: eso sale siempre de get_services / get_available_slots.",
+      "Busca políticas, FAQs, cuidados y tono de marca del negocio (contenido NO transaccional) — incluye info específica cargada para un servicio puntual (ej. cuidados post-tratamiento de 'Extensiones Foxy Volumen'). Nunca la uses para precio, duración o disponibilidad: eso sale siempre de get_services / get_available_slots. Si la pregunta menciona un servicio, incluí su nombre en la query para priorizar esos fragmentos.",
     input_schema: {
       type: "object",
       properties: {
@@ -115,11 +115,12 @@ export async function executeTool(
       // 1536 dims para calzar con knowledge_base.embedding) + supabase.rpc con
       // una función match_knowledge_base basada en <=> (cosine distance).
       // Placeholder mientras no hay pipeline de embeddings: búsqueda por texto.
+      const query = String(input.query);
       const { data, error } = await ctx.supabase
         .from("knowledge_base")
-        .select("title, content")
+        .select("title, content, service:services(name)")
         .eq("business_id", ctx.businessId)
-        .ilike("content", `%${String(input.query)}%`)
+        .or(`content.ilike.%${query}%,title.ilike.%${query}%`)
         .limit(3);
       if (error) return { error: error.message };
       return { results: data };

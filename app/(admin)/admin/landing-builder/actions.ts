@@ -13,6 +13,13 @@ function linesToList(value: FormDataEntryValue | null) {
     .filter(Boolean);
 }
 
+// Si alguien pega el <iframe ...> completo en vez de solo la URL, se
+// extrae el src en vez de guardar HTML roto.
+function extractMapUrl(raw: string) {
+  const match = raw.match(/src=["']([^"']+)["']/);
+  return (match ? match[1] : raw).trim();
+}
+
 export async function updateLandingConfig(
   _prev: LandingFormState,
   formData: FormData
@@ -45,6 +52,8 @@ export async function updateLandingConfig(
   const heroSubtitle = (formData.get("hero_subtitle") as string)?.trim() || undefined;
   const heroImageUrl = (formData.get("hero_image_url") as string)?.trim() || undefined;
   const ctaLabel = (formData.get("cta_label") as string)?.trim() || undefined;
+  const mapEmbedUrlRaw = (formData.get("map_embed_url") as string)?.trim();
+  const mapEmbedUrl = mapEmbedUrlRaw ? extractMapUrl(mapEmbedUrlRaw) : undefined;
   const benefits = linesToList(formData.get("benefits"));
   const gallery = linesToList(formData.get("gallery"));
   const reviewsRating = formData.get("reviews_rating") ? Number(formData.get("reviews_rating")) : null;
@@ -54,6 +63,7 @@ export async function updateLandingConfig(
     hero_subtitle: heroSubtitle,
     hero_image_url: heroImageUrl,
     cta_label: ctaLabel,
+    map_embed_url: mapEmbedUrl,
     benefits: benefits.length ? benefits : undefined,
     gallery: gallery.length ? gallery : undefined,
     reviews: reviewsRating && reviewsCount ? { rating: reviewsRating, count: reviewsCount } : undefined,
