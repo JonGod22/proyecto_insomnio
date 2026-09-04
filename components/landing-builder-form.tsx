@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -44,12 +44,19 @@ function Block({
   );
 }
 
-export function LandingBuilderForm({ config }: { config: LandingConfig }) {
+export function LandingBuilderForm({ config, onSaved }: { config: LandingConfig; onSaved?: () => void }) {
   const [state, formAction, pending] = useActionState(updateLandingConfig, initialState);
   const [showBenefits, setShowBenefits] = useState(config.sections?.benefits ?? true);
   const [showGallery, setShowGallery] = useState(config.sections?.gallery ?? true);
   const [showReviews, setShowReviews] = useState(config.sections?.reviews ?? true);
   const [showMap, setShowMap] = useState(config.sections?.map ?? true);
+
+  useEffect(() => {
+    if (!pending && !state.error && state !== initialState) {
+      onSaved?.();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state, pending]);
 
   return (
     <form action={formAction} className="space-y-4">

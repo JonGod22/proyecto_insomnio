@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { LandingBuilderForm } from "@/components/landing-builder-form";
+import { LandingBuilderWorkspace } from "@/components/landing-builder-workspace";
 import type { Json, LandingConfig } from "@/lib/types";
 
 export default async function LandingBuilderAdminPage() {
@@ -25,16 +25,22 @@ export default async function LandingBuilderAdminPage() {
             rel="noopener noreferrer"
             className="kicker-label text-foreground underline"
           >
-            Ver landing pública
+            Abrir landing pública
           </Link>
         )}
       </div>
       <p className="max-w-2xl text-sm text-muted-foreground">
         Cada bloque de acá abajo es una sección de la landing pública. Prendé o apagá lo que
-        quieras mostrar y editá su contenido — el resultado se ve en el mismo diseño que ya está
-        en producción, no hay que tocar código.
+        quieras mostrar y editá su contenido — al guardar se actualiza directo en la página real,
+        y la vista previa de la derecha se recarga sola para que lo veas al instante.
       </p>
-      <LandingBuilderForm config={config} />
+      {business?.slug ? (
+        <LandingBuilderWorkspace config={config} slug={business.slug} />
+      ) : (
+        <p className="text-sm text-destructive">
+          Tu negocio todavía no tiene slug configurado — no se puede mostrar la vista previa.
+        </p>
+      )}
     </div>
   );
 }
