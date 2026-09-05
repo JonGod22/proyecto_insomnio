@@ -15,8 +15,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
+import { KnowledgeManager } from "@/components/knowledge-manager";
 import { upsertService, type ServiceFormState } from "@/app/(admin)/admin/services/actions";
-import type { Service } from "@/lib/types";
+import type { KnowledgeBaseEntry, Service } from "@/lib/types";
 
 const INFO_IMAGES_MAX = 3;
 
@@ -24,9 +25,11 @@ const initialState: ServiceFormState = { error: null };
 
 export function ServiceDialog({
   service,
+  knowledgeEntries,
   trigger,
 }: {
   service?: Service;
+  knowledgeEntries?: KnowledgeBaseEntry[];
   trigger: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
@@ -57,7 +60,7 @@ export function ServiceDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger render={trigger as React.ReactElement} />
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>{service ? "Editar servicio" : "Nuevo servicio"}</DialogTitle>
         </DialogHeader>
@@ -180,6 +183,18 @@ export function ServiceDialog({
             </Button>
           </DialogFooter>
         </form>
+
+        {service && (
+          <div className="space-y-2 border-t border-border pt-4">
+            <Label className="block">Información para el agente</Label>
+            <p className="text-xs text-muted-foreground">
+              Lo que cargues acá es lo que el agente va a usar para responder dudas puntuales de
+              este servicio (cuidados, contraindicaciones, qué incluye, etc.) — no reemplaza el
+              precio ni la duración, que ya salen de los datos reales del servicio.
+            </p>
+            <KnowledgeManager entries={knowledgeEntries ?? []} serviceId={service.id} compact />
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );

@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ServiceDialog } from "@/components/service-dialog";
-import { ServiceKnowledgeDialog } from "@/components/service-knowledge-dialog";
 import { deleteService } from "@/app/(admin)/admin/services/actions";
 import type { KnowledgeBaseEntry, Service } from "@/lib/types";
 
@@ -51,17 +50,11 @@ export function ServicesTable({ services, knowledge }: { services: Service[]; kn
                   </Badge>
                 </TableCell>
                 <TableCell className="flex justify-end gap-2">
-                  <ServiceKnowledgeDialog
-                    serviceId={service.id}
-                    serviceName={service.name}
-                    entries={serviceKnowledge}
-                    trigger={
-                      <Button variant="outline" size="sm">
-                        Info del agente{serviceKnowledge.length > 0 ? ` (${serviceKnowledge.length})` : ""}
-                      </Button>
-                    }
+                  <ServiceDialog
+                    service={service}
+                    knowledgeEntries={serviceKnowledge}
+                    trigger={<Button variant="outline" size="sm">Editar</Button>}
                   />
-                  <ServiceDialog service={service} trigger={<Button variant="outline" size="sm">Editar</Button>} />
                   <form action={deleteService.bind(null, service.id)}>
                     <Button variant="destructive" size="sm" type="submit">
                       Eliminar
