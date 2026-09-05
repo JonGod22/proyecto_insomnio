@@ -28,11 +28,11 @@ function InfoTooltip({ text }: { text: string }) {
       <button
         type="button"
         aria-label="Más información"
-        className="flex size-5 items-center justify-center rounded-full border border-border text-xs text-muted-foreground hover:border-primary hover:text-primary"
+        className="flex size-3.5 items-center justify-center rounded-full border border-border text-[9px] leading-none text-muted-foreground hover:border-primary hover:text-primary"
       >
         ?
       </button>
-      <span className="pointer-events-none absolute right-0 top-full z-10 mt-2 w-64 rounded-[8px] bg-foreground px-3 py-2 text-xs leading-snug text-background opacity-0 shadow-lg transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
+      <span className="pointer-events-none absolute left-0 top-full z-10 mt-1.5 w-56 rounded-[8px] border border-border bg-popover px-2.5 py-1.5 text-[11px] leading-tight text-popover-foreground opacity-0 shadow-lg transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
         {text}
       </span>
     </span>
@@ -195,7 +195,7 @@ export function LandingBuilderForm({
         </div>
 
         <div className="space-y-2 border-t border-border pt-4">
-          <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-1.5">
             <Label className="block">Logo</Label>
             <InfoTooltip text="Formatos disponibles: PNG o SVG. Si no cargás uno, se muestra el título principal como texto." />
           </div>
@@ -251,7 +251,7 @@ export function LandingBuilderForm({
       </div>
 
       <div className="surface space-y-3 bg-card p-5">
-        <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-1.5">
           <p className="type-display text-lg leading-none">Hero</p>
           <InfoTooltip text="La franja grande de arriba de la landing: la foto de fondo y el texto del botón que lleva a reservar." />
         </div>
