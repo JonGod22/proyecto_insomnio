@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 export function KpiCard({
@@ -5,19 +6,22 @@ export function KpiCard({
   value,
   caption,
   accent,
+  href,
 }: {
   label: string;
   value: string;
   caption: string;
   accent?: boolean;
+  href?: string;
 }) {
-  return (
-    <div
-      className={cn(
-        "surface p-5",
-        accent ? "bg-primary text-primary-foreground" : "bg-card"
-      )}
-    >
+  const className = cn(
+    "surface p-5",
+    accent ? "bg-primary text-primary-foreground" : "bg-card",
+    href && "block transition-opacity hover:opacity-85"
+  );
+
+  const content = (
+    <>
       <p className={cn("kicker-label mb-2", accent ? "text-primary-foreground/70" : "text-muted-foreground")}>
         {label}
       </p>
@@ -25,6 +29,16 @@ export function KpiCard({
       <p className={cn("mt-2 text-sm", accent ? "text-primary-foreground/80" : "text-muted-foreground")}>
         {caption}
       </p>
-    </div>
+    </>
   );
+
+  if (href) {
+    return (
+      <Link href={href} className={className}>
+        {content}
+      </Link>
+    );
+  }
+
+  return <div className={className}>{content}</div>;
 }

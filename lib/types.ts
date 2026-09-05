@@ -500,10 +500,16 @@ export type LandingConfig = {
   /** Links de contacto/redes adicionales al WhatsApp (hasta 3), título y URL
    * libres — reemplaza el viejo instagram_url fijo. */
   links?: { label: string; url: string }[]
-  /** Id de una paleta curada (ver lib/landing-palettes.ts) — no colores libres. */
+  /** Id de una paleta curada (ver lib/landing-palettes.ts), o "custom" (plan
+   * Pro) para usar custom_palette en vez de una de la lista. */
   theme_palette?: string
-  /** Id de una tipografía curada (ver lib/landing-fonts.ts) — no fuentes libres. */
+  /** Paleta armada a mano (plan Pro) — solo se usa si theme_palette === "custom". */
+  custom_palette?: { background: string; foreground: string; primary: string }
+  /** Id de una tipografía curada (ver lib/landing-fonts.ts), o "custom" (plan
+   * Pro) para usar custom_font_family en vez de una pareja de la lista. */
   font_id?: string
+  /** Nombre de familia de Google Fonts (plan Pro) — solo si font_id === "custom". */
+  custom_font_family?: string
   benefits?: string[]
   gallery?: string[]
   sections?: {

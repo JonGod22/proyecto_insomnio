@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { AppointmentsTable, type AppointmentRow } from "@/components/appointments-table";
 import { KpiCard } from "@/components/kpi-card";
 import { Badge } from "@/components/ui/badge";
-import type { Json, LandingConfig } from "@/lib/types";
+import { ProBadge } from "@/components/pro-badge";
 import { paidForAppointment, priceForBalance } from "@/lib/payments";
 
 function startOfMonth() {
@@ -25,7 +25,6 @@ export default async function DashboardPage() {
     { count: upcomingThisWeek },
     { data: payments },
     { count: knowledgeCount },
-    { data: landing },
     { data: appointments },
   ] = await Promise.all([
     supabase.from("services").select("id", { count: "exact", head: true }).eq("active", true),
@@ -39,7 +38,6 @@ export default async function DashboardPage() {
       .neq("status", "cancelled"),
     supabase.from("payments").select("amount").eq("status", "approved").gte("created_at", monthStart),
     supabase.from("knowledge_base").select("id", { count: "exact", head: true }),
-    supabase.from("landing").select("config_json").maybeSingle(),
     supabase
       .from("appointments")
       .select(
@@ -83,75 +81,59 @@ export default async function DashboardPage() {
 
   const revenue = (payments ?? []).reduce((sum, p) => sum + Number(p.amount), 0);
   const monthLabel = now.toLocaleDateString("es-AR", { month: "long" });
-  const agentReady = Boolean(process.env.ANTHROPIC_API_KEY);
-  const config = (landing?.config_json ?? {}) as Json as LandingConfig;
 
-  const landingSections = [
-    { label: "Título principal", done: Boolean(config.hero_title) },
-    { label: "Hero", done: true },
-    { label: "Destacados", done: Boolean(config.benefits?.length) },
-    { label: "Galería", done: Boolean(config.gallery?.length) },
-  ];
+  // El agente conversacional es una función del plan Business — hoy no hay
+  // planes reales, así que esto es solo la etiqueta informativa (nada se
+  // bloquea todavía). Cuando exista el flag de plan, esto pasa a leerlo.
+  const agentIncludedInPlan = false;
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="type-display text-4xl leading-none">Dashboard</h1>
-        <Badge variant="live">{agentReady ? "Agente activo" : "Agente sin configurar"}</Badge>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <KpiCard label="Próximos turnos" value={String(upcomingThisWeek ?? 0)} caption="esta semana" />
+        <KpiCard label="Próximos turnos" value={String(upcomingThisWeek ?? 0)} caption="esta semana" href="/admin/appointments" />
         <KpiCard
           label="Clientes"
           value={String(clientsTotal ?? 0)}
           caption={`+${clientsThisMonth ?? 0} este mes`}
+          href="/admin/clients"
         />
         <KpiCard
           label="Ingresos"
           value={new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0 }).format(revenue)}
           caption={`${monthLabel}, acreditado`}
           accent
+          href="/admin/payments"
         />
-        <KpiCard label="Servicios" value={String(servicesActive ?? 0)} caption="activos en la landing" />
+        <KpiCard label="Servicios" value={String(servicesActive ?? 0)} caption="activos en la landing" href="/admin/services" />
       </div>
 
       <AppointmentsTable appointments={appointmentRows} />
 
-      <div className="grid gap-4 sm:grid-cols-2">
-        <div className="surface bg-card p-5">
-          <div className="mb-3 flex items-center justify-between">
-            <p className="type-display text-xl leading-none">Aprendizaje</p>
-            <Badge variant="outline">RAG · {knowledgeCount ?? 0} fragmentos</Badge>
+      <div className="surface flex flex-wrap items-center justify-between gap-3 bg-card p-5">
+        <div>
+          <div className="mb-1 flex items-center gap-2">
+            <p className="type-display text-lg leading-none">Agente conversacional</p>
+            {agentIncludedInPlan ? (
+              <Badge variant="live">Activo</Badge>
+            ) : (
+              <>
+                <Badge variant="secondary">Desactivado en Free</Badge>
+                <ProBadge />
+              </>
+            )}
           </div>
-          <p className="mb-4 text-sm text-muted-foreground">
-            Lo que cargás acá es lo único que el agente puede responder. No hay reentrenamiento: se
-            indexa y se consulta en tiempo real.
+          <p className="text-sm text-muted-foreground">
+            Responde consultas de clientes en la landing usando la base de conocimiento
+            {knowledgeCount ? ` (${knowledgeCount} fragmentos cargados)` : ""}. Disponible en el plan Business.
           </p>
-          <Link href="/admin/knowledge" className="kicker-label text-foreground underline">
-            Ver base de conocimiento
-          </Link>
         </div>
-
-        <div className="surface bg-foreground p-5 text-background">
-          <p className="type-display mb-3 text-xl leading-none">Landing Builder</p>
-          <p className="mb-4 text-sm text-background/70">
-            Bloques configurables guardados en JSON. Al publicar se revalida la página estática.
-          </p>
-          <ul className="mb-4 space-y-2 text-sm">
-            {landingSections.map((s) => (
-              <li key={s.label} className="flex items-center justify-between border-b border-background/10 pb-2">
-                <span>{s.label}</span>
-                <span className={s.done ? "text-primary" : "text-background/50"}>
-                  {s.done ? "configurado" : "pendiente"}
-                </span>
-              </li>
-            ))}
-          </ul>
-          <Link href="/admin/landing-builder" className="kicker-label text-primary underline">
-            Ir al editor
-          </Link>
-        </div>
+        <Link href="/admin/knowledge" className="kicker-label shrink-0 text-foreground underline">
+          Ver base de conocimiento
+        </Link>
       </div>
     </div>
   );

@@ -9,8 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { FloatingAgentChat } from "@/components/floating-agent-chat";
 import { cn } from "@/lib/utils";
-import { getLandingPalette } from "@/lib/landing-palettes";
-import { getLandingFontPair } from "@/lib/landing-fonts";
+import { getLandingPalette, buildCustomPalette } from "@/lib/landing-palettes";
+import { getLandingFontPair, googleFontsCssUrl } from "@/lib/landing-fonts";
 import type { LandingConfig } from "@/lib/types";
 
 export type PreviewService = {
@@ -244,8 +244,11 @@ export function LandingPreview({
   const mapSrc = config.map_embed_url || (computedLocation ? `https://www.google.com/maps?q=${mapQuery}&output=embed` : null);
   const links = config.links ?? [];
   const hasContact = Boolean(business.whatsapp_number || links.length > 0);
-  const palette = getLandingPalette(config.theme_palette);
-  const fontPair = getLandingFontPair(config.font_id);
+  const palette =
+    config.theme_palette === "custom" && config.custom_palette
+      ? buildCustomPalette(config.custom_palette)
+      : getLandingPalette(config.theme_palette);
+  const fontPair = getLandingFontPair(config.font_id, config.custom_font_family);
 
   function preventNav(e: React.MouseEvent) {
     if (!interactive) e.preventDefault();
@@ -253,7 +256,7 @@ export function LandingPreview({
 
   return (
     <main
-      className={cn("@container flex-1 bg-background text-foreground", fontPair.body.className)}
+      className={cn("@container flex-1 bg-background pb-28 text-foreground sm:pb-32", fontPair.body.className)}
       style={
         {
           "--background": palette.background,
@@ -269,9 +272,14 @@ export function LandingPreview({
           "--muted": palette.muted,
           "--muted-foreground": palette.mutedForeground,
           "--border": palette.border,
+          ...(fontPair.body.family ? { fontFamily: fontPair.body.family } : {}),
         } as React.CSSProperties
       }
     >
+      {/* Tipografía personalizada (plan Pro): se carga en vivo desde Google
+          Fonts por nombre de familia — las parejas curadas usan next/font
+          (autohospedadas) y no necesitan esto. */}
+      {fontPair.body.family && <link rel="stylesheet" href={googleFontsCssUrl(fontPair.body.family)} />}
       <div className="relative">
         {/* Flota transparente/vidrio sobre la foto del hero, no ocupa su
             propio bloque blanco — por eso vive adentro del <header>. */}
@@ -404,11 +412,6 @@ export function LandingPreview({
       )}
 
       <footer className="py-16">
-        <p className="kicker-label mb-4 px-6 text-center text-muted-foreground @sm:px-12">
-          {business.name}
-          {computedLocation ? ` · ${computedLocation}` : ""}
-        </p>
-
         {hasContact && (
           <div className="mb-8 flex justify-center gap-3 px-6 @sm:px-12">
             {business.whatsapp_number && (
@@ -432,6 +435,13 @@ export function LandingPreview({
             ))}
           </div>
         )}
+
+        {/* Nombre + ubicación pegado al mapa (tiene más sentido ahí, es la
+            dirección del lugar) en vez de arriba de los botones de contacto. */}
+        <p className="kicker-label mb-4 px-6 text-center text-muted-foreground @sm:px-12">
+          {business.name}
+          {computedLocation ? ` · ${computedLocation}` : ""}
+        </p>
 
         {showMap && mapSrc && (
           <div className="aspect-[4/5] w-full overflow-hidden @sm:aspect-[21/9]">

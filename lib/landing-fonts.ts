@@ -27,8 +27,8 @@ const permanentMarker = Permanent_Marker({ subsets: ["latin"], weight: ["400"] }
 type FontPair = {
   label: string;
   description: string;
-  heading: { className: string; sample: string };
-  body: { className: string };
+  heading: { className: string; sample: string; family?: string };
+  body: { className: string; family?: string };
 };
 
 export const LANDING_FONT_PAIRS: Record<string, FontPair> = {
@@ -79,6 +79,26 @@ export const LANDING_FONT_PAIRS: Record<string, FontPair> = {
 export type LandingFontPairId = keyof typeof LANDING_FONT_PAIRS;
 export const LANDING_FONT_PAIR_IDS = Object.keys(LANDING_FONT_PAIRS) as LandingFontPairId[];
 
-export function getLandingFontPair(id: string | undefined) {
+/**
+ * "custom" no es una pareja de la lista — es cualquier familia de Google
+ * Fonts que el dueño del negocio escriba a mano (plan Pro). Se carga en
+ * tiempo real con un <link> a Google Fonts en vez de next/font (que solo
+ * soporta fuentes elegidas en build time), y se aplica por inline style en
+ * vez de className.
+ */
+export function getLandingFontPair(id: string | undefined, customFamily?: string) {
+  if (id === "custom" && customFamily) {
+    return {
+      label: "Personalizada",
+      description: customFamily,
+      heading: { className: "", sample: "Aa", family: customFamily },
+      body: { className: "", family: customFamily },
+    };
+  }
   return LANDING_FONT_PAIRS[(id as LandingFontPairId) ?? "default"] ?? LANDING_FONT_PAIRS.default;
+}
+
+export function googleFontsCssUrl(family: string) {
+  const encoded = encodeURIComponent(family.trim());
+  return `https://fonts.googleapis.com/css2?family=${encoded}:wght@400;600;700&display=swap`;
 }

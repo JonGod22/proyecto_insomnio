@@ -1,3 +1,5 @@
+import { hexToRgba, darkenHex, contrastText, lightenHex } from "@/lib/color-utils";
+
 // Paletas curadas para el "kit de identidad" de la landing pública. Cada
 // paleta ya viene con buen contraste probado — el dueño del negocio elige
 // una de la lista en vez de tipear colores sueltos, así no hay forma de
@@ -102,4 +104,28 @@ export const LANDING_PALETTES: LandingPalette[] = [
 
 export function getLandingPalette(id: string | undefined) {
   return LANDING_PALETTES.find((p) => p.id === id) ?? LANDING_PALETTES[0];
+}
+
+/**
+ * "Personalizada" (plan Pro): el dueño del negocio elige solo 3 colores
+ * (fondo, principal, texto) y el resto de la paleta (muted, glow, versión
+ * oscura, etc.) se deriva automáticamente para garantizar contraste, en vez
+ * de pedirle 9 colores sueltos.
+ */
+export function buildCustomPalette(custom: { background: string; foreground: string; primary: string }): LandingPalette {
+  return {
+    id: "custom",
+    name: "Personalizada",
+    background: custom.background,
+    foreground: custom.foreground,
+    card: lightenHex(custom.background, 0.6),
+    cardForeground: custom.foreground,
+    primary: custom.primary,
+    primaryForeground: contrastText(custom.primary),
+    primaryGlow: hexToRgba(custom.primary, 0.45),
+    primaryDark: darkenHex(custom.primary, 0.4),
+    muted: lightenHex(custom.background, 0.4),
+    mutedForeground: lightenHex(custom.foreground, 0.35),
+    border: lightenHex(custom.foreground, 0.85),
+  };
 }

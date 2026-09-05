@@ -110,7 +110,11 @@ export function LandingBuilderForm({
   const [newLinkUrl, setNewLinkUrl] = useState("");
 
   const [themePalette, setThemePalette] = useState(config.theme_palette ?? "default");
+  const [customBg, setCustomBg] = useState(config.custom_palette?.background ?? "#f8f9e9");
+  const [customPrimary, setCustomPrimary] = useState(config.custom_palette?.primary ?? "#fab200");
+  const [customFg, setCustomFg] = useState(config.custom_palette?.foreground ?? "#0a0a0a");
   const [fontId, setFontId] = useState(config.font_id ?? "default");
+  const [customFontFamily, setCustomFontFamily] = useState(config.custom_font_family ?? "");
 
   const [logoError, setLogoError] = useState<string | null>(null);
   const [uploadingLogo, startLogoUpload] = useTransition();
@@ -141,7 +145,9 @@ export function LandingBuilderForm({
       map_embed_url: mapEmbedUrl || undefined,
       links,
       theme_palette: themePalette,
+      custom_palette: themePalette === "custom" ? { background: customBg, primary: customPrimary, foreground: customFg } : undefined,
       font_id: fontId,
+      custom_font_family: fontId === "custom" ? customFontFamily || undefined : undefined,
       benefits,
       gallery: galleryUrls,
       sections: { benefits: showBenefits, gallery: showGallery, map: showMap },
@@ -157,7 +163,11 @@ export function LandingBuilderForm({
     mapEmbedUrl,
     links,
     themePalette,
+    customBg,
+    customPrimary,
+    customFg,
     fontId,
+    customFontFamily,
     showBenefits,
     benefits,
     showGallery,
@@ -206,7 +216,11 @@ export function LandingBuilderForm({
       <input type="hidden" name="section_gallery" value={showGallery ? "on" : ""} />
       <input type="hidden" name="section_map" value={showMap ? "on" : ""} />
       <input type="hidden" name="theme_palette" value={themePalette} />
+      <input type="hidden" name="custom_bg" value={customBg} />
+      <input type="hidden" name="custom_primary" value={customPrimary} />
+      <input type="hidden" name="custom_fg" value={customFg} />
       <input type="hidden" name="font_id" value={fontId} />
+      <input type="hidden" name="custom_font_family" value={customFontFamily} />
       {galleryUrls.map((url) => (
         <input key={url} type="hidden" name="gallery_url" value={url} />
       ))}
@@ -334,18 +348,39 @@ export function LandingBuilderForm({
             ))}
             <button
               type="button"
-              disabled
-              title="Disponible en el plan Pro"
-              className="flex flex-col items-center gap-1.5 rounded-[8px] border-2 border-dashed border-border p-2 text-xs opacity-70"
+              onClick={() => setThemePalette("custom")}
+              className={cn(
+                "flex flex-col items-center gap-1.5 rounded-[8px] border-2 p-2 text-xs",
+                themePalette === "custom" ? "border-primary" : "border-dashed border-border hover:border-foreground"
+              )}
             >
-              <span className="flex size-8 items-center justify-center rounded-full border border-dashed border-border text-muted-foreground">
-                <CrownIcon className="size-3.5" />
+              <span className="flex size-8 overflow-hidden rounded-full border border-border">
+                <span className="h-full w-1/3" style={{ background: customBg }} />
+                <span className="h-full w-1/3" style={{ background: customPrimary }} />
+                <span className="h-full w-1/3" style={{ background: customFg }} />
               </span>
               <span className="flex items-center gap-1">
                 Personalizada <ProBadge />
               </span>
             </button>
           </div>
+
+          {themePalette === "custom" && (
+            <div className="surface flex flex-wrap gap-4 bg-muted/30 p-3">
+              <label className="flex items-center gap-2 text-xs">
+                <input type="color" value={customBg} onChange={(e) => setCustomBg(e.target.value)} className="size-8 cursor-pointer rounded-[6px] border border-border" />
+                Fondo
+              </label>
+              <label className="flex items-center gap-2 text-xs">
+                <input type="color" value={customPrimary} onChange={(e) => setCustomPrimary(e.target.value)} className="size-8 cursor-pointer rounded-[6px] border border-border" />
+                Color principal
+              </label>
+              <label className="flex items-center gap-2 text-xs">
+                <input type="color" value={customFg} onChange={(e) => setCustomFg(e.target.value)} className="size-8 cursor-pointer rounded-[6px] border border-border" />
+                Texto
+              </label>
+            </div>
+          )}
         </div>
 
         <div className="space-y-2 border-t border-border pt-4">
@@ -374,16 +409,38 @@ export function LandingBuilderForm({
             })}
             <button
               type="button"
-              disabled
-              title="Disponible en el plan Pro"
-              className="rounded-[8px] border-2 border-dashed border-border px-3 py-2 text-left opacity-70"
+              onClick={() => setFontId("custom")}
+              className={cn(
+                "rounded-[8px] border-2 px-3 py-2 text-left",
+                fontId === "custom" ? "border-primary bg-primary/10" : "border-dashed border-border hover:border-foreground"
+              )}
             >
               <span className="flex items-center gap-1.5 text-xl leading-none">
                 Personalizada <ProBadge />
               </span>
-              <span className="mt-1 block text-xs text-muted-foreground">Tu propia tipografía, subida por vos.</span>
+              <span className="mt-1 block text-xs text-muted-foreground">
+                {customFontFamily || "Escribí el nombre de una tipografía de Google Fonts."}
+              </span>
             </button>
           </div>
+
+          {fontId === "custom" && (
+            <div className="surface space-y-1 bg-muted/30 p-3">
+              <Label className="mb-1 block text-xs">Nombre de la tipografía (Google Fonts)</Label>
+              <Input
+                value={customFontFamily}
+                onChange={(e) => setCustomFontFamily(e.target.value)}
+                placeholder="Ej: Poppins, Fraunces, DM Sans…"
+              />
+              <p className="text-xs text-muted-foreground">
+                Tiene que ser el nombre exacto tal como figura en{" "}
+                <a href="https://fonts.google.com" target="_blank" rel="noreferrer" className="underline">
+                  fonts.google.com
+                </a>
+                .
+              </p>
+            </div>
+          )}
         </div>
       </div>
 

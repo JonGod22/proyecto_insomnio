@@ -65,7 +65,17 @@ export async function updateLandingConfig(
     .filter((l) => l.label && l.url)
     .slice(0, 3);
   const themePalette = (formData.get("theme_palette") as string)?.trim() || undefined;
+  const customPalette =
+    themePalette === "custom"
+      ? {
+          background: (formData.get("custom_bg") as string) || "#f8f9e9",
+          primary: (formData.get("custom_primary") as string) || "#fab200",
+          foreground: (formData.get("custom_fg") as string) || "#0a0a0a",
+        }
+      : undefined;
   const fontId = (formData.get("font_id") as string)?.trim() || undefined;
+  const customFontFamily =
+    fontId === "custom" ? (formData.get("custom_font_family") as string)?.trim() || undefined : undefined;
   const mapEmbedUrlRaw = (formData.get("map_embed_url") as string)?.trim();
   const mapEmbedUrl = mapEmbedUrlRaw ? extractMapUrl(mapEmbedUrlRaw) : undefined;
   const benefits = formData
@@ -88,7 +98,9 @@ export async function updateLandingConfig(
     map_embed_url: mapEmbedUrl,
     links: links.length ? links : undefined,
     theme_palette: themePalette,
+    custom_palette: customPalette,
     font_id: fontId,
+    custom_font_family: customFontFamily,
     benefits: benefits.length ? benefits : undefined,
     gallery: gallery.length ? gallery : undefined,
     sections: {
