@@ -11,7 +11,23 @@ import { FloatingAgentChat } from "@/components/floating-agent-chat";
 import { cn } from "@/lib/utils";
 import { getLandingPalette, buildCustomPalette } from "@/lib/landing-palettes";
 import { getLandingFontPair, googleFontsCssUrl, fontFileFormat } from "@/lib/landing-fonts";
-import type { LandingConfig } from "@/lib/types";
+import type { Database, LandingConfig } from "@/lib/types";
+
+export type PlatformSettings = Database["insomnio"]["Tables"]["platform_settings"]["Row"];
+
+/** Usado cuando todavía no se cargó `platform_settings` (por ejemplo, si
+ * algún caller viejo no pasa la prop) — mismos valores que estaban
+ * hardcodeados acá antes de que existiera el editor interno. */
+export const DEFAULT_PLATFORM_SETTINGS: PlatformSettings = {
+  id: 1,
+  credit_name: "Jonathan Godoy",
+  credit_github_url: "https://github.com/JonGod22",
+  credit_instagram_url: "https://www.instagram.com/jonathangodoy__/",
+  credit_whatsapp_url: "https://wa.me/5492634659520",
+  chat_greeting: "Preguntame por precios, disponibilidad o pedí un turno.",
+  chat_suggestions: ["¿Qué servicios tienen?", "Quiero reservar un turno", "¿Cuánto sale una seña?"],
+  updated_at: "",
+};
 
 export type PreviewService = {
   id: string;
@@ -220,12 +236,14 @@ export function LandingPreview({
   services,
   config,
   interactive = true,
+  platformSettings = DEFAULT_PLATFORM_SETTINGS,
 }: {
   slug: string;
   business: PreviewBusiness;
   services: PreviewService[];
   config: LandingConfig;
   interactive?: boolean;
+  platformSettings?: PlatformSettings;
 }) {
   const computedLocation = [business.address, business.city].filter(Boolean).join(", ");
   // Título y línea de ubicación son 100% editoriales — a propósito
@@ -539,22 +557,23 @@ export function LandingPreview({
 
       <div id="landing-footer" className="bg-foreground px-6 py-6 text-background @sm:px-12 @lg:pt-8">
         <div className="mx-auto flex max-w-5xl flex-col items-center gap-3 text-center @lg:flex-row @lg:justify-between @lg:text-left">
-          <p className="kicker-label text-background/60">Sitio desarrollado por Jonathan Godoy</p>
+          <p className="kicker-label text-background/60">Sitio desarrollado por {platformSettings.credit_name}</p>
           <div className="flex items-center gap-5">
-            <a href="https://github.com/JonGod22" target="_blank" rel="noopener noreferrer" className="kicker-label text-background hover:text-primary">
-              GitHub
-            </a>
-            <a
-              href="https://www.instagram.com/jonathangodoy__/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="kicker-label text-background hover:text-primary"
-            >
-              Instagram
-            </a>
-            <a href="https://wa.me/5492634659520" target="_blank" rel="noopener noreferrer" className="kicker-label text-background hover:text-primary">
-              WhatsApp
-            </a>
+            {platformSettings.credit_github_url && (
+              <a href={platformSettings.credit_github_url} target="_blank" rel="noopener noreferrer" className="kicker-label text-background hover:text-primary">
+                GitHub
+              </a>
+            )}
+            {platformSettings.credit_instagram_url && (
+              <a href={platformSettings.credit_instagram_url} target="_blank" rel="noopener noreferrer" className="kicker-label text-background hover:text-primary">
+                Instagram
+              </a>
+            )}
+            {platformSettings.credit_whatsapp_url && (
+              <a href={platformSettings.credit_whatsapp_url} target="_blank" rel="noopener noreferrer" className="kicker-label text-background hover:text-primary">
+                WhatsApp
+              </a>
+            )}
           </div>
         </div>
       </div>
@@ -564,7 +583,14 @@ export function LandingPreview({
           sistema de planes, este único condicional apaga las dos cosas
           juntas para negocios sin suscripción. Por ahora siempre se
           muestra porque no hay planes reales todavía. */}
-      {true && <FloatingAgentChat slug={slug} businessName={business.name} />}
+      {true && (
+        <FloatingAgentChat
+          slug={slug}
+          businessName={business.name}
+          greeting={platformSettings.chat_greeting}
+          suggestions={platformSettings.chat_suggestions}
+        />
+      )}
     </main>
   );
 }

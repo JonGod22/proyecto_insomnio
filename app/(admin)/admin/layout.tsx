@@ -28,7 +28,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("full_name, role, business_id, businesses(name, slug)")
+    .select("full_name, role, business_id, is_superadmin, businesses(name, slug)")
     .eq("id", user.id)
     .maybeSingle();
 
@@ -85,6 +85,14 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         nav={<AdminSidebarNav />}
         footer={
           <div className="space-y-3 border-t border-background/10 pt-4">
+            {profile.is_superadmin && (
+              <Link
+                href="/superadmin"
+                className="kicker-label block text-background/70 hover:text-background"
+              >
+                Editor interno ↗
+              </Link>
+            )}
             <p className="truncate text-xs text-background/60">{user.email}</p>
             <form action={signOut}>
               <Button variant="secondary" size="sm" type="submit" className="w-full">

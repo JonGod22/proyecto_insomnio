@@ -5,7 +5,7 @@ import Link from "next/link";
 import { ExternalLinkIcon, GripVerticalIcon, MonitorIcon, TabletIcon, SmartphoneIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LandingBuilderForm } from "@/components/landing-builder-form";
-import { LandingPreview, type PreviewBusiness } from "@/components/landing-preview";
+import { LandingPreview, type PreviewBusiness, type PlatformSettings } from "@/components/landing-preview";
 import { DeviceFrame, DEVICE_SPECS, type DeviceId } from "@/components/device-frame";
 import { updateLandingConfig, type LandingFormState } from "@/app/(admin)/admin/landing-builder/actions";
 import { toggleServiceOnLanding } from "@/app/(admin)/admin/services/actions";
@@ -28,11 +28,13 @@ export function LandingBuilderWorkspace({
   slug,
   business,
   services,
+  platformSettings,
 }: {
   config: LandingConfig;
   slug: string;
   business: PreviewBusiness;
   services: Service[];
+  platformSettings?: PlatformSettings;
 }) {
   const [state, formAction, pending] = useActionState(updateLandingConfig, initialState);
   const [previewPct, setPreviewPct] = useState(50);
@@ -147,7 +149,14 @@ export function LandingBuilderWorkspace({
 
           <div className="min-h-0 flex-1 bg-muted/40">
             <DeviceFrame device={device}>
-              <LandingPreview slug={slug} business={business} services={visibleServices} config={liveConfig} interactive={false} />
+              <LandingPreview
+                slug={slug}
+                business={business}
+                services={visibleServices}
+                config={liveConfig}
+                interactive={false}
+                platformSettings={platformSettings}
+              />
             </DeviceFrame>
           </div>
         </div>

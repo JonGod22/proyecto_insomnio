@@ -34,9 +34,10 @@ export async function updateSession(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
   const isAdminRoute = pathname.startsWith("/admin");
+  const isSuperadminRoute = pathname.startsWith("/superadmin");
   const isLoginRoute = pathname === "/login";
 
-  if (isAdminRoute && !user) {
+  if ((isAdminRoute || isSuperadminRoute) && !user) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     return NextResponse.redirect(url);

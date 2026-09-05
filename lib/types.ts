@@ -320,6 +320,7 @@ export type Database = {
           created_at: string
           full_name: string | null
           id: string
+          is_superadmin: boolean
           role: string
         }
         Insert: {
@@ -327,6 +328,7 @@ export type Database = {
           created_at?: string
           full_name?: string | null
           id: string
+          is_superadmin?: boolean
           role?: string
         }
         Update: {
@@ -334,6 +336,7 @@ export type Database = {
           created_at?: string
           full_name?: string | null
           id?: string
+          is_superadmin?: boolean
           role?: string
         }
         Relationships: [
@@ -345,6 +348,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      platform_settings: {
+        Row: {
+          id: number
+          credit_name: string
+          credit_github_url: string | null
+          credit_instagram_url: string | null
+          credit_whatsapp_url: string | null
+          chat_greeting: string
+          chat_suggestions: string[]
+          updated_at: string
+        }
+        Insert: {
+          id?: number
+          credit_name?: string
+          credit_github_url?: string | null
+          credit_instagram_url?: string | null
+          credit_whatsapp_url?: string | null
+          chat_greeting?: string
+          chat_suggestions?: string[]
+          updated_at?: string
+        }
+        Update: {
+          id?: number
+          credit_name?: string
+          credit_github_url?: string | null
+          credit_instagram_url?: string | null
+          credit_whatsapp_url?: string | null
+          chat_greeting?: string
+          chat_suggestions?: string[]
+          updated_at?: string
+        }
+        Relationships: []
       }
       services: {
         Row: {

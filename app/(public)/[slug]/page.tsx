@@ -19,7 +19,7 @@ export default async function BusinessLandingPage({
 
   if (!business) notFound();
 
-  const [{ data: services }, { data: landing }] = await Promise.all([
+  const [{ data: services }, { data: landing }, { data: platformSettings }] = await Promise.all([
     supabase
       .from("services")
       .select(
@@ -29,9 +29,19 @@ export default async function BusinessLandingPage({
       .eq("active", true)
       .eq("show_on_landing", true),
     supabase.from("landing").select("config_json").eq("business_id", business.id).maybeSingle(),
+    supabase.from("platform_settings").select("*").eq("id", 1).maybeSingle(),
   ]);
 
   const config = (landing?.config_json ?? {}) as Json as LandingConfig;
 
-  return <LandingPreview slug={slug} business={business} services={services ?? []} config={config} interactive />;
+  return (
+    <LandingPreview
+      slug={slug}
+      business={business}
+      services={services ?? []}
+      config={config}
+      interactive
+      platformSettings={platformSettings ?? undefined}
+    />
+  );
 }

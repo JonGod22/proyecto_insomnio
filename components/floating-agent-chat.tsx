@@ -7,7 +7,8 @@ import { cn } from "@/lib/utils";
 
 type Message = { role: "user" | "assistant"; content: string };
 
-const SUGGESTIONS = [
+const DEFAULT_GREETING = "Preguntame por precios, disponibilidad o pedí un turno.";
+const DEFAULT_SUGGESTIONS = [
   "¿Qué servicios tienen?",
   "Quiero reservar un turno",
   "¿Cuánto sale una seña?",
@@ -18,8 +19,22 @@ const SUGGESTIONS = [
  * no un botón flotante suelto — al escribir o abrirla manualmente, el panel
  * de respuestas se despliega arriba de la barra; se puede minimizar sin
  * perder la conversación para seguir navegando la página.
+ *
+ * `greeting`/`suggestions` vienen de `platform_settings` (editable desde
+ * /superadmin, la plantilla base) — son el mismo copy para todos los
+ * negocios, así que si no se pasan quedan los valores de siempre.
  */
-export function FloatingAgentChat({ slug, businessName }: { slug: string; businessName: string }) {
+export function FloatingAgentChat({
+  slug,
+  businessName,
+  greeting = DEFAULT_GREETING,
+  suggestions = DEFAULT_SUGGESTIONS,
+}: {
+  slug: string;
+  businessName: string;
+  greeting?: string;
+  suggestions?: string[];
+}) {
   const [expanded, setExpanded] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
@@ -101,11 +116,9 @@ export function FloatingAgentChat({ slug, businessName }: { slug: string; busine
           <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto px-4 pb-2">
             {messages.length === 0 && (
               <>
-                <p className="mb-3 text-sm text-muted-foreground">
-                  Preguntame por precios, disponibilidad o pedí un turno.
-                </p>
+                <p className="mb-3 text-sm text-muted-foreground">{greeting}</p>
                 <div className="flex flex-wrap gap-2">
-                  {SUGGESTIONS.map((s) => (
+                  {suggestions.map((s) => (
                     <button
                       key={s}
                       onClick={() => send(s)}
