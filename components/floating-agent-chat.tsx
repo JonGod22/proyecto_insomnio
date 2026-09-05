@@ -57,6 +57,10 @@ export function FloatingAgentChat({ slug, businessName }: { slug: string; busine
 
   return (
     <div className="fixed inset-x-0 bottom-0 z-40 flex flex-col items-center px-4 pb-4 sm:px-6 sm:pb-6">
+      {/* Velo detrás de la barra para separarla de lo que haya justo debajo
+          (fotos, texto oscuro, etc.) — mismo recurso que el del hero. */}
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-background/50 to-transparent sm:h-40" />
+
       {expanded && (
         <div className="surface mb-2 flex h-[65vh] max-h-[28rem] w-full max-w-xl flex-col overflow-hidden rounded-[24px] bg-card">
           <div className="flex items-center justify-between p-4">

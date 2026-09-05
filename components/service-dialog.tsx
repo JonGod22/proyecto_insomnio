@@ -16,6 +16,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { KnowledgeManager } from "@/components/knowledge-manager";
+import { ProBadge } from "@/components/pro-badge";
 import { upsertService, type ServiceFormState } from "@/app/(admin)/admin/services/actions";
 import type { KnowledgeBaseEntry, Service } from "@/lib/types";
 
@@ -64,7 +65,7 @@ export function ServiceDialog({
         <DialogHeader>
           <DialogTitle>{service ? "Editar servicio" : "Nuevo servicio"}</DialogTitle>
         </DialogHeader>
-        <form action={formAction} className="space-y-3">
+        <form action={formAction} className="min-w-0 space-y-3">
           {service && <input type="hidden" name="id" value={service.id} />}
           <input type="hidden" name="price_on_request" value={priceOnRequest ? "on" : ""} />
           <input type="hidden" name="active" value={active ? "on" : ""} />
@@ -125,7 +126,9 @@ export function ServiceDialog({
           </div>
 
           <div className="space-y-1 border-t border-border pt-3">
-            <Label className="block">Información del servicio (para la landing)</Label>
+            <Label className="flex items-center gap-1.5">
+              Información del servicio (para la landing) <ProBadge />
+            </Label>
             <p className="text-xs text-muted-foreground">
               Se muestra en un popup &quot;Más información&quot; en la tarjeta del servicio.
             </p>
@@ -133,7 +136,9 @@ export function ServiceDialog({
           </div>
 
           <div className="space-y-2">
-            <Label className="block">Fotos del servicio (opcional, hasta {INFO_IMAGES_MAX})</Label>
+            <Label className="flex items-center gap-1.5">
+              Fotos del servicio (opcional, hasta {INFO_IMAGES_MAX}) <ProBadge />
+            </Label>
             {infoImages.map((url, i) => (
               <div key={`${url}-${i}`} className="flex items-center gap-2">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -185,7 +190,7 @@ export function ServiceDialog({
         </form>
 
         {service && (
-          <div className="space-y-2 border-t border-border pt-4">
+          <div className="min-w-0 space-y-2 border-t border-border pt-4">
             <Label className="block">Información para el agente</Label>
             <p className="text-xs text-muted-foreground">
               Lo que cargues acá es lo que el agente va a usar para responder dudas puntuales de

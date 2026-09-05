@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState, useTransition } from "react";
-import { XIcon, PlusIcon, UploadIcon } from "lucide-react";
+import { XIcon, PlusIcon, UploadIcon, CrownIcon } from "lucide-react";
+import { ProBadge } from "@/components/pro-badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,6 +15,7 @@ import type { LandingConfig, Service } from "@/lib/types";
 
 const BENEFIT_MAX_CHARS = 40;
 const BENEFIT_MAX_ITEMS = 6;
+const FREE_SERVICES_ON_LANDING = 4;
 
 function InfoTooltip({ text }: { text: string }) {
   return (
@@ -282,6 +284,9 @@ export function LandingBuilderForm({
           <p className="kicker-label text-primary">Identidad</p>
           <p className="type-display text-lg leading-none">Estilo</p>
           <p className="mt-1 text-sm text-muted-foreground">Paleta de colores y tipografía de la landing.</p>
+          <p className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
+            <CrownIcon className="size-3 text-violet-600" /> marca lo que va en el plan Pro — hoy no está limitado.
+          </p>
         </div>
 
         <div className="space-y-2 border-t border-border pt-4">
@@ -304,6 +309,19 @@ export function LandingBuilderForm({
                 {p.name}
               </button>
             ))}
+            <button
+              type="button"
+              disabled
+              title="Disponible en el plan Pro"
+              className="flex flex-col items-center gap-1.5 rounded-[8px] border-2 border-dashed border-border p-2 text-xs opacity-70"
+            >
+              <span className="flex size-8 items-center justify-center rounded-full border border-dashed border-border text-muted-foreground">
+                <CrownIcon className="size-3.5" />
+              </span>
+              <span className="flex items-center gap-1">
+                Personalizada <ProBadge />
+              </span>
+            </button>
           </div>
         </div>
 
@@ -331,6 +349,17 @@ export function LandingBuilderForm({
                 </button>
               );
             })}
+            <button
+              type="button"
+              disabled
+              title="Disponible en el plan Pro"
+              className="rounded-[8px] border-2 border-dashed border-border px-3 py-2 text-left opacity-70"
+            >
+              <span className="flex items-center gap-1.5 text-xl leading-none">
+                Personalizada <ProBadge />
+              </span>
+              <span className="mt-1 block text-xs text-muted-foreground">Tu propia tipografía, subida por vos.</span>
+            </button>
           </div>
         </div>
       </div>
@@ -383,8 +412,15 @@ export function LandingBuilderForm({
 
       <div className="surface space-y-3 bg-card p-5">
         <p className="type-display text-lg leading-none">Servicios</p>
+        {services.length > FREE_SERVICES_ON_LANDING && (
+          <p className="flex items-center gap-1 text-xs text-muted-foreground">
+            <CrownIcon className="size-3 text-violet-600" /> los primeros {FREE_SERVICES_ON_LANDING} son gratis en la
+            landing — del {FREE_SERVICES_ON_LANDING + 1}º en adelante quedan marcados Pro (hoy tampoco están
+            limitados).
+          </p>
+        )}
         <div className="space-y-1">
-          {services.map((service) => (
+          {services.map((service, i) => (
             <label key={service.id} className="flex items-center gap-2 rounded-[6px] px-2 py-1.5 text-sm hover:bg-muted">
               <Checkbox
                 checked={service.show_on_landing}
@@ -392,6 +428,7 @@ export function LandingBuilderForm({
               />
               {service.name}
               {!service.active && <span className="kicker-label text-muted-foreground">(inactivo)</span>}
+              {i >= FREE_SERVICES_ON_LANDING && <ProBadge />}
             </label>
           ))}
           {services.length === 0 && <p className="text-sm text-muted-foreground">Todavía no hay servicios cargados.</p>}
