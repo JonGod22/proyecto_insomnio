@@ -8,6 +8,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { uploadLandingLogo } from "@/app/(admin)/admin/landing-builder/actions";
+import { LANDING_PALETTES } from "@/lib/landing-palettes";
+import { LANDING_FONTS, LANDING_FONT_IDS } from "@/lib/landing-fonts";
+import { cn } from "@/lib/utils";
 import type { LandingConfig, Service } from "@/lib/types";
 
 const BENEFIT_MAX_CHARS = 40;
@@ -90,6 +93,9 @@ export function LandingBuilderForm({
   const [whatsapp, setWhatsapp] = useState(whatsappNumber ?? "");
   const [instagramUrl, setInstagramUrl] = useState(config.instagram_url ?? "");
 
+  const [themePalette, setThemePalette] = useState(config.theme_palette ?? "default");
+  const [fontId, setFontId] = useState(config.font_id ?? "default");
+
   const [logoError, setLogoError] = useState<string | null>(null);
   const [uploadingLogo, startLogoUpload] = useTransition();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -118,6 +124,8 @@ export function LandingBuilderForm({
       cta_label: ctaLabel || undefined,
       map_embed_url: mapEmbedUrl || undefined,
       instagram_url: instagramUrl || undefined,
+      theme_palette: themePalette,
+      font_id: fontId,
       benefits: linesToList(benefitsText),
       gallery: galleryUrls,
       sections: { benefits: showBenefits, gallery: showGallery, map: showMap },
@@ -132,6 +140,8 @@ export function LandingBuilderForm({
     ctaLabel,
     mapEmbedUrl,
     instagramUrl,
+    themePalette,
+    fontId,
     showBenefits,
     benefitsText,
     showGallery,
@@ -155,6 +165,8 @@ export function LandingBuilderForm({
       <input type="hidden" name="section_benefits" value={showBenefits ? "on" : ""} />
       <input type="hidden" name="section_gallery" value={showGallery ? "on" : ""} />
       <input type="hidden" name="section_map" value={showMap ? "on" : ""} />
+      <input type="hidden" name="theme_palette" value={themePalette} />
+      <input type="hidden" name="font_id" value={fontId} />
       {galleryUrls.map((url) => (
         <input key={url} type="hidden" name="gallery_url" value={url} />
       ))}
@@ -249,9 +261,62 @@ export function LandingBuilderForm({
         </div>
       </div>
 
+      <div className="surface space-y-4 bg-card p-5">
+        <div>
+          <p className="kicker-label text-primary">Identidad</p>
+          <p className="type-display text-lg leading-none">Estilo</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Paleta de colores y tipografía de la landing — un par de clics, sin tocar código.
+          </p>
+        </div>
+
+        <div className="space-y-2 border-t border-border pt-4">
+          <Label className="mb-1 block">Paleta de colores</Label>
+          <div className="flex flex-wrap gap-3">
+            {LANDING_PALETTES.map((p) => (
+              <button
+                key={p.id}
+                type="button"
+                onClick={() => setThemePalette(p.id)}
+                className={cn(
+                  "flex flex-col items-center gap-1.5 rounded-[8px] border-2 p-2 text-xs",
+                  themePalette === p.id ? "border-primary" : "border-transparent hover:border-border"
+                )}
+              >
+                <span className="flex size-8 overflow-hidden rounded-full border border-border">
+                  <span className="h-full w-1/2" style={{ background: p.background }} />
+                  <span className="h-full w-1/2" style={{ background: p.primary }} />
+                </span>
+                {p.name}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="space-y-2 border-t border-border pt-4">
+          <Label className="mb-1 block">Tipografía</Label>
+          <div className="flex flex-wrap gap-2">
+            {LANDING_FONT_IDS.map((id) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => setFontId(id)}
+                className={cn(
+                  "rounded-[6px] border px-3 py-2 text-sm",
+                  LANDING_FONTS[id].className,
+                  fontId === id ? "border-primary bg-primary/10" : "border-border hover:bg-muted"
+                )}
+              >
+                {LANDING_FONTS[id].label}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
       <Block
         title="Destacados"
-        description={`Se muestran como iconitos debajo del hero — el texto aparece al pasar el mouse (o al tocarlos en el celular). Uno por línea, máx. ${BENEFIT_MAX_CHARS} caracteres cada uno.`}
+        description={`Botones cortos debajo del hero, uno por línea (máx. ${BENEFIT_MAX_CHARS} caracteres cada uno). No tienen que ser 'beneficios' — pueden ser lo que quieras.`}
         enabled={showBenefits}
         onToggle={setShowBenefits}
       >

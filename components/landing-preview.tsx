@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { CircleHelpIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { getLandingPalette } from "@/lib/landing-palettes";
+import { getLandingFont } from "@/lib/landing-fonts";
 import type { LandingConfig } from "@/lib/types";
 
 export type PreviewService = {
@@ -88,13 +89,32 @@ export function LandingPreview({
   const showMap = config.sections?.map ?? true;
   const mapSrc = config.map_embed_url || (computedLocation ? `https://www.google.com/maps?q=${mapQuery}&output=embed` : null);
   const hasContact = Boolean(business.whatsapp_number || config.instagram_url);
+  const palette = getLandingPalette(config.theme_palette);
+  const font = getLandingFont(config.font_id);
 
   function preventNav(e: React.MouseEvent) {
     if (!interactive) e.preventDefault();
   }
 
   return (
-    <main className="@container flex-1">
+    <main
+      className={cn("@container flex-1 bg-background text-foreground", font.className)}
+      style={
+        {
+          "--background": palette.background,
+          "--foreground": palette.foreground,
+          "--card": palette.card,
+          "--card-foreground": palette.cardForeground,
+          "--primary": palette.primary,
+          "--primary-foreground": palette.primaryForeground,
+          "--accent": palette.primary,
+          "--accent-foreground": palette.primaryForeground,
+          "--muted": palette.muted,
+          "--muted-foreground": palette.mutedForeground,
+          "--border": palette.border,
+        } as React.CSSProperties
+      }
+    >
       <div className="relative">
         {/* Flota transparente/vidrio sobre la foto del hero, no ocupa su
             propio bloque blanco — por eso vive adentro del <header>. */}
@@ -157,20 +177,14 @@ export function LandingPreview({
 
       {showBenefits && config.benefits && config.benefits.length > 0 && (
         <section className="px-6 py-6 @sm:px-12">
-          <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-center gap-4">
+          <div className="mx-auto flex max-w-5xl flex-col items-stretch gap-3 @sm:flex-row @sm:flex-wrap @sm:justify-center">
             {config.benefits.map((benefit) => (
-              <div key={benefit} className="group relative">
-                <button
-                  type="button"
-                  aria-label={benefit}
-                  className="surface flex size-10 items-center justify-center rounded-full bg-card text-foreground"
-                >
-                  <CircleHelpIcon className="size-4" />
-                </button>
-                <span className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-2 w-max max-w-56 -translate-x-1/2 rounded-[8px] bg-foreground px-3 py-1.5 text-center text-xs leading-snug text-background opacity-0 shadow-lg transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
-                  {benefit}
-                </span>
-              </div>
+              <span
+                key={benefit}
+                className="surface kicker-label flex min-h-16 w-full items-center justify-center rounded-[24px] bg-card px-6 py-3 text-center leading-snug text-foreground @sm:w-64"
+              >
+                {benefit}
+              </span>
             ))}
           </div>
         </section>

@@ -492,6 +492,10 @@ export type LandingConfig = {
   cta_label?: string
   map_embed_url?: string
   instagram_url?: string
+  /** Id de una paleta curada (ver lib/landing-palettes.ts) — no colores libres. */
+  theme_palette?: string
+  /** Id de una tipografía curada (ver lib/landing-fonts.ts) — no fuentes libres. */
+  font_id?: string
   benefits?: string[]
   gallery?: string[]
   sections?: {

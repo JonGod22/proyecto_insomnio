@@ -59,6 +59,8 @@ export async function updateLandingConfig(
   const heroImageUrl = (formData.get("hero_image_url") as string)?.trim() || undefined;
   const ctaLabel = (formData.get("cta_label") as string)?.trim() || undefined;
   const instagramUrl = (formData.get("instagram_url") as string)?.trim() || undefined;
+  const themePalette = (formData.get("theme_palette") as string)?.trim() || undefined;
+  const fontId = (formData.get("font_id") as string)?.trim() || undefined;
   const mapEmbedUrlRaw = (formData.get("map_embed_url") as string)?.trim();
   const mapEmbedUrl = mapEmbedUrlRaw ? extractMapUrl(mapEmbedUrlRaw) : undefined;
   const benefits = String(formData.get("benefits") ?? "")
@@ -79,6 +81,8 @@ export async function updateLandingConfig(
     cta_label: ctaLabel,
     map_embed_url: mapEmbedUrl,
     instagram_url: instagramUrl,
+    theme_palette: themePalette,
+    font_id: fontId,
     benefits: benefits.length ? benefits : undefined,
     gallery: gallery.length ? gallery : undefined,
     sections: {
