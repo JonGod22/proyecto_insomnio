@@ -142,4 +142,23 @@
   .scrollbar-none::-webkit-scrollbar {
     display: none;
   }
+
+  /* input[type=color]: el navegador le agrega un padding + borde propio al
+     swatch interno, dando un efecto de "marco dentro de otro marco" — se
+     saca todo eso para que quede una burbuja de color sólida y prolija. */
+  input[type="color"] {
+    padding: 0;
+    border: none;
+  }
+  input[type="color"]::-webkit-color-swatch-wrapper {
+    padding: 0;
+  }
+  input[type="color"]::-webkit-color-swatch {
+    border: none;
+    border-radius: inherit;
+  }
+  input[type="color"]::-moz-color-swatch {
+    border: none;
+    border-radius: inherit;
+  }
 }

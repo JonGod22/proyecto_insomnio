@@ -112,9 +112,11 @@ export function LandingBuilderForm({
   const [themePalette, setThemePalette] = useState(config.theme_palette ?? "default");
   const [customBg, setCustomBg] = useState(config.custom_palette?.background ?? "#f8f9e9");
   const [customPrimary, setCustomPrimary] = useState(config.custom_palette?.primary ?? "#fab200");
+  const [customSecondary, setCustomSecondary] = useState(config.custom_palette?.secondary ?? "#0a0a0a");
   const [customFg, setCustomFg] = useState(config.custom_palette?.foreground ?? "#0a0a0a");
   const [fontId, setFontId] = useState(config.font_id ?? "default");
   const [customFontFamily, setCustomFontFamily] = useState(config.custom_font_family ?? "");
+  const [customFontFamilyBody, setCustomFontFamilyBody] = useState(config.custom_font_family_body ?? "");
 
   const [logoError, setLogoError] = useState<string | null>(null);
   const [uploadingLogo, startLogoUpload] = useTransition();
@@ -145,9 +147,13 @@ export function LandingBuilderForm({
       map_embed_url: mapEmbedUrl || undefined,
       links,
       theme_palette: themePalette,
-      custom_palette: themePalette === "custom" ? { background: customBg, primary: customPrimary, foreground: customFg } : undefined,
+      custom_palette:
+        themePalette === "custom"
+          ? { background: customBg, primary: customPrimary, secondary: customSecondary, foreground: customFg }
+          : undefined,
       font_id: fontId,
       custom_font_family: fontId === "custom" ? customFontFamily || undefined : undefined,
+      custom_font_family_body: fontId === "custom" ? customFontFamilyBody || undefined : undefined,
       benefits,
       gallery: galleryUrls,
       sections: { benefits: showBenefits, gallery: showGallery, map: showMap },
@@ -165,9 +171,11 @@ export function LandingBuilderForm({
     themePalette,
     customBg,
     customPrimary,
+    customSecondary,
     customFg,
     fontId,
     customFontFamily,
+    customFontFamilyBody,
     showBenefits,
     benefits,
     showGallery,
@@ -218,9 +226,11 @@ export function LandingBuilderForm({
       <input type="hidden" name="theme_palette" value={themePalette} />
       <input type="hidden" name="custom_bg" value={customBg} />
       <input type="hidden" name="custom_primary" value={customPrimary} />
+      <input type="hidden" name="custom_secondary" value={customSecondary} />
       <input type="hidden" name="custom_fg" value={customFg} />
       <input type="hidden" name="font_id" value={fontId} />
       <input type="hidden" name="custom_font_family" value={customFontFamily} />
+      <input type="hidden" name="custom_font_family_body" value={customFontFamilyBody} />
       {galleryUrls.map((url) => (
         <input key={url} type="hidden" name="gallery_url" value={url} />
       ))}
@@ -354,10 +364,11 @@ export function LandingBuilderForm({
                 themePalette === "custom" ? "border-primary" : "border-dashed border-border hover:border-foreground"
               )}
             >
-              <span className="flex size-8 overflow-hidden rounded-full border border-border">
-                <span className="h-full w-1/3" style={{ background: customBg }} />
-                <span className="h-full w-1/3" style={{ background: customPrimary }} />
-                <span className="h-full w-1/3" style={{ background: customFg }} />
+              <span className="flex size-8 overflow-hidden rounded-full">
+                <span className="h-full w-1/4" style={{ background: customBg }} />
+                <span className="h-full w-1/4" style={{ background: customPrimary }} />
+                <span className="h-full w-1/4" style={{ background: customSecondary }} />
+                <span className="h-full w-1/4" style={{ background: customFg }} />
               </span>
               <span className="flex items-center gap-1">
                 Personalizada <ProBadge />
@@ -367,16 +378,20 @@ export function LandingBuilderForm({
 
           {themePalette === "custom" && (
             <div className="surface flex flex-wrap gap-4 bg-muted/30 p-3">
-              <label className="flex items-center gap-2 text-xs">
-                <input type="color" value={customBg} onChange={(e) => setCustomBg(e.target.value)} className="size-8 cursor-pointer rounded-[6px] border border-border" />
+              <label className="flex flex-col items-center gap-1.5 text-xs">
+                <input type="color" value={customBg} onChange={(e) => setCustomBg(e.target.value)} className="size-9 cursor-pointer rounded-full" />
                 Fondo
               </label>
-              <label className="flex items-center gap-2 text-xs">
-                <input type="color" value={customPrimary} onChange={(e) => setCustomPrimary(e.target.value)} className="size-8 cursor-pointer rounded-[6px] border border-border" />
-                Color principal
+              <label className="flex flex-col items-center gap-1.5 text-xs">
+                <input type="color" value={customPrimary} onChange={(e) => setCustomPrimary(e.target.value)} className="size-9 cursor-pointer rounded-full" />
+                Principal
               </label>
-              <label className="flex items-center gap-2 text-xs">
-                <input type="color" value={customFg} onChange={(e) => setCustomFg(e.target.value)} className="size-8 cursor-pointer rounded-[6px] border border-border" />
+              <label className="flex flex-col items-center gap-1.5 text-xs">
+                <input type="color" value={customSecondary} onChange={(e) => setCustomSecondary(e.target.value)} className="size-9 cursor-pointer rounded-full" />
+                Secundario
+              </label>
+              <label className="flex flex-col items-center gap-1.5 text-xs">
+                <input type="color" value={customFg} onChange={(e) => setCustomFg(e.target.value)} className="size-9 cursor-pointer rounded-full" />
                 Texto
               </label>
             </div>
@@ -419,25 +434,37 @@ export function LandingBuilderForm({
                 Personalizada <ProBadge />
               </span>
               <span className="mt-1 block text-xs text-muted-foreground">
-                {customFontFamily || "Escribí el nombre de una tipografía de Google Fonts."}
+                {customFontFamily || customFontFamilyBody
+                  ? `${customFontFamily || "—"} + ${customFontFamilyBody || "—"}`
+                  : "Elegí título y texto por separado."}
               </span>
             </button>
           </div>
 
           {fontId === "custom" && (
-            <div className="surface space-y-1 bg-muted/30 p-3">
-              <Label className="mb-1 block text-xs">Nombre de la tipografía (Google Fonts)</Label>
-              <Input
-                value={customFontFamily}
-                onChange={(e) => setCustomFontFamily(e.target.value)}
-                placeholder="Ej: Poppins, Fraunces, DM Sans…"
-              />
-              <p className="text-xs text-muted-foreground">
-                Tiene que ser el nombre exacto tal como figura en{" "}
+            <div className="surface grid grid-cols-1 gap-3 bg-muted/30 p-3 @sm:grid-cols-2">
+              <div className="space-y-1">
+                <Label className="mb-1 block text-xs">Tipografía principal (títulos)</Label>
+                <Input
+                  value={customFontFamily}
+                  onChange={(e) => setCustomFontFamily(e.target.value)}
+                  placeholder="Ej: Fraunces"
+                />
+              </div>
+              <div className="space-y-1">
+                <Label className="mb-1 block text-xs">Tipografía secundaria (texto)</Label>
+                <Input
+                  value={customFontFamilyBody}
+                  onChange={(e) => setCustomFontFamilyBody(e.target.value)}
+                  placeholder="Ej: DM Sans"
+                />
+              </div>
+              <p className="text-xs text-muted-foreground @sm:col-span-2">
+                Nombre exacto de una fuente de{" "}
                 <a href="https://fonts.google.com" target="_blank" rel="noreferrer" className="underline">
                   fonts.google.com
-                </a>
-                .
+                </a>{" "}
+                — más adelante vamos a sumar la opción de subir tu propia tipografía por archivo.
               </p>
             </div>
           )}

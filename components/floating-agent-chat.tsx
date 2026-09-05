@@ -58,10 +58,14 @@ export function FloatingAgentChat({ slug, businessName }: { slug: string; busine
   return (
     <div className="fixed inset-x-0 bottom-0 z-40 flex flex-col items-center px-4 pb-4 sm:px-6 sm:pb-6">
       {/* Velo detrás de la barra para separarla de lo que haya justo debajo
-          (fotos, texto oscuro, etc.) — casi negro pero con un poco del tono
-          de la paleta elegida (primary-dark), no una nube clarita. */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-black/90 via-[var(--primary-dark)]/50 to-transparent sm:h-48" />
+          (fotos, texto oscuro, etc.) — un solo tono (el oscuro de la
+          paleta elegida). Va en su propia capa con z-index explícito: un
+          elemento absolute con z-index:auto pinta ARRIBA de sus hermanos en
+          flujo normal aunque venga primero en el DOM, así que sin esto el
+          velo terminaba tapando la barra en vez de quedar detrás. */}
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-0 h-40 bg-gradient-to-t from-[var(--primary-dark)]/85 to-transparent sm:h-48" />
 
+      <div className="relative z-10 flex w-full flex-col items-center gap-2">
       {expanded && (
         <div className="surface mb-2 flex h-[65vh] max-h-[28rem] w-full max-w-xl flex-col overflow-hidden rounded-[24px] bg-card">
           <div className="flex items-center justify-between p-4">
@@ -146,6 +150,7 @@ export function FloatingAgentChat({ slug, businessName }: { slug: string; busine
           <ArrowUpIcon className="size-4" />
         </Button>
       </form>
+      </div>
     </div>
   );
 }

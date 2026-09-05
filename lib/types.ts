@@ -504,12 +504,15 @@ export type LandingConfig = {
    * Pro) para usar custom_palette en vez de una de la lista. */
   theme_palette?: string
   /** Paleta armada a mano (plan Pro) — solo se usa si theme_palette === "custom". */
-  custom_palette?: { background: string; foreground: string; primary: string }
-  /** Id de una tipografía curada (ver lib/landing-fonts.ts), o "custom" (plan
-   * Pro) para usar custom_font_family en vez de una pareja de la lista. */
+  custom_palette?: { background: string; foreground: string; primary: string; secondary: string }
+  /** Id de una pareja tipográfica curada (ver lib/landing-fonts.ts), o
+   * "custom" (plan Pro) para usar custom_font_family/custom_font_family_body
+   * en vez de una pareja de la lista. */
   font_id?: string
-  /** Nombre de familia de Google Fonts (plan Pro) — solo si font_id === "custom". */
+  /** Familia de Google Fonts para los títulos (plan Pro) — solo si font_id === "custom". */
   custom_font_family?: string
+  /** Familia de Google Fonts para el texto (plan Pro) — solo si font_id === "custom". */
+  custom_font_family_body?: string
   benefits?: string[]
   gallery?: string[]
   sections?: {

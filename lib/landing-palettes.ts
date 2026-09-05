@@ -107,12 +107,17 @@ export function getLandingPalette(id: string | undefined) {
 }
 
 /**
- * "Personalizada" (plan Pro): el dueño del negocio elige solo 3 colores
- * (fondo, principal, texto) y el resto de la paleta (muted, glow, versión
- * oscura, etc.) se deriva automáticamente para garantizar contraste, en vez
- * de pedirle 9 colores sueltos.
+ * "Personalizada" (plan Pro): el dueño del negocio elige 4 colores (fondo,
+ * principal, secundario, texto) y el resto de la paleta (muted, glow,
+ * versión oscura, etc.) se deriva automáticamente para garantizar
+ * contraste, en vez de pedirle 9 colores sueltos.
  */
-export function buildCustomPalette(custom: { background: string; foreground: string; primary: string }): LandingPalette {
+export function buildCustomPalette(custom: {
+  background: string;
+  foreground: string;
+  primary: string;
+  secondary: string;
+}): LandingPalette {
   return {
     id: "custom",
     name: "Personalizada",
@@ -124,8 +129,8 @@ export function buildCustomPalette(custom: { background: string; foreground: str
     primaryForeground: contrastText(custom.primary),
     primaryGlow: hexToRgba(custom.primary, 0.45),
     primaryDark: darkenHex(custom.primary, 0.4),
-    muted: lightenHex(custom.background, 0.4),
-    mutedForeground: lightenHex(custom.foreground, 0.35),
-    border: lightenHex(custom.foreground, 0.85),
+    muted: lightenHex(custom.secondary, 0.8),
+    mutedForeground: darkenHex(custom.secondary, 0.1),
+    border: lightenHex(custom.secondary, 0.65),
   };
 }

@@ -80,19 +80,21 @@ export type LandingFontPairId = keyof typeof LANDING_FONT_PAIRS;
 export const LANDING_FONT_PAIR_IDS = Object.keys(LANDING_FONT_PAIRS) as LandingFontPairId[];
 
 /**
- * "custom" no es una pareja de la lista — es cualquier familia de Google
- * Fonts que el dueño del negocio escriba a mano (plan Pro). Se carga en
- * tiempo real con un <link> a Google Fonts en vez de next/font (que solo
- * soporta fuentes elegidas en build time), y se aplica por inline style en
- * vez de className.
+ * "custom" no es una pareja de la lista — son dos familias de Google Fonts
+ * (título y texto) que el dueño del negocio escribe a mano (plan Pro). Se
+ * cargan en tiempo real con un <link> a Google Fonts en vez de next/font
+ * (que solo soporta fuentes elegidas en build time), y se aplican por
+ * inline style en vez de className.
  */
-export function getLandingFontPair(id: string | undefined, customFamily?: string) {
-  if (id === "custom" && customFamily) {
+export function getLandingFontPair(id: string | undefined, customHeadingFamily?: string, customBodyFamily?: string) {
+  if (id === "custom" && (customHeadingFamily || customBodyFamily)) {
+    const heading = customHeadingFamily || customBodyFamily;
+    const body = customBodyFamily || customHeadingFamily;
     return {
       label: "Personalizada",
-      description: customFamily,
-      heading: { className: "", sample: "Aa", family: customFamily },
-      body: { className: "", family: customFamily },
+      description: [customHeadingFamily, customBodyFamily].filter(Boolean).join(" + "),
+      heading: { className: "", sample: "Aa", family: heading },
+      body: { className: "", family: body },
     };
   }
   return LANDING_FONT_PAIRS[(id as LandingFontPairId) ?? "default"] ?? LANDING_FONT_PAIRS.default;

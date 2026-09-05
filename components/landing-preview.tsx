@@ -248,7 +248,8 @@ export function LandingPreview({
     config.theme_palette === "custom" && config.custom_palette
       ? buildCustomPalette(config.custom_palette)
       : getLandingPalette(config.theme_palette);
-  const fontPair = getLandingFontPair(config.font_id, config.custom_font_family);
+  const fontPair = getLandingFontPair(config.font_id, config.custom_font_family, config.custom_font_family_body);
+  const headingStyle = fontPair.heading.family ? { fontFamily: fontPair.heading.family } : undefined;
 
   function preventNav(e: React.MouseEvent) {
     if (!interactive) e.preventDefault();
@@ -280,6 +281,9 @@ export function LandingPreview({
           Fonts por nombre de familia — las parejas curadas usan next/font
           (autohospedadas) y no necesitan esto. */}
       {fontPair.body.family && <link rel="stylesheet" href={googleFontsCssUrl(fontPair.body.family)} />}
+      {fontPair.heading.family && fontPair.heading.family !== fontPair.body.family && (
+        <link rel="stylesheet" href={googleFontsCssUrl(fontPair.heading.family)} />
+      )}
       <div className="relative">
         {/* Flota transparente/vidrio sobre la foto del hero, no ocupa su
             propio bloque blanco — por eso vive adentro del <header>. */}
@@ -288,7 +292,7 @@ export function LandingPreview({
             // eslint-disable-next-line @next/next/no-img-element
             <img src={config.logo_url} alt={business.name} className="h-8 w-auto max-w-40 object-contain" />
           ) : (
-            <span className={cn("type-display text-lg leading-none text-white", fontPair.heading.className)}>{business.name}</span>
+            <span className={cn("type-display text-lg leading-none text-white", fontPair.heading.className)} style={headingStyle}>{business.name}</span>
           )}
           <div className="flex items-center gap-3">
             <Button
@@ -326,7 +330,7 @@ export function LandingPreview({
         <div className="relative w-full px-6 py-12 @sm:px-12 @sm:py-16">
           <div className="mx-auto max-w-3xl">
             {locationLabel && <p className="kicker-label mb-3 text-primary">{locationLabel}</p>}
-            <h1 className={cn("type-display mb-4 text-4xl leading-[0.95] text-white @sm:text-6xl", fontPair.heading.className)}>{heroTitle}</h1>
+            <h1 className={cn("type-display mb-4 text-4xl leading-[0.95] text-white @sm:text-6xl", fontPair.heading.className)} style={headingStyle}>{heroTitle}</h1>
             {config.hero_subtitle && <p className="mb-6 max-w-xl text-lg text-white/85">{config.hero_subtitle}</p>}
             <div className="flex flex-wrap items-center gap-3">
               <Button
@@ -361,7 +365,7 @@ export function LandingPreview({
       <section id="servicios" className="scroll-mt-20 px-6 py-16 @sm:px-12">
         <div className="mx-auto max-w-6xl">
           <p className="kicker-label mb-2 text-muted-foreground">Servicios</p>
-          <h2 className={cn("type-display mb-8 text-3xl leading-none @sm:text-4xl", fontPair.heading.className)}>Qué se puede reservar</h2>
+          <h2 className={cn("type-display mb-8 text-3xl leading-none @sm:text-4xl", fontPair.heading.className)} style={headingStyle}>Qué se puede reservar</h2>
           <div className="grid grid-cols-1 gap-4 @sm:grid-cols-2 @lg:grid-cols-3">
             {services.map((service) => (
               <Card key={service.id} className="flex h-full flex-col">
@@ -402,7 +406,7 @@ export function LandingPreview({
         <section className="py-16">
           <div className="mx-auto mb-8 max-w-6xl px-6 @sm:px-12">
             <p className="kicker-label mb-2 text-muted-foreground">Galería</p>
-            <h2 className={cn("type-display text-3xl leading-none @sm:text-4xl", fontPair.heading.className)}>Trabajos recientes</h2>
+            <h2 className={cn("type-display text-3xl leading-none @sm:text-4xl", fontPair.heading.className)} style={headingStyle}>Trabajos recientes</h2>
           </div>
           {/* Slider a todo el ancho de la pantalla (sin el max-w del resto del
               contenido), con flechas y puntitos — no depende de que se
