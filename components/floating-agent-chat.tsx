@@ -24,11 +24,24 @@ export function FloatingAgentChat({ slug, businessName }: { slug: string; busine
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [nearFooter, setNearFooter] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
   }, [messages, loading]);
+
+  // Al llegar al pie de la página (créditos/redes) la barra se corre para
+  // no taparlo — vuelve a aparecer apenas se scrollea hacia arriba de nuevo.
+  useEffect(() => {
+    const footer = document.getElementById("landing-footer");
+    if (!footer) return;
+    const io = new IntersectionObserver(([entry]) => setNearFooter(entry.isIntersecting), {
+      rootMargin: "0px 0px -40% 0px",
+    });
+    io.observe(footer);
+    return () => io.disconnect();
+  }, []);
 
   async function send(text: string) {
     const trimmed = text.trim();
@@ -56,7 +69,12 @@ export function FloatingAgentChat({ slug, businessName }: { slug: string; busine
   }
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-40 flex flex-col items-center px-4 pb-4 sm:px-6 sm:pb-6">
+    <div
+      className={cn(
+        "fixed inset-x-0 bottom-0 z-40 flex flex-col items-center px-4 pb-4 transition-all duration-300 sm:px-6 sm:pb-6",
+        nearFooter && "pointer-events-none translate-y-full opacity-0"
+      )}
+    >
       {/* Velo detrás de la barra para separarla de lo que haya justo debajo
           (fotos, texto oscuro, etc.) — un solo tono (el oscuro de la
           paleta elegida). Va en su propia capa con z-index explícito: un

@@ -488,12 +488,18 @@ export type LandingConfig = {
   /** Título grande del hero — independiente de businesses.name a propósito
    * (ese sigue siendo el "símbolo" del nav/admin, este es 100% editorial). */
   hero_title?: string
+  /** Color de texto del título principal — la foto de fondo no tiene ningún
+   * velo automático, así que el dueño del negocio elige un color legible a
+   * ojo según su propia foto. */
+  hero_title_color?: string
   /** Logo en el encabezado (PNG/SVG) — si no está, se muestra el título como texto. */
   logo_url?: string
   /** Línea chica arriba del título (reemplaza el "dirección, ciudad"
    * calculado — texto libre, editorial). */
   location_label?: string
+  location_label_color?: string
   hero_subtitle?: string
+  hero_subtitle_color?: string
   hero_image_url?: string
   cta_label?: string
   map_embed_url?: string

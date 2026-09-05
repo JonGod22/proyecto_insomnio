@@ -87,8 +87,11 @@ export function LandingBuilderForm({
   onLiveChange?: (config: LandingConfig) => void;
 }) {
   const [heroTitle, setHeroTitle] = useState(config.hero_title ?? "");
+  const [heroTitleColor, setHeroTitleColor] = useState(config.hero_title_color ?? "");
   const [locationLabel, setLocationLabel] = useState(config.location_label ?? "");
+  const [locationLabelColor, setLocationLabelColor] = useState(config.location_label_color ?? "");
   const [heroSubtitle, setHeroSubtitle] = useState(config.hero_subtitle ?? "");
+  const [heroSubtitleColor, setHeroSubtitleColor] = useState(config.hero_subtitle_color ?? "");
   const [heroImageUrl, setHeroImageUrl] = useState(config.hero_image_url ?? "");
   const [logoUrl, setLogoUrl] = useState(config.logo_url ?? "");
   const [ctaLabel, setCtaLabel] = useState(config.cta_label ?? "Reservar turno");
@@ -139,9 +142,12 @@ export function LandingBuilderForm({
   useEffect(() => {
     onLiveChange?.({
       hero_title: heroTitle || undefined,
+      hero_title_color: heroTitleColor || undefined,
       logo_url: logoUrl || undefined,
       location_label: locationLabel || undefined,
+      location_label_color: locationLabelColor || undefined,
       hero_subtitle: heroSubtitle || undefined,
+      hero_subtitle_color: heroSubtitleColor || undefined,
       hero_image_url: heroImageUrl || undefined,
       cta_label: ctaLabel || undefined,
       map_embed_url: mapEmbedUrl || undefined,
@@ -161,9 +167,12 @@ export function LandingBuilderForm({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     heroTitle,
+    heroTitleColor,
     logoUrl,
     locationLabel,
+    locationLabelColor,
     heroSubtitle,
+    heroSubtitleColor,
     heroImageUrl,
     ctaLabel,
     mapEmbedUrl,
@@ -292,17 +301,63 @@ export function LandingBuilderForm({
 
         <div className="space-y-2 border-t border-border pt-4">
           <Label className="mb-1 block">Título principal</Label>
-          <Input name="hero_title" value={heroTitle} onChange={(e) => setHeroTitle(e.target.value)} placeholder="Ej: Yésica Studio" />
+          <div className="flex gap-2">
+            <Input name="hero_title" value={heroTitle} onChange={(e) => setHeroTitle(e.target.value)} placeholder="Ej: Yésica Studio" className="flex-1" />
+            <input
+              type="color"
+              name="hero_title_color"
+              value={heroTitleColor || "#ffffff"}
+              onChange={(e) => setHeroTitleColor(e.target.value)}
+              title="Color del texto"
+              className="size-9 shrink-0 cursor-pointer rounded-full border border-border"
+            />
+          </div>
         </div>
 
         <div className="space-y-2 border-t border-border pt-4">
           <Label className="mb-1 block">Título secundario 1</Label>
-          <Input name="location_label" value={locationLabel} onChange={(e) => setLocationLabel(e.target.value)} placeholder="Ej: Bailén 102, San Martín, Mendoza" />
+          <div className="flex gap-2">
+            <Input
+              name="location_label"
+              value={locationLabel}
+              onChange={(e) => setLocationLabel(e.target.value)}
+              placeholder="Ej: Bailén 102, San Martín, Mendoza"
+              className="flex-1"
+            />
+            <input
+              type="color"
+              name="location_label_color"
+              value={locationLabelColor || "#fab200"}
+              onChange={(e) => setLocationLabelColor(e.target.value)}
+              title="Color del texto"
+              className="size-9 shrink-0 cursor-pointer rounded-full border border-border"
+            />
+          </div>
         </div>
 
         <div className="space-y-2 border-t border-border pt-4">
           <Label className="mb-1 block">Título secundario 2</Label>
-          <Input name="hero_subtitle" value={heroSubtitle} onChange={(e) => setHeroSubtitle(e.target.value)} placeholder="Ej: Turnos de lunes a sábado" />
+          <div className="flex gap-2">
+            <Input
+              name="hero_subtitle"
+              value={heroSubtitle}
+              onChange={(e) => setHeroSubtitle(e.target.value)}
+              placeholder="Ej: Turnos de lunes a sábado"
+              className="flex-1"
+            />
+            <input
+              type="color"
+              name="hero_subtitle_color"
+              value={heroSubtitleColor || "#ffffff"}
+              onChange={(e) => setHeroSubtitleColor(e.target.value)}
+              title="Color del texto"
+              className="size-9 shrink-0 cursor-pointer rounded-full border border-border"
+            />
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Elegí un color que se lea bien sobre tu foto de fondo — la foto ya no tiene ningún velo
+            automático encima.
+          </p>
         </div>
       </div>
 
@@ -379,19 +434,19 @@ export function LandingBuilderForm({
           {themePalette === "custom" && (
             <div className="surface flex flex-wrap gap-4 bg-muted/30 p-3">
               <label className="flex flex-col items-center gap-1.5 text-xs">
-                <input type="color" value={customBg} onChange={(e) => setCustomBg(e.target.value)} className="size-9 cursor-pointer rounded-full" />
+                <input type="color" value={customBg} onChange={(e) => setCustomBg(e.target.value)} className="size-9 cursor-pointer rounded-full border border-border" />
                 Fondo
               </label>
               <label className="flex flex-col items-center gap-1.5 text-xs">
-                <input type="color" value={customPrimary} onChange={(e) => setCustomPrimary(e.target.value)} className="size-9 cursor-pointer rounded-full" />
+                <input type="color" value={customPrimary} onChange={(e) => setCustomPrimary(e.target.value)} className="size-9 cursor-pointer rounded-full border border-border" />
                 Principal
               </label>
               <label className="flex flex-col items-center gap-1.5 text-xs">
-                <input type="color" value={customSecondary} onChange={(e) => setCustomSecondary(e.target.value)} className="size-9 cursor-pointer rounded-full" />
+                <input type="color" value={customSecondary} onChange={(e) => setCustomSecondary(e.target.value)} className="size-9 cursor-pointer rounded-full border border-border" />
                 Secundario
               </label>
               <label className="flex flex-col items-center gap-1.5 text-xs">
-                <input type="color" value={customFg} onChange={(e) => setCustomFg(e.target.value)} className="size-9 cursor-pointer rounded-full" />
+                <input type="color" value={customFg} onChange={(e) => setCustomFg(e.target.value)} className="size-9 cursor-pointer rounded-full border border-border" />
                 Texto
               </label>
             </div>

@@ -317,21 +317,26 @@ export function LandingPreview({
         <header className="relative flex min-h-[560px] items-end overflow-hidden bg-foreground @sm:min-h-[640px]">
           {heroPhoto && (
             // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={heroPhoto}
-              alt={`Espacio de ${business.name}`}
-              className="absolute inset-0 h-full w-full scale-105 object-cover blur-[1px]"
-            />
+            <img src={heroPhoto} alt={`Espacio de ${business.name}`} className="absolute inset-0 h-full w-full object-cover" />
           )}
-          {/* Velo oscuro siempre presente (con o sin foto de fondo) — garantiza
-              contraste para el texto claro del hero sin depender de qué tan
-              oscura sea la imagen o la paleta elegida. */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/45 to-black/15" />
         <div className="relative w-full px-6 py-12 @sm:px-12 @sm:py-16">
           <div className="mx-auto max-w-3xl">
-            {locationLabel && <p className="kicker-label mb-3 text-primary">{locationLabel}</p>}
-            <h1 className={cn("type-display mb-4 text-4xl leading-[0.95] text-white @sm:text-6xl", fontPair.heading.className)} style={headingStyle}>{heroTitle}</h1>
-            {config.hero_subtitle && <p className="mb-6 max-w-xl text-lg text-white/85">{config.hero_subtitle}</p>}
+            {locationLabel && (
+              <p className="kicker-label mb-3 text-primary" style={{ color: config.location_label_color || undefined }}>
+                {locationLabel}
+              </p>
+            )}
+            <h1
+              className={cn("type-display mb-4 text-4xl leading-[0.95] text-white @sm:text-6xl", fontPair.heading.className)}
+              style={{ ...headingStyle, color: config.hero_title_color || undefined }}
+            >
+              {heroTitle}
+            </h1>
+            {config.hero_subtitle && (
+              <p className="mb-6 max-w-xl text-lg text-white/85" style={{ color: config.hero_subtitle_color || undefined }}>
+                {config.hero_subtitle}
+              </p>
+            )}
             <div className="flex flex-wrap items-center gap-3">
               <Button
                 render={<Link href={`/${slug}/booking`} onClick={preventNav} />}
@@ -415,7 +420,7 @@ export function LandingPreview({
         </section>
       )}
 
-      <footer className="py-16">
+      <footer id="landing-footer" className="py-16">
         {hasContact && (
           <div className="mb-8 flex justify-center gap-3 px-6 @sm:px-12">
             {business.whatsapp_number && (

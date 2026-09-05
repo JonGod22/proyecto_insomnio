@@ -53,9 +53,12 @@ export async function updateLandingConfig(
   }
 
   const heroTitle = (formData.get("hero_title") as string)?.trim() || undefined;
+  const heroTitleColor = (formData.get("hero_title_color") as string)?.trim() || undefined;
   const logoUrl = (formData.get("logo_url") as string)?.trim() || undefined;
   const locationLabel = (formData.get("location_label") as string)?.trim() || undefined;
+  const locationLabelColor = (formData.get("location_label_color") as string)?.trim() || undefined;
   const heroSubtitle = (formData.get("hero_subtitle") as string)?.trim() || undefined;
+  const heroSubtitleColor = (formData.get("hero_subtitle_color") as string)?.trim() || undefined;
   const heroImageUrl = (formData.get("hero_image_url") as string)?.trim() || undefined;
   const ctaLabel = (formData.get("cta_label") as string)?.trim() || undefined;
   const linkLabels = formData.getAll("link_label").map((v) => String(v).trim());
@@ -93,9 +96,12 @@ export async function updateLandingConfig(
 
   const config: LandingConfig = {
     hero_title: heroTitle,
+    hero_title_color: heroTitleColor,
     logo_url: logoUrl,
     location_label: locationLabel,
+    location_label_color: locationLabelColor,
     hero_subtitle: heroSubtitle,
+    hero_subtitle_color: heroSubtitleColor,
     hero_image_url: heroImageUrl,
     cta_label: ctaLabel,
     map_embed_url: mapEmbedUrl,
