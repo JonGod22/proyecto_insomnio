@@ -81,7 +81,7 @@ export function FloatingAgentChat({ slug, businessName }: { slug: string; busine
           elemento absolute con z-index:auto pinta ARRIBA de sus hermanos en
           flujo normal aunque venga primero en el DOM, así que sin esto el
           velo terminaba tapando la barra en vez de quedar detrás. */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-0 h-40 bg-gradient-to-t from-[var(--primary-dark)]/85 to-transparent sm:h-48" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-0 h-24 bg-gradient-to-t from-[var(--primary-dark)]/60 to-transparent sm:h-28" />
 
       <div className="relative z-10 flex w-full flex-col items-center gap-2">
       {expanded && (

@@ -320,7 +320,7 @@ export function LandingPreview({
             <img src={heroPhoto} alt={`Espacio de ${business.name}`} className="absolute inset-0 h-full w-full object-cover" />
           )}
         <div className="relative w-full px-6 py-12 @sm:px-12 @sm:py-16">
-          <div className="mx-auto max-w-3xl">
+          <div className="mx-auto max-w-6xl">
             {locationLabel && (
               <p className="kicker-label mb-3 text-primary" style={{ color: config.location_label_color || undefined }}>
                 {locationLabel}
@@ -486,7 +486,12 @@ export function LandingPreview({
         </div>
       </div>
 
-      <FloatingAgentChat slug={slug} businessName={business.name} />
+      {/* El agente (barra + velo detrás, ambos dentro de este mismo
+          componente) es una función del plan Business — cuando exista el
+          sistema de planes, este único condicional apaga las dos cosas
+          juntas para negocios sin suscripción. Por ahora siempre se
+          muestra porque no hay planes reales todavía. */}
+      {true && <FloatingAgentChat slug={slug} businessName={business.name} />}
     </main>
   );
 }
