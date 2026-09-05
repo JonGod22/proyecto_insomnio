@@ -67,6 +67,51 @@ function Block({
   );
 }
 
+/** Campo de texto con un selector de color integrado en el borde derecho,
+ * a todo el alto — para que se note que hay un color para elegir incluso
+ * cuando el valor actual es parecido al fondo del panel (blanco, gris,
+ * etc.), en vez de un círculo suelto al lado que podía perderse de vista. */
+function TextColorField({
+  name,
+  value,
+  onChange,
+  colorName,
+  colorValue,
+  onColorChange,
+  colorFallback,
+  placeholder,
+}: {
+  name: string;
+  value: string;
+  onChange: (v: string) => void;
+  colorName: string;
+  colorValue: string;
+  onColorChange: (v: string) => void;
+  colorFallback: string;
+  placeholder?: string;
+}) {
+  return (
+    <div className="surface flex items-stretch overflow-hidden rounded-[6px] bg-background">
+      <input
+        type="text"
+        name={name}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        className="h-10 min-w-0 flex-1 bg-transparent px-3 text-sm outline-none placeholder:text-muted-foreground"
+      />
+      <input
+        type="color"
+        name={colorName}
+        value={colorValue || colorFallback}
+        onChange={(e) => onColorChange(e.target.value)}
+        title="Color del texto"
+        className="h-10 w-10 shrink-0 cursor-pointer border-l-2 border-border"
+      />
+    </div>
+  );
+}
+
 export function LandingBuilderForm({
   formId,
   formAction,
@@ -301,59 +346,44 @@ export function LandingBuilderForm({
 
         <div className="space-y-2 border-t border-border pt-4">
           <Label className="mb-1 block">Título principal</Label>
-          <div className="flex gap-2">
-            <Input name="hero_title" value={heroTitle} onChange={(e) => setHeroTitle(e.target.value)} placeholder="Ej: Yésica Studio" className="flex-1" />
-            <input
-              type="color"
-              name="hero_title_color"
-              value={heroTitleColor || "#ffffff"}
-              onChange={(e) => setHeroTitleColor(e.target.value)}
-              title="Color del texto"
-              className="size-9 shrink-0 cursor-pointer rounded-full border border-border"
-            />
-          </div>
+          <TextColorField
+            name="hero_title"
+            value={heroTitle}
+            onChange={setHeroTitle}
+            placeholder="Ej: Yésica Studio"
+            colorName="hero_title_color"
+            colorValue={heroTitleColor}
+            onColorChange={setHeroTitleColor}
+            colorFallback="#ffffff"
+          />
         </div>
 
         <div className="space-y-2 border-t border-border pt-4">
           <Label className="mb-1 block">Título secundario 1</Label>
-          <div className="flex gap-2">
-            <Input
-              name="location_label"
-              value={locationLabel}
-              onChange={(e) => setLocationLabel(e.target.value)}
-              placeholder="Ej: Bailén 102, San Martín, Mendoza"
-              className="flex-1"
-            />
-            <input
-              type="color"
-              name="location_label_color"
-              value={locationLabelColor || "#fab200"}
-              onChange={(e) => setLocationLabelColor(e.target.value)}
-              title="Color del texto"
-              className="size-9 shrink-0 cursor-pointer rounded-full border border-border"
-            />
-          </div>
+          <TextColorField
+            name="location_label"
+            value={locationLabel}
+            onChange={setLocationLabel}
+            placeholder="Ej: Bailén 102, San Martín, Mendoza"
+            colorName="location_label_color"
+            colorValue={locationLabelColor}
+            onColorChange={setLocationLabelColor}
+            colorFallback="#fab200"
+          />
         </div>
 
         <div className="space-y-2 border-t border-border pt-4">
           <Label className="mb-1 block">Título secundario 2</Label>
-          <div className="flex gap-2">
-            <Input
-              name="hero_subtitle"
-              value={heroSubtitle}
-              onChange={(e) => setHeroSubtitle(e.target.value)}
-              placeholder="Ej: Turnos de lunes a sábado"
-              className="flex-1"
-            />
-            <input
-              type="color"
-              name="hero_subtitle_color"
-              value={heroSubtitleColor || "#ffffff"}
-              onChange={(e) => setHeroSubtitleColor(e.target.value)}
-              title="Color del texto"
-              className="size-9 shrink-0 cursor-pointer rounded-full border border-border"
-            />
-          </div>
+          <TextColorField
+            name="hero_subtitle"
+            value={heroSubtitle}
+            onChange={setHeroSubtitle}
+            placeholder="Ej: Turnos de lunes a sábado"
+            colorName="hero_subtitle_color"
+            colorValue={heroSubtitleColor}
+            onColorChange={setHeroSubtitleColor}
+            colorFallback="#ffffff"
+          />
           <p className="text-xs text-muted-foreground">
             Elegí un color que se lea bien sobre tu foto de fondo — la foto ya no tiene ningún velo
             automático encima.
@@ -434,19 +464,19 @@ export function LandingBuilderForm({
           {themePalette === "custom" && (
             <div className="surface flex flex-wrap gap-4 bg-muted/30 p-3">
               <label className="flex flex-col items-center gap-1.5 text-xs">
-                <input type="color" value={customBg} onChange={(e) => setCustomBg(e.target.value)} className="size-9 cursor-pointer rounded-full border border-border" />
+                <input type="color" value={customBg} onChange={(e) => setCustomBg(e.target.value)} className="size-9 cursor-pointer rounded-full border-2 border-foreground/40" />
                 Fondo
               </label>
               <label className="flex flex-col items-center gap-1.5 text-xs">
-                <input type="color" value={customPrimary} onChange={(e) => setCustomPrimary(e.target.value)} className="size-9 cursor-pointer rounded-full border border-border" />
+                <input type="color" value={customPrimary} onChange={(e) => setCustomPrimary(e.target.value)} className="size-9 cursor-pointer rounded-full border-2 border-foreground/40" />
                 Principal
               </label>
               <label className="flex flex-col items-center gap-1.5 text-xs">
-                <input type="color" value={customSecondary} onChange={(e) => setCustomSecondary(e.target.value)} className="size-9 cursor-pointer rounded-full border border-border" />
+                <input type="color" value={customSecondary} onChange={(e) => setCustomSecondary(e.target.value)} className="size-9 cursor-pointer rounded-full border-2 border-foreground/40" />
                 Secundario
               </label>
               <label className="flex flex-col items-center gap-1.5 text-xs">
-                <input type="color" value={customFg} onChange={(e) => setCustomFg(e.target.value)} className="size-9 cursor-pointer rounded-full border border-border" />
+                <input type="color" value={customFg} onChange={(e) => setCustomFg(e.target.value)} className="size-9 cursor-pointer rounded-full border-2 border-foreground/40" />
                 Texto
               </label>
             </div>

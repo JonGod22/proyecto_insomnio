@@ -37,7 +37,7 @@ export function FloatingAgentChat({ slug, businessName }: { slug: string; busine
     const footer = document.getElementById("landing-footer");
     if (!footer) return;
     const io = new IntersectionObserver(([entry]) => setNearFooter(entry.isIntersecting), {
-      rootMargin: "0px 0px -40% 0px",
+      rootMargin: "0px",
     });
     io.observe(footer);
     return () => io.disconnect();

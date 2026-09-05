@@ -257,7 +257,7 @@ export function LandingPreview({
 
   return (
     <main
-      className={cn("@container flex-1 bg-background pb-28 text-foreground sm:pb-32", fontPair.body.className)}
+      className={cn("@container flex-1 bg-background text-foreground", fontPair.body.className)}
       style={
         {
           "--background": palette.background,
@@ -420,7 +420,7 @@ export function LandingPreview({
         </section>
       )}
 
-      <footer id="landing-footer" className="py-16">
+      <footer className="py-16">
         {hasContact && (
           <div className="mb-8 flex justify-center gap-3 px-6 @sm:px-12">
             {business.whatsapp_number && (
@@ -464,7 +464,7 @@ export function LandingPreview({
         )}
       </footer>
 
-      <div className="bg-foreground px-6 py-6 text-background @sm:px-12">
+      <div id="landing-footer" className="bg-foreground px-6 py-6 text-background @sm:px-12">
         <div className="mx-auto flex max-w-5xl flex-col items-center gap-3 text-center @sm:flex-row @sm:justify-between @sm:text-left">
           <p className="kicker-label text-background/60">Sitio desarrollado por Jonathan Godoy</p>
           <div className="flex items-center gap-5">
