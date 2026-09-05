@@ -11,6 +11,8 @@ export type LandingPalette = {
   cardForeground: string;
   primary: string;
   primaryForeground: string;
+  /** Mismo primary en rgba, para el resplandor (.halo) de los botones sobre foto. */
+  primaryGlow: string;
   muted: string;
   mutedForeground: string;
   border: string;
@@ -26,6 +28,7 @@ export const LANDING_PALETTES: LandingPalette[] = [
     cardForeground: "#0a0a0a",
     primary: "#fab200",
     primaryForeground: "#0a0a0a",
+    primaryGlow: "rgba(250, 178, 0, 0.45)",
     muted: "#efefe2",
     mutedForeground: "#7a7a6e",
     border: "#e3e3d4",
@@ -39,6 +42,7 @@ export const LANDING_PALETTES: LandingPalette[] = [
     cardForeground: "#2b1a1a",
     primary: "#e0788f",
     primaryForeground: "#2b1a1a",
+    primaryGlow: "rgba(224, 120, 143, 0.45)",
     muted: "#f7e6e3",
     mutedForeground: "#8a6a68",
     border: "#f0d9d5",
@@ -52,6 +56,7 @@ export const LANDING_PALETTES: LandingPalette[] = [
     cardForeground: "#1c2118",
     primary: "#7a9471",
     primaryForeground: "#ffffff",
+    primaryGlow: "rgba(122, 148, 113, 0.45)",
     muted: "#e7ebe0",
     mutedForeground: "#6f7a66",
     border: "#dde3d3",
@@ -65,6 +70,7 @@ export const LANDING_PALETTES: LandingPalette[] = [
     cardForeground: "#211c2e",
     primary: "#8b7fd1",
     primaryForeground: "#ffffff",
+    primaryGlow: "rgba(139, 127, 209, 0.45)",
     muted: "#ece8f7",
     mutedForeground: "#756e94",
     border: "#e0daf1",
@@ -78,6 +84,7 @@ export const LANDING_PALETTES: LandingPalette[] = [
     cardForeground: "#f2f2ea",
     primary: "#f2c14e",
     primaryForeground: "#14161c",
+    primaryGlow: "rgba(242, 193, 78, 0.45)",
     muted: "#22252f",
     mutedForeground: "#9a9da8",
     border: "#2b2f3a",

@@ -76,6 +76,7 @@
   --live: #e60000;
   --success: #2e7d32; /* verde, solo para "turno confirmado" — única excepción a la paleta base */
   --border: #e3e3d4; /* neutro suave: ya no hay líneas negras en el sistema */
+  --primary-glow: rgba(250, 178, 0, 0.45); /* color del halo — sigue a --primary en la landing pública */
   --input: #e3e3d4;
   --ring: #fab200;
   --chart-1: #fab200;
@@ -113,9 +114,11 @@
     box-shadow: 0 1px 2px rgba(10, 10, 10, 0.04);
   }
 
-  /* Chip con halo: caja blanca con resplandor amarillo difuso. Un único halo por pantalla. */
+  /* Chip con halo: resplandor difuso alrededor de un botón. El color sigue a
+     --primary-glow — en la landing pública cambia según la paleta elegida en
+     vez de quedar amarillo fijo. */
   .halo {
-    box-shadow: 0 0 40px 6px rgba(250, 178, 0, 0.45);
+    box-shadow: 0 0 40px 6px var(--primary-glow);
   }
 
   /* Cond 800 mayúsculas: titulares y botones. Jerarquía por tamaño, no por peso. */
