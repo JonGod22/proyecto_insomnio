@@ -1,9 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
+import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import { getLandingPalette } from "@/lib/landing-palettes";
 import { getLandingFontPair } from "@/lib/landing-fonts";
@@ -18,7 +21,126 @@ export type PreviewService = {
   deposit_amount: number | null;
   duration_minutes: number;
   duration_minutes_max: number | null;
+  info_content?: string | null;
+  info_images?: string[] | null;
 };
+
+/** Slider a pantalla completa con scroll-snap nativo, flechas a los costados
+ * y puntitos de referencia — para que quede claro que hay más fotos y se
+ * pueda pasar con un clic, no solo arrastrando/scrolleando. */
+function GallerySlider({ photos }: { photos: string[] }) {
+  const scrollerRef = useRef<HTMLDivElement>(null);
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    const el = scrollerRef.current;
+    if (!el) return;
+    const slides = Array.from(el.children) as HTMLElement[];
+    const io = new IntersectionObserver(
+      (entries) => {
+        const mostVisible = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if (mostVisible) setIndex(slides.indexOf(mostVisible.target as HTMLElement));
+      },
+      { root: el, threshold: 0.6 }
+    );
+    slides.forEach((s) => io.observe(s));
+    return () => io.disconnect();
+  }, [photos.length]);
+
+  function goTo(i: number) {
+    const el = scrollerRef.current;
+    if (!el) return;
+    const clamped = Math.max(0, Math.min(photos.length - 1, i));
+    (el.children[clamped] as HTMLElement | undefined)?.scrollIntoView({
+      behavior: "smooth",
+      inline: "start",
+      block: "nearest",
+    });
+  }
+
+  return (
+    <div className="relative">
+      <div
+        ref={scrollerRef}
+        className="scrollbar-none flex w-full snap-x snap-mandatory overflow-x-auto scroll-smooth"
+        style={{ scrollbarWidth: "none" }}
+      >
+        {photos.map((src) => (
+          <div key={src} className="aspect-[4/5] w-full shrink-0 snap-center @sm:aspect-auto @sm:h-[min(750px,75vh)]">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={src} alt="Trabajo realizado" className="h-full w-full object-cover" />
+          </div>
+        ))}
+      </div>
+
+      {photos.length > 1 && (
+        <>
+          <button
+            type="button"
+            aria-label="Foto anterior"
+            onClick={() => goTo(index - 1)}
+            className="absolute left-3 top-1/2 z-10 flex size-9 -translate-y-1/2 items-center justify-center rounded-full bg-background/85 text-foreground shadow-md hover:bg-background @sm:left-6"
+          >
+            <ChevronLeftIcon className="size-5" />
+          </button>
+          <button
+            type="button"
+            aria-label="Foto siguiente"
+            onClick={() => goTo(index + 1)}
+            className="absolute right-3 top-1/2 z-10 flex size-9 -translate-y-1/2 items-center justify-center rounded-full bg-background/85 text-foreground shadow-md hover:bg-background @sm:right-6"
+          >
+            <ChevronRightIcon className="size-5" />
+          </button>
+          <div className="absolute inset-x-0 bottom-3 z-10 flex justify-center gap-1.5">
+            {photos.map((_, i) => (
+              <button
+                key={i}
+                type="button"
+                aria-label={`Ir a la foto ${i + 1}`}
+                onClick={() => goTo(i)}
+                className={cn("h-1.5 rounded-full transition-all", i === index ? "w-4 bg-primary" : "w-1.5 bg-background/80")}
+              />
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+function ServiceInfoDialog({ service }: { service: PreviewService }) {
+  if (!service.info_content) return null;
+  const images = service.info_images ?? [];
+  return (
+    <Dialog>
+      <DialogTrigger
+        render={
+          <Button type="button" variant="outline" size="sm" className="w-fit">
+            Más información
+          </Button>
+        }
+      />
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>{service.name}</DialogTitle>
+        </DialogHeader>
+        <p className="whitespace-pre-line text-sm text-foreground/80">{service.info_content}</p>
+        {images.length > 0 && (
+          <div className="grid grid-cols-3 gap-2">
+            {images.map((src) => (
+              <div key={src} className="aspect-square overflow-hidden rounded-[8px]">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={src} alt="" className="h-full w-full object-cover" />
+              </div>
+            ))}
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
 
 export type PreviewBusiness = {
   name: string;
@@ -215,15 +337,18 @@ export function LandingPreview({
                 </CardHeader>
                 <CardContent className="flex flex-1 flex-col">
                   {service.description && <p className="mb-4 text-sm text-foreground/70">{service.description}</p>}
-                  <Button
-                    render={<Link href={`/${slug}/booking?service=${service.id}`} onClick={preventNav} />}
-                    nativeButton={false}
-                    variant="dark"
-                    size="sm"
-                    className="mt-auto w-fit"
-                  >
-                    Reservar
-                  </Button>
+                  <div className="mt-auto flex flex-wrap gap-2">
+                    <Button
+                      render={<Link href={`/${slug}/booking?service=${service.id}`} onClick={preventNav} />}
+                      nativeButton={false}
+                      variant="dark"
+                      size="sm"
+                      className="w-fit"
+                    >
+                      Reservar
+                    </Button>
+                    <ServiceInfoDialog service={service} />
+                  </div>
                 </CardContent>
               </Card>
             ))}
@@ -238,18 +363,9 @@ export function LandingPreview({
             <h2 className={cn("type-display text-3xl leading-none @sm:text-4xl", fontPair.heading.className)}>Trabajos recientes</h2>
           </div>
           {/* Slider a todo el ancho de la pantalla (sin el max-w del resto del
-              contenido) — se desliza con scroll-snap nativo, sin librería. */}
-          <div
-            className="scrollbar-none flex w-full snap-x snap-mandatory overflow-x-auto scroll-smooth"
-            style={{ scrollbarWidth: "none" }}
-          >
-            {galleryPhotos.map((src) => (
-              <div key={src} className="aspect-[4/5] w-full shrink-0 snap-center @sm:aspect-auto @sm:h-[min(600px,70vh)]">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={src} alt="Trabajo realizado" className="h-full w-full object-cover" />
-              </div>
-            ))}
-          </div>
+              contenido), con flechas y puntitos — no depende de que se
+              entienda que hay que arrastrar/scrollear. */}
+          <GallerySlider photos={galleryPhotos} />
         </section>
       )}
 

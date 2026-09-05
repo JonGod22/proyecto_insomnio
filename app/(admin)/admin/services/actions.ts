@@ -13,6 +13,13 @@ export async function upsertService(
   const id = formData.get("id") as string;
   const priceOnRequest = formData.get("price_on_request") === "on";
 
+  const infoContent = (formData.get("info_content") as string)?.trim() || "";
+  const infoImages = formData
+    .getAll("info_image")
+    .map((v) => String(v).trim())
+    .filter(Boolean)
+    .slice(0, 3);
+
   const payload = {
     name: String(formData.get("name") ?? "").trim(),
     description: (formData.get("description") as string)?.trim() || null,
@@ -24,10 +31,16 @@ export async function upsertService(
       ? Number(formData.get("duration_minutes_max"))
       : null,
     active: formData.get("active") === "on",
+    info_content: infoContent,
+    info_images: infoImages,
   };
 
   if (!payload.name || !payload.duration_minutes) {
     return { error: "Nombre y duración son obligatorios." };
+  }
+
+  if (!payload.info_content) {
+    return { error: "La información del servicio para la landing es obligatoria." };
   }
 
   if (id) {

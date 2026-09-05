@@ -356,6 +356,8 @@ export type Database = {
           duration_minutes: number
           duration_minutes_max: number | null
           id: string
+          info_content: string | null
+          info_images: string[]
           name: string
           price: number | null
           price_on_request: boolean
@@ -370,6 +372,8 @@ export type Database = {
           duration_minutes: number
           duration_minutes_max?: number | null
           id?: string
+          info_content?: string | null
+          info_images?: string[]
           name: string
           price?: number | null
           price_on_request?: boolean
@@ -384,6 +388,8 @@ export type Database = {
           duration_minutes?: number
           duration_minutes_max?: number | null
           id?: string
+          info_content?: string | null
+          info_images?: string[]
           name?: string
           price?: number | null
           price_on_request?: boolean

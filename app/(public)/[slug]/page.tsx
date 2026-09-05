@@ -23,7 +23,9 @@ export default async function BusinessLandingPage({
   const [{ data: services }, { data: landing }] = await Promise.all([
     supabase
       .from("services")
-      .select("id, name, description, price, price_on_request, deposit_amount, duration_minutes, duration_minutes_max")
+      .select(
+        "id, name, description, price, price_on_request, deposit_amount, duration_minutes, duration_minutes_max, info_content, info_images"
+      )
       .eq("business_id", business.id)
       .eq("active", true)
       .eq("show_on_landing", true),
