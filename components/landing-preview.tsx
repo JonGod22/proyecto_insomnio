@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { getLandingPalette } from "@/lib/landing-palettes";
-import { getLandingFont } from "@/lib/landing-fonts";
+import { getLandingFontPair } from "@/lib/landing-fonts";
 import type { LandingConfig } from "@/lib/types";
 
 export type PreviewService = {
@@ -90,7 +90,7 @@ export function LandingPreview({
   const mapSrc = config.map_embed_url || (computedLocation ? `https://www.google.com/maps?q=${mapQuery}&output=embed` : null);
   const hasContact = Boolean(business.whatsapp_number || config.instagram_url);
   const palette = getLandingPalette(config.theme_palette);
-  const font = getLandingFont(config.font_id);
+  const fontPair = getLandingFontPair(config.font_id);
 
   function preventNav(e: React.MouseEvent) {
     if (!interactive) e.preventDefault();
@@ -98,7 +98,7 @@ export function LandingPreview({
 
   return (
     <main
-      className={cn("@container flex-1 bg-background text-foreground", font.className)}
+      className={cn("@container flex-1 bg-background text-foreground", fontPair.body.className)}
       style={
         {
           "--background": palette.background,
@@ -123,7 +123,7 @@ export function LandingPreview({
             // eslint-disable-next-line @next/next/no-img-element
             <img src={config.logo_url} alt={business.name} className="h-8 w-auto max-w-40 object-contain" />
           ) : (
-            <span className="type-display text-lg leading-none text-background">{business.name}</span>
+            <span className={cn("type-display text-lg leading-none text-background", fontPair.heading.className)}>{business.name}</span>
           )}
           <div className="flex items-center gap-3">
             <Button
@@ -158,7 +158,7 @@ export function LandingPreview({
         <div className="relative w-full px-6 py-12 @sm:px-12 @sm:py-16">
           <div className="mx-auto max-w-3xl">
             {locationLabel && <p className="kicker-label mb-3 text-primary">{locationLabel}</p>}
-            <h1 className="type-display mb-4 text-4xl leading-[0.95] text-background @sm:text-6xl">{heroTitle}</h1>
+            <h1 className={cn("type-display mb-4 text-4xl leading-[0.95] text-background @sm:text-6xl", fontPair.heading.className)}>{heroTitle}</h1>
             {config.hero_subtitle && <p className="mb-6 max-w-xl text-lg text-background/85">{config.hero_subtitle}</p>}
             <div className="flex flex-wrap items-center gap-3">
               <Button
@@ -193,7 +193,7 @@ export function LandingPreview({
       <section id="servicios" className="scroll-mt-20 px-6 py-16 @sm:px-12">
         <div className="mx-auto max-w-6xl">
           <p className="kicker-label mb-2 text-muted-foreground">Servicios</p>
-          <h2 className="type-display mb-8 text-3xl leading-none @sm:text-4xl">Qué se puede reservar</h2>
+          <h2 className={cn("type-display mb-8 text-3xl leading-none @sm:text-4xl", fontPair.heading.className)}>Qué se puede reservar</h2>
           <div className="grid grid-cols-1 gap-4 @sm:grid-cols-2 @lg:grid-cols-3">
             {services.map((service) => (
               <Card key={service.id} className="flex h-full flex-col">
@@ -231,7 +231,7 @@ export function LandingPreview({
         <section className="px-6 py-16 @sm:px-12">
           <div className="mx-auto max-w-6xl">
             <p className="kicker-label mb-2 text-muted-foreground">Galería</p>
-            <h2 className="type-display mb-8 text-3xl leading-none @sm:text-4xl">Trabajos recientes</h2>
+            <h2 className={cn("type-display mb-8 text-3xl leading-none @sm:text-4xl", fontPair.heading.className)}>Trabajos recientes</h2>
             <div className="grid grid-cols-1 gap-3 @sm:grid-cols-2 @lg:grid-cols-3">
               {galleryPhotos.map((src) => (
                 <div key={src} className="relative aspect-[2/1] overflow-hidden rounded-2xl">

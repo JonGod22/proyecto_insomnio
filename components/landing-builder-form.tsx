@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { uploadLandingLogo } from "@/app/(admin)/admin/landing-builder/actions";
 import { LANDING_PALETTES } from "@/lib/landing-palettes";
-import { LANDING_FONTS, LANDING_FONT_IDS } from "@/lib/landing-fonts";
+import { LANDING_FONT_PAIRS, LANDING_FONT_PAIR_IDS } from "@/lib/landing-fonts";
 import { cn } from "@/lib/utils";
 import type { LandingConfig, Service } from "@/lib/types";
 
@@ -294,22 +294,32 @@ export function LandingBuilderForm({
         </div>
 
         <div className="space-y-2 border-t border-border pt-4">
-          <Label className="mb-1 block">Tipografía</Label>
-          <div className="flex flex-wrap gap-2">
-            {LANDING_FONT_IDS.map((id) => (
-              <button
-                key={id}
-                type="button"
-                onClick={() => setFontId(id)}
-                className={cn(
-                  "rounded-[6px] border px-3 py-2 text-sm",
-                  LANDING_FONTS[id].className,
-                  fontId === id ? "border-primary bg-primary/10" : "border-border hover:bg-muted"
-                )}
-              >
-                {LANDING_FONTS[id].label}
-              </button>
-            ))}
+          <Label className="mb-1 block">Pareja tipográfica</Label>
+          <p className="text-sm text-muted-foreground">
+            Título y texto van de a pares pensados para combinar bien — no fuentes sueltas.
+          </p>
+          <div className="grid grid-cols-1 gap-2 @sm:grid-cols-2">
+            {LANDING_FONT_PAIR_IDS.map((id) => {
+              const pair = LANDING_FONT_PAIRS[id];
+              return (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => setFontId(id)}
+                  className={cn(
+                    "rounded-[8px] border px-3 py-2 text-left",
+                    fontId === id ? "border-primary bg-primary/10" : "border-border hover:bg-muted"
+                  )}
+                >
+                  <span className={cn("type-display block text-xl leading-none", pair.heading.className)}>
+                    {pair.label}
+                  </span>
+                  <span className={cn("mt-1 block text-xs text-muted-foreground", pair.body.className)}>
+                    {pair.description}
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
