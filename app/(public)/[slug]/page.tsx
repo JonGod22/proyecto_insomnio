@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { FloatingAgentChat } from "@/components/floating-agent-chat";
 import { LandingPreview } from "@/components/landing-preview";
 import type { Json, LandingConfig } from "@/lib/types";
 
@@ -34,10 +33,5 @@ export default async function BusinessLandingPage({
 
   const config = (landing?.config_json ?? {}) as Json as LandingConfig;
 
-  return (
-    <>
-      <LandingPreview slug={slug} business={business} services={services ?? []} config={config} interactive />
-      <FloatingAgentChat slug={slug} businessName={business.name} />
-    </>
-  );
+  return <LandingPreview slug={slug} business={business} services={services ?? []} config={config} interactive />;
 }

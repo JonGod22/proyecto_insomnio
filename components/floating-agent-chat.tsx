@@ -101,7 +101,7 @@ export function FloatingAgentChat({ slug, businessName }: { slug: string; busine
                 </div>
               ) : (
                 <div key={i} className="mr-auto flex max-w-[90%] items-start gap-2">
-                  <div className="mt-0.5 size-5 shrink-0 rounded-md bg-primary" aria-hidden />
+                  <div className="mt-0.5 size-5 shrink-0 rounded-md bg-[var(--primary-dark)]" aria-hidden />
                   <div className="rounded-[16px] bg-muted px-3.5 py-2 text-sm">{m.content}</div>
                 </div>
               )
@@ -123,8 +123,8 @@ export function FloatingAgentChat({ slug, businessName }: { slug: string; busine
           onClick={() => setExpanded((v) => !v)}
           aria-label={expanded ? "Ocultar el chat" : "Abrir el chat"}
           className={cn(
-            "flex size-9 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-muted hover:text-foreground",
-            expanded && "bg-muted text-foreground"
+            "flex size-9 shrink-0 items-center justify-center rounded-full text-[var(--primary-dark)] hover:bg-muted",
+            expanded && "bg-muted"
           )}
         >
           <MessageCircleIcon className="size-4" />
@@ -136,7 +136,12 @@ export function FloatingAgentChat({ slug, businessName }: { slug: string; busine
           placeholder={`Preguntale algo al agente de ${businessName}…`}
           className="h-9 min-w-0 flex-1 bg-transparent px-1 text-sm outline-none placeholder:text-muted-foreground"
         />
-        <Button type="submit" size="icon" className="shrink-0 rounded-full" disabled={loading || !input.trim()}>
+        <Button
+          type="submit"
+          size="icon"
+          className="shrink-0 rounded-full bg-[var(--primary-dark)] text-white hover:bg-[var(--primary-dark)]/85"
+          disabled={loading || !input.trim()}
+        >
           <ArrowUpIcon className="size-4" />
         </Button>
       </form>

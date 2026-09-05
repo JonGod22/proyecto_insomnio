@@ -58,7 +58,12 @@ export async function updateLandingConfig(
   const heroSubtitle = (formData.get("hero_subtitle") as string)?.trim() || undefined;
   const heroImageUrl = (formData.get("hero_image_url") as string)?.trim() || undefined;
   const ctaLabel = (formData.get("cta_label") as string)?.trim() || undefined;
-  const instagramUrl = (formData.get("instagram_url") as string)?.trim() || undefined;
+  const linkLabels = formData.getAll("link_label").map((v) => String(v).trim());
+  const linkUrls = formData.getAll("link_url").map((v) => String(v).trim());
+  const links = linkLabels
+    .map((label, i) => ({ label, url: linkUrls[i] ?? "" }))
+    .filter((l) => l.label && l.url)
+    .slice(0, 3);
   const themePalette = (formData.get("theme_palette") as string)?.trim() || undefined;
   const fontId = (formData.get("font_id") as string)?.trim() || undefined;
   const mapEmbedUrlRaw = (formData.get("map_embed_url") as string)?.trim();
@@ -81,7 +86,7 @@ export async function updateLandingConfig(
     hero_image_url: heroImageUrl,
     cta_label: ctaLabel,
     map_embed_url: mapEmbedUrl,
-    instagram_url: instagramUrl,
+    links: links.length ? links : undefined,
     theme_palette: themePalette,
     font_id: fontId,
     benefits: benefits.length ? benefits : undefined,

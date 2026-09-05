@@ -497,7 +497,9 @@ export type LandingConfig = {
   hero_image_url?: string
   cta_label?: string
   map_embed_url?: string
-  instagram_url?: string
+  /** Links de contacto/redes adicionales al WhatsApp (hasta 3), título y URL
+   * libres — reemplaza el viejo instagram_url fijo. */
+  links?: { label: string; url: string }[]
   /** Id de una paleta curada (ver lib/landing-palettes.ts) — no colores libres. */
   theme_palette?: string
   /** Id de una tipografía curada (ver lib/landing-fonts.ts) — no fuentes libres. */

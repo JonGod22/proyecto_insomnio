@@ -77,6 +77,7 @@
   --success: #2e7d32; /* verde, solo para "turno confirmado" — única excepción a la paleta base */
   --border: #e3e3d4; /* neutro suave: ya no hay líneas negras en el sistema */
   --primary-glow: rgba(250, 178, 0, 0.45); /* color del halo — sigue a --primary en la landing pública */
+  --primary-dark: #7a5200; /* versión oscura de --primary — chat del agente sobre superficies blancas */
   --input: #e3e3d4;
   --ring: #fab200;
   --chart-1: #fab200;

@@ -16,6 +16,7 @@ import type { LandingConfig, Service } from "@/lib/types";
 const BENEFIT_MAX_CHARS = 40;
 const BENEFIT_MAX_ITEMS = 6;
 const FREE_SERVICES_ON_LANDING = 4;
+const LINKS_MAX = 3;
 
 function InfoTooltip({ text }: { text: string }) {
   return (
@@ -104,7 +105,9 @@ export function LandingBuilderForm({
   const [mapEmbedUrl, setMapEmbedUrl] = useState(config.map_embed_url ?? "");
 
   const [whatsapp, setWhatsapp] = useState(whatsappNumber ?? "");
-  const [instagramUrl, setInstagramUrl] = useState(config.instagram_url ?? "");
+  const [links, setLinks] = useState<{ label: string; url: string }[]>(config.links ?? []);
+  const [newLinkLabel, setNewLinkLabel] = useState("");
+  const [newLinkUrl, setNewLinkUrl] = useState("");
 
   const [themePalette, setThemePalette] = useState(config.theme_palette ?? "default");
   const [fontId, setFontId] = useState(config.font_id ?? "default");
@@ -136,7 +139,7 @@ export function LandingBuilderForm({
       hero_image_url: heroImageUrl || undefined,
       cta_label: ctaLabel || undefined,
       map_embed_url: mapEmbedUrl || undefined,
-      instagram_url: instagramUrl || undefined,
+      links,
       theme_palette: themePalette,
       font_id: fontId,
       benefits,
@@ -152,7 +155,7 @@ export function LandingBuilderForm({
     heroImageUrl,
     ctaLabel,
     mapEmbedUrl,
-    instagramUrl,
+    links,
     themePalette,
     fontId,
     showBenefits,
@@ -184,6 +187,19 @@ export function LandingBuilderForm({
     setBenefits((prev) => prev.filter((_, i) => i !== index));
   }
 
+  function addLink() {
+    const label = newLinkLabel.trim();
+    const url = newLinkUrl.trim();
+    if (!label || !url || links.length >= LINKS_MAX) return;
+    setLinks((prev) => [...prev, { label, url }]);
+    setNewLinkLabel("");
+    setNewLinkUrl("");
+  }
+
+  function removeLink(index: number) {
+    setLinks((prev) => prev.filter((_, i) => i !== index));
+  }
+
   return (
     <form id={formId} action={formAction} className="space-y-4">
       <input type="hidden" name="section_benefits" value={showBenefits ? "on" : ""} />
@@ -196,6 +212,12 @@ export function LandingBuilderForm({
       ))}
       {benefits.map((benefit, i) => (
         <input key={`${benefit}-${i}`} type="hidden" name="benefit_item" value={benefit} />
+      ))}
+      {links.map((link, i) => (
+        <span key={`${link.url}-${i}`}>
+          <input type="hidden" name="link_label" value={link.label} />
+          <input type="hidden" name="link_url" value={link.url} />
+        </span>
       ))}
 
       <div className="surface space-y-5 bg-card p-5">
@@ -303,8 +325,9 @@ export function LandingBuilderForm({
                 )}
               >
                 <span className="flex size-8 overflow-hidden rounded-full border border-border">
-                  <span className="h-full w-1/2" style={{ background: p.background }} />
-                  <span className="h-full w-1/2" style={{ background: p.primary }} />
+                  <span className="h-full w-1/3" style={{ background: p.background }} />
+                  <span className="h-full w-1/3" style={{ background: p.primary }} />
+                  <span className="h-full w-1/3" style={{ background: p.foreground }} />
                 </span>
                 {p.name}
               </button>
@@ -484,7 +507,7 @@ export function LandingBuilderForm({
       </Block>
 
       <div className="surface space-y-3 bg-card p-5">
-        <p className="type-display text-lg leading-none">Contacto</p>
+        <p className="type-display text-lg leading-none">Contacto y redes</p>
         <p className="text-sm text-muted-foreground">Botones de contacto al pie de la landing.</p>
         <div>
           <Label className="mb-1 block">WhatsApp</Label>
@@ -493,9 +516,52 @@ export function LandingBuilderForm({
             Solo el número, con código de país. El link de WhatsApp (wa.me) se arma solo.
           </p>
         </div>
-        <div>
-          <Label className="mb-1 block">Instagram (opcional)</Label>
-          <Input name="instagram_url" value={instagramUrl} onChange={(e) => setInstagramUrl(e.target.value)} placeholder="https://instagram.com/tu_negocio" />
+
+        <div className="space-y-2 border-t border-border pt-3">
+          <Label className="mb-1 block">Otros links (opcional, hasta {LINKS_MAX})</Label>
+          <p className="text-xs text-muted-foreground">
+            Instagram, TikTok, tu otra web — el título de cada botón es el que vos escribas.
+          </p>
+          {links.map((link, i) => (
+            <div key={`${link.url}-${i}`} className="flex items-center gap-2">
+              <p className="min-w-0 flex-1 truncate text-sm">
+                <span className="font-medium">{link.label}</span>{" "}
+                <span className="text-xs text-muted-foreground">{link.url}</span>
+              </p>
+              <button
+                type="button"
+                onClick={() => removeLink(i)}
+                aria-label="Quitar link"
+                className="shrink-0 rounded-full p-1 text-muted-foreground hover:bg-muted hover:text-destructive"
+              >
+                <XIcon className="size-4" />
+              </button>
+            </div>
+          ))}
+          {links.length < LINKS_MAX && (
+            <div className="flex gap-2">
+              <Input
+                value={newLinkLabel}
+                onChange={(e) => setNewLinkLabel(e.target.value)}
+                placeholder="Ej: Instagram"
+                className="w-32 shrink-0"
+              />
+              <Input
+                value={newLinkUrl}
+                onChange={(e) => setNewLinkUrl(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    addLink();
+                  }
+                }}
+                placeholder="https://..."
+              />
+              <Button type="button" variant="outline" size="icon" onClick={addLink} aria-label="Agregar link">
+                <PlusIcon className="size-4" />
+              </Button>
+            </div>
+          )}
         </div>
       </div>
 

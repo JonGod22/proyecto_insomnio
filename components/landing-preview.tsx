@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { FloatingAgentChat } from "@/components/floating-agent-chat";
 import { cn } from "@/lib/utils";
 import { getLandingPalette } from "@/lib/landing-palettes";
 import { getLandingFontPair } from "@/lib/landing-fonts";
@@ -241,7 +242,8 @@ export function LandingPreview({
   const showGallery = config.sections?.gallery ?? true;
   const showMap = config.sections?.map ?? true;
   const mapSrc = config.map_embed_url || (computedLocation ? `https://www.google.com/maps?q=${mapQuery}&output=embed` : null);
-  const hasContact = Boolean(business.whatsapp_number || config.instagram_url);
+  const links = config.links ?? [];
+  const hasContact = Boolean(business.whatsapp_number || links.length > 0);
   const palette = getLandingPalette(config.theme_palette);
   const fontPair = getLandingFontPair(config.font_id);
 
@@ -261,6 +263,7 @@ export function LandingPreview({
           "--primary": palette.primary,
           "--primary-foreground": palette.primaryForeground,
           "--primary-glow": palette.primaryGlow,
+          "--primary-dark": palette.primaryDark,
           "--accent": palette.primary,
           "--accent-foreground": palette.primaryForeground,
           "--muted": palette.muted,
@@ -417,15 +420,16 @@ export function LandingPreview({
                 WhatsApp
               </Button>
             )}
-            {config.instagram_url && (
+            {links.map((link) => (
               <Button
-                render={<a href={config.instagram_url} target="_blank" rel="noopener noreferrer" onClick={preventNav} />}
+                key={link.url}
+                render={<a href={link.url} target="_blank" rel="noopener noreferrer" onClick={preventNav} />}
                 nativeButton={false}
                 variant="outline"
               >
-                Instagram
+                {link.label}
               </Button>
-            )}
+            ))}
           </div>
         )}
 
@@ -462,6 +466,8 @@ export function LandingPreview({
           </div>
         </div>
       </div>
+
+      <FloatingAgentChat slug={slug} businessName={business.name} />
     </main>
   );
 }
