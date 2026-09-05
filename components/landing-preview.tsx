@@ -312,7 +312,7 @@ export function LandingPreview({
       <div className="relative">
         {/* Flota transparente/vidrio sobre la foto del hero, no ocupa su
             propio bloque blanco — por eso vive adentro del <header>. */}
-        <nav className="absolute inset-x-0 top-0 z-10 flex items-center justify-center bg-black/25 px-6 py-4 backdrop-blur-md @sm:justify-between @sm:px-12">
+        <nav className="absolute inset-x-0 top-0 z-10 flex items-center justify-center bg-black/25 px-6 py-4 backdrop-blur-md @sm:px-12 @lg:justify-between">
           {config.logo_url ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={config.logo_url} alt={business.name} className="h-8 w-auto max-w-40 object-contain" />
@@ -323,7 +323,7 @@ export function LandingPreview({
           )}
           {/* Solo desktop — en mobile el encabezado queda con el logo/nombre
               solo, centrado, sin estos botones. */}
-          <div className="hidden items-center gap-3 @sm:flex">
+          <div className="hidden items-center gap-3 @lg:flex">
             <Button
               render={<Link href="#servicios" onClick={preventNav} />}
               nativeButton={false}
@@ -337,6 +337,8 @@ export function LandingPreview({
               render={<Link href={`/${slug}/booking`} onClick={preventNav} />}
               nativeButton={false}
               size="sm"
+              className={fontPair.heading.className}
+              style={headingStyle}
             >
               Reservar
             </Button>
@@ -349,7 +351,7 @@ export function LandingPreview({
             <img src={heroPhoto} alt={`Espacio de ${business.name}`} className="absolute inset-0 h-full w-full object-cover" />
           )}
         <div className="relative w-full px-6 py-12 @sm:px-12 @sm:py-16">
-          <div className="mx-auto max-w-6xl">
+          <div className="mx-auto max-w-6xl text-center @lg:text-left">
             {locationLabel && (
               <p className="kicker-label mb-3 text-primary" style={{ color: config.location_label_color || undefined }}>
                 {locationLabel}
@@ -364,17 +366,18 @@ export function LandingPreview({
               </h1>
             )}
             {config.hero_subtitle && (
-              <p className="mb-6 max-w-xl text-lg text-white/85" style={{ color: config.hero_subtitle_color || undefined }}>
+              <p className="mx-auto mb-6 max-w-xl text-lg text-white/85 @lg:mx-0" style={{ color: config.hero_subtitle_color || undefined }}>
                 {config.hero_subtitle}
               </p>
             )}
             {showCta && (
-              <div className="flex flex-wrap items-center gap-3">
+              <div className="flex flex-wrap items-center justify-center gap-3 @lg:justify-start">
                 <Button
                   render={<Link href={`/${slug}/booking`} onClick={preventNav} />}
                   nativeButton={false}
                   size="lg"
-                  className="halo"
+                  className={cn("halo", fontPair.heading.className)}
+                  style={headingStyle}
                 >
                   {ctaLabel}
                 </Button>
@@ -387,11 +390,11 @@ export function LandingPreview({
 
       {showBenefits && config.benefits && config.benefits.length > 0 && (
         <section className="px-6 py-6 @sm:px-12">
-          <div className="mx-auto flex max-w-5xl flex-col items-stretch gap-3 @sm:flex-row @sm:flex-wrap @sm:justify-center">
+          <div className="mx-auto flex max-w-5xl flex-col items-stretch gap-3 @lg:flex-row @lg:flex-wrap @lg:justify-center">
             {config.benefits.map((benefit) => (
               <span
                 key={benefit}
-                className="surface kicker-label flex min-h-16 w-full items-center justify-center rounded-[24px] bg-card px-6 py-3 text-center leading-snug text-foreground @sm:w-64"
+                className="surface kicker-label flex min-h-16 w-full items-center justify-center rounded-[24px] bg-card px-6 py-3 text-center leading-snug text-foreground @lg:w-64"
               >
                 {benefit}
               </span>
@@ -402,16 +405,37 @@ export function LandingPreview({
 
       <section id="servicios" className="scroll-mt-20 px-6 py-16 @sm:px-12">
         <div className="mx-auto max-w-6xl">
-          <p className="kicker-label mb-2 text-muted-foreground">{servicesKind}</p>
-          <h2 className={cn("type-display mb-8 text-3xl leading-none @sm:text-4xl", fontPair.heading.className)} style={headingStyle}>{servicesTitle}</h2>
-          <div className="grid grid-cols-1 gap-4 @sm:grid-cols-2 @lg:grid-cols-3">
+          <p className="kicker-label mb-2 text-center text-muted-foreground @lg:text-left">{servicesKind}</p>
+          <h2
+            className={cn(
+              "type-display mb-8 text-center text-3xl leading-none @lg:text-left @lg:text-4xl",
+              fontPair.heading.className
+            )}
+            style={headingStyle}
+          >
+            {servicesTitle}
+          </h2>
+          {/* Los breakpoints @container comparan siempre contra el ancho de
+              <main> (el único @container de toda la página), no contra el
+              ancho local de la grilla o la tarjeta — por eso acá se usan
+              @lg/@5xl (umbrales bien por encima de cualquier celular real)
+              en vez de @sm/@lg, que un celular ancho llega a cruzar
+              igual y rompía la columna única en mobile. */}
+          <div className="grid grid-cols-1 gap-4 @lg:grid-cols-2 @5xl:grid-cols-3">
             {services.map((service) => (
               <Card key={service.id} className="flex h-full flex-col">
-                <CardContent className="flex h-full flex-col gap-4">
+                <CardContent className="flex h-full flex-col gap-3 text-center @lg:gap-4 @lg:text-left">
                   <div>
-                    <CardTitle className="text-lg leading-tight">{service.name}</CardTitle>
-                    {service.description && <p className="mt-1 text-sm text-muted-foreground">{service.description}</p>}
-                    <p className="mt-2 text-xs text-muted-foreground">
+                    <CardTitle
+                      className={cn("text-base leading-tight @lg:text-lg", fontPair.heading.className)}
+                      style={headingStyle}
+                    >
+                      {service.name}
+                    </CardTitle>
+                    {service.description && (
+                      <p className="mt-1 text-xs leading-snug text-muted-foreground @lg:text-sm">{service.description}</p>
+                    )}
+                    <p className="mt-1.5 text-[11px] leading-snug text-muted-foreground @lg:mt-2 @lg:text-xs">
                       Duración: {formatDuration(service.duration_minutes, service.duration_minutes_max)} aproximadamente
                     </p>
                     <ServiceInfoDialog service={service} />
@@ -423,8 +447,8 @@ export function LandingPreview({
                       cambiando el DOM, porque el apilado vertical necesita
                       el precio primero y la fila horizontal lo necesita
                       último. */}
-                  <div className="mt-auto flex flex-col items-center gap-2 @sm:flex-row @sm:items-center @sm:justify-between">
-                    <p className="order-1 text-sm font-medium text-foreground @sm:order-2">
+                  <div className="mt-auto flex flex-col items-center gap-2 @lg:flex-row @lg:items-center @lg:justify-between">
+                    <p className={cn("order-1 text-sm font-medium text-foreground @lg:order-2", fontPair.heading.className)} style={headingStyle}>
                       {formatPrice(service)}
                       {service.deposit_amount
                         ? ` · seña ${formatPrice({ ...service, price: service.deposit_amount, price_on_request: false })}`
@@ -435,7 +459,8 @@ export function LandingPreview({
                       nativeButton={false}
                       variant="dark"
                       size="sm"
-                      className="order-2 w-fit @sm:order-1"
+                      className={cn("order-2 w-fit @lg:order-1", fontPair.heading.className)}
+                      style={headingStyle}
                     >
                       Reservar
                     </Button>
@@ -450,8 +475,13 @@ export function LandingPreview({
       {showGallery && galleryPhotos.length > 0 && (
         <section className="py-16">
           <div className="mx-auto mb-8 max-w-6xl px-6 @sm:px-12">
-            <p className="kicker-label mb-2 text-muted-foreground">Galería</p>
-            <h2 className={cn("type-display text-3xl leading-none @sm:text-4xl", fontPair.heading.className)} style={headingStyle}>{galleryTitle}</h2>
+            <p className="kicker-label mb-2 text-center text-muted-foreground @lg:text-left">Galería</p>
+            <h2
+              className={cn("type-display text-center text-3xl leading-none @sm:text-4xl @lg:text-left", fontPair.heading.className)}
+              style={headingStyle}
+            >
+              {galleryTitle}
+            </h2>
           </div>
           {/* Slider a todo el ancho de la pantalla (sin el max-w del resto del
               contenido), con flechas y puntitos — no depende de que se
@@ -467,7 +497,8 @@ export function LandingPreview({
               <Button
                 render={<a href={waLink(business.whatsapp_number)} target="_blank" rel="noopener noreferrer" onClick={preventNav} />}
                 nativeButton={false}
-                className="halo"
+                className={cn("halo", fontPair.heading.className)}
+                style={headingStyle}
               >
                 WhatsApp
               </Button>
@@ -478,6 +509,8 @@ export function LandingPreview({
                 render={<a href={link.url} target="_blank" rel="noopener noreferrer" onClick={preventNav} />}
                 nativeButton={false}
                 variant="outline"
+                className={fontPair.heading.className}
+                style={headingStyle}
               >
                 {link.label}
               </Button>
@@ -504,8 +537,8 @@ export function LandingPreview({
         )}
       </footer>
 
-      <div id="landing-footer" className="bg-foreground px-6 py-6 text-background @sm:px-12">
-        <div className="mx-auto flex max-w-5xl flex-col items-center gap-3 text-center @sm:flex-row @sm:justify-between @sm:text-left">
+      <div id="landing-footer" className="bg-foreground px-6 py-6 text-background @sm:px-12 @lg:pt-8">
+        <div className="mx-auto flex max-w-5xl flex-col items-center gap-3 text-center @lg:flex-row @lg:justify-between @lg:text-left">
           <p className="kicker-label text-background/60">Sitio desarrollado por Jonathan Godoy</p>
           <div className="flex items-center gap-5">
             <a href="https://github.com/JonGod22" target="_blank" rel="noopener noreferrer" className="kicker-label text-background hover:text-primary">
