@@ -63,10 +63,11 @@ export async function updateLandingConfig(
   const fontId = (formData.get("font_id") as string)?.trim() || undefined;
   const mapEmbedUrlRaw = (formData.get("map_embed_url") as string)?.trim();
   const mapEmbedUrl = mapEmbedUrlRaw ? extractMapUrl(mapEmbedUrlRaw) : undefined;
-  const benefits = String(formData.get("benefits") ?? "")
-    .split("\n")
-    .map((line) => line.trim().slice(0, 40))
-    .filter(Boolean);
+  const benefits = formData
+    .getAll("benefit_item")
+    .map((v) => String(v).trim().slice(0, 40))
+    .filter(Boolean)
+    .slice(0, 6);
   const gallery = formData
     .getAll("gallery_url")
     .map((v) => String(v).trim())

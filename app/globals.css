@@ -135,4 +135,10 @@
     letter-spacing: 0.18em;
     text-transform: uppercase;
   }
+
+  /* Oculta la barra de scroll (Chrome/Safari) en sliders con scroll-snap —
+     el gesto de deslizar sigue funcionando, solo se esconde la barra. */
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
 }

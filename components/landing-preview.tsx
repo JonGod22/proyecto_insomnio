@@ -232,18 +232,23 @@ export function LandingPreview({
       </section>
 
       {showGallery && galleryPhotos.length > 0 && (
-        <section className="px-6 py-16 @sm:px-12">
-          <div className="mx-auto max-w-6xl">
+        <section className="py-16">
+          <div className="mx-auto mb-8 max-w-6xl px-6 @sm:px-12">
             <p className="kicker-label mb-2 text-muted-foreground">Galería</p>
-            <h2 className={cn("type-display mb-8 text-3xl leading-none @sm:text-4xl", fontPair.heading.className)}>Trabajos recientes</h2>
-            <div className="grid grid-cols-1 gap-3 @sm:grid-cols-2 @lg:grid-cols-3">
-              {galleryPhotos.map((src) => (
-                <div key={src} className="relative aspect-[2/1] overflow-hidden rounded-2xl">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={src} alt="Trabajo realizado" className="h-full w-full object-cover" />
-                </div>
-              ))}
-            </div>
+            <h2 className={cn("type-display text-3xl leading-none @sm:text-4xl", fontPair.heading.className)}>Trabajos recientes</h2>
+          </div>
+          {/* Slider a todo el ancho de la pantalla (sin el max-w del resto del
+              contenido) — se desliza con scroll-snap nativo, sin librería. */}
+          <div
+            className="scrollbar-none flex w-full snap-x snap-mandatory overflow-x-auto scroll-smooth"
+            style={{ scrollbarWidth: "none" }}
+          >
+            {galleryPhotos.map((src) => (
+              <div key={src} className="aspect-[4/5] w-full shrink-0 snap-center @sm:aspect-auto @sm:h-[min(600px,70vh)]">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={src} alt="Trabajo realizado" className="h-full w-full object-cover" />
+              </div>
+            ))}
           </div>
         </section>
       )}

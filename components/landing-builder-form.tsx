@@ -5,7 +5,6 @@ import { XIcon, PlusIcon, UploadIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { uploadLandingLogo } from "@/app/(admin)/admin/landing-builder/actions";
 import { LANDING_PALETTES } from "@/lib/landing-palettes";
@@ -14,13 +13,7 @@ import { cn } from "@/lib/utils";
 import type { LandingConfig, Service } from "@/lib/types";
 
 const BENEFIT_MAX_CHARS = 40;
-
-function linesToList(text: string) {
-  return text
-    .split("\n")
-    .map((line) => line.trim().slice(0, BENEFIT_MAX_CHARS))
-    .filter(Boolean);
-}
+const BENEFIT_MAX_ITEMS = 6;
 
 function InfoTooltip({ text }: { text: string }) {
   return (
@@ -98,7 +91,8 @@ export function LandingBuilderForm({
   const [ctaLabel, setCtaLabel] = useState(config.cta_label ?? "Reservar turno");
 
   const [showBenefits, setShowBenefits] = useState(config.sections?.benefits ?? true);
-  const [benefitsText, setBenefitsText] = useState((config.benefits ?? []).join("\n"));
+  const [benefits, setBenefits] = useState<string[]>(config.benefits ?? []);
+  const [newBenefit, setNewBenefit] = useState("");
 
   const [showGallery, setShowGallery] = useState(config.sections?.gallery ?? true);
   const [galleryUrls, setGalleryUrls] = useState<string[]>(config.gallery ?? []);
@@ -143,7 +137,7 @@ export function LandingBuilderForm({
       instagram_url: instagramUrl || undefined,
       theme_palette: themePalette,
       font_id: fontId,
-      benefits: linesToList(benefitsText),
+      benefits,
       gallery: galleryUrls,
       sections: { benefits: showBenefits, gallery: showGallery, map: showMap },
     });
@@ -160,7 +154,7 @@ export function LandingBuilderForm({
     themePalette,
     fontId,
     showBenefits,
-    benefitsText,
+    benefits,
     showGallery,
     galleryUrls,
     showMap,
@@ -177,6 +171,17 @@ export function LandingBuilderForm({
     setGalleryUrls((prev) => prev.filter((_, i) => i !== index));
   }
 
+  function addBenefit() {
+    const value = newBenefit.trim().slice(0, BENEFIT_MAX_CHARS);
+    if (!value || benefits.length >= BENEFIT_MAX_ITEMS) return;
+    setBenefits((prev) => [...prev, value]);
+    setNewBenefit("");
+  }
+
+  function removeBenefit(index: number) {
+    setBenefits((prev) => prev.filter((_, i) => i !== index));
+  }
+
   return (
     <form id={formId} action={formAction} className="space-y-4">
       <input type="hidden" name="section_benefits" value={showBenefits ? "on" : ""} />
@@ -186,6 +191,9 @@ export function LandingBuilderForm({
       <input type="hidden" name="font_id" value={fontId} />
       {galleryUrls.map((url) => (
         <input key={url} type="hidden" name="gallery_url" value={url} />
+      ))}
+      {benefits.map((benefit, i) => (
+        <input key={`${benefit}-${i}`} type="hidden" name="benefit_item" value={benefit} />
       ))}
 
       <div className="surface space-y-5 bg-card p-5">
@@ -329,17 +337,48 @@ export function LandingBuilderForm({
 
       <Block
         title="Destacados"
-        tooltip={`Botones cortos debajo del hero, uno por línea (máx. ${BENEFIT_MAX_CHARS} caracteres cada uno).`}
+        tooltip={`Botones cortos debajo del hero — hasta ${BENEFIT_MAX_ITEMS}, de ${BENEFIT_MAX_CHARS} caracteres cada uno.`}
         enabled={showBenefits}
         onToggle={setShowBenefits}
       >
-        <Textarea
-          name="benefits"
-          rows={4}
-          value={benefitsText}
-          onChange={(e) => setBenefitsText(e.target.value)}
-          placeholder={"Estacionamiento propio\nWifi gratis\nMasaje de cierre"}
-        />
+        <div className="space-y-2">
+          {benefits.map((benefit, i) => (
+            <div key={`${benefit}-${i}`} className="flex items-center gap-2 rounded-[6px] border border-border px-3 py-2">
+              <span className="kicker-label shrink-0 text-muted-foreground">{i + 1}</span>
+              <p className="min-w-0 flex-1 truncate text-sm">{benefit}</p>
+              <button
+                type="button"
+                onClick={() => removeBenefit(i)}
+                aria-label="Quitar destacado"
+                className="shrink-0 rounded-full p-1 text-muted-foreground hover:bg-muted hover:text-destructive"
+              >
+                <XIcon className="size-4" />
+              </button>
+            </div>
+          ))}
+          {benefits.length === 0 && <p className="text-sm text-muted-foreground">Todavía no agregaste destacados.</p>}
+          {benefits.length < BENEFIT_MAX_ITEMS ? (
+            <div className="flex gap-2 pt-2">
+              <Input
+                value={newBenefit}
+                onChange={(e) => setNewBenefit(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    addBenefit();
+                  }
+                }}
+                maxLength={BENEFIT_MAX_CHARS}
+                placeholder="Ej: Estacionamiento propio"
+              />
+              <Button type="button" variant="outline" size="icon" onClick={addBenefit} aria-label="Agregar destacado">
+                <PlusIcon className="size-4" />
+              </Button>
+            </div>
+          ) : (
+            <p className="text-xs text-muted-foreground">Llegaste al máximo de {BENEFIT_MAX_ITEMS} destacados.</p>
+          )}
+        </div>
       </Block>
 
       <div className="surface space-y-3 bg-card p-5">
