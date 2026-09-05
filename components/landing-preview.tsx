@@ -111,34 +111,65 @@ function GallerySlider({ photos }: { photos: string[] }) {
 }
 
 function ServiceInfoDialog({ service }: { service: PreviewService }) {
+  const [lightbox, setLightbox] = useState<string | null>(null);
   if (!service.info_content) return null;
   const images = service.info_images ?? [];
+
   return (
-    <Dialog>
-      <DialogTrigger
-        render={
-          <Button type="button" variant="outline" size="sm" className="w-fit">
-            Más información
-          </Button>
-        }
-      />
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>{service.name}</DialogTitle>
-        </DialogHeader>
-        <p className="whitespace-pre-line text-sm text-foreground/80">{service.info_content}</p>
-        {images.length > 0 && (
-          <div className="grid grid-cols-3 gap-2">
-            {images.map((src) => (
-              <div key={src} className="aspect-square overflow-hidden rounded-[8px]">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={src} alt="" className="h-full w-full object-cover" />
-              </div>
-            ))}
+    <>
+      <Dialog>
+        <DialogTrigger
+          render={
+            <Button type="button" variant="link" size="sm" className="h-auto p-0">
+              Conocer más
+            </Button>
+          }
+        />
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>{service.name}</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-wrap gap-2">
+            <Badge variant="outline">{formatDuration(service.duration_minutes, service.duration_minutes_max)}</Badge>
+            <Badge>{formatPrice(service)}</Badge>
+            {service.deposit_amount && (
+              <Badge variant="secondary">
+                seña {formatPrice({ ...service, price: service.deposit_amount, price_on_request: false })}
+              </Badge>
+            )}
           </div>
-        )}
-      </DialogContent>
-    </Dialog>
+          <p className="whitespace-pre-line text-sm text-foreground/80">{service.info_content}</p>
+          {images.length > 0 && (
+            <div className="grid grid-cols-3 gap-2">
+              {images.map((src) => (
+                <button
+                  key={src}
+                  type="button"
+                  onClick={() => setLightbox(src)}
+                  aria-label="Ver foto en pantalla completa"
+                  className="aspect-square overflow-hidden rounded-[8px]"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={src} alt="" className="h-full w-full object-cover" />
+                </button>
+              ))}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!lightbox} onOpenChange={(open) => !open && setLightbox(null)}>
+        <DialogContent className="sm:max-w-3xl">
+          <DialogHeader>
+            <DialogTitle className="sr-only">Foto de {service.name}</DialogTitle>
+          </DialogHeader>
+          {lightbox && (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={lightbox} alt="" className="max-h-[80vh] w-full rounded-[8px] object-contain" />
+          )}
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 
@@ -324,7 +355,8 @@ export function LandingPreview({
             {services.map((service) => (
               <Card key={service.id} className="flex h-full flex-col">
                 <CardHeader>
-                  <CardTitle className="text-lg">{service.name}</CardTitle>
+                  <CardTitle className="text-lg leading-tight">{service.name}</CardTitle>
+                  {service.description && <p className="text-sm text-muted-foreground">{service.description}</p>}
                   <div className="flex flex-wrap gap-2 pt-1">
                     <Badge variant="outline">{formatDuration(service.duration_minutes, service.duration_minutes_max)}</Badge>
                     <Badge>{formatPrice(service)}</Badge>
@@ -336,8 +368,7 @@ export function LandingPreview({
                   </div>
                 </CardHeader>
                 <CardContent className="flex flex-1 flex-col">
-                  {service.description && <p className="mb-4 text-sm text-foreground/70">{service.description}</p>}
-                  <div className="mt-auto flex flex-wrap gap-2">
+                  <div className="mt-auto flex flex-wrap items-center gap-3">
                     <Button
                       render={<Link href={`/${slug}/booking?service=${service.id}`} onClick={preventNav} />}
                       nativeButton={false}
