@@ -22,15 +22,32 @@ function linesToList(text: string) {
     .filter(Boolean);
 }
 
+function InfoTooltip({ text }: { text: string }) {
+  return (
+    <span className="group relative inline-flex shrink-0">
+      <button
+        type="button"
+        aria-label="Más información"
+        className="flex size-5 items-center justify-center rounded-full border border-border text-xs text-muted-foreground hover:border-primary hover:text-primary"
+      >
+        ?
+      </button>
+      <span className="pointer-events-none absolute right-0 top-full z-10 mt-2 w-64 rounded-[8px] bg-foreground px-3 py-2 text-xs leading-snug text-background opacity-0 shadow-lg transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
+        {text}
+      </span>
+    </span>
+  );
+}
+
 function Block({
   title,
-  description,
+  tooltip,
   enabled,
   onToggle,
   children,
 }: {
   title: string;
-  description: string;
+  tooltip?: string;
   enabled?: boolean;
   onToggle?: (v: boolean) => void;
   children?: React.ReactNode;
@@ -38,9 +55,9 @@ function Block({
   return (
     <div className="surface space-y-3 bg-card p-5">
       <div className="flex items-start justify-between gap-4">
-        <div>
+        <div className="flex items-center gap-1.5">
           <p className="type-display text-lg leading-none">{title}</p>
-          <p className="mt-1 text-sm text-muted-foreground">{description}</p>
+          {tooltip && <InfoTooltip text={tooltip} />}
         </div>
         {onToggle && (
           <label className="flex shrink-0 items-center gap-2 text-sm">
@@ -175,18 +192,13 @@ export function LandingBuilderForm({
         <div>
           <p className="kicker-label text-primary">Encabezado</p>
           <p className="type-display text-lg leading-none">Logo y títulos</p>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Todo lo que se ve arriba, sobre la foto del hero — va junto porque forma una sola
-            sección visual de la página.
-          </p>
         </div>
 
         <div className="space-y-2 border-t border-border pt-4">
-          <Label className="mb-1 block">Logo</Label>
-          <p className="text-sm text-muted-foreground">
-            PNG o SVG (ideal, se ve nítido en cualquier tamaño). Si no cargás uno, se muestra el
-            título principal como texto.
-          </p>
+          <div className="flex items-center justify-between gap-2">
+            <Label className="block">Logo</Label>
+            <InfoTooltip text="Formatos disponibles: PNG o SVG. Si no cargás uno, se muestra el título principal como texto." />
+          </div>
           <div className="flex gap-2">
             <Input
               name="logo_url"
@@ -224,29 +236,25 @@ export function LandingBuilderForm({
 
         <div className="space-y-2 border-t border-border pt-4">
           <Label className="mb-1 block">Título principal</Label>
-          <p className="text-sm text-muted-foreground">
-            Independiente del nombre del negocio que se ve en el menú y en el admin — podés poner
-            otra cosa acá sin que se cambie nada más.
-          </p>
           <Input name="hero_title" value={heroTitle} onChange={(e) => setHeroTitle(e.target.value)} placeholder="Ej: Yésica Studio" />
         </div>
 
         <div className="space-y-2 border-t border-border pt-4">
           <Label className="mb-1 block">Título secundario 1</Label>
-          <p className="text-sm text-muted-foreground">Línea chica arriba del título — normalmente la ubicación, pero es texto libre.</p>
           <Input name="location_label" value={locationLabel} onChange={(e) => setLocationLabel(e.target.value)} placeholder="Ej: Bailén 102, San Martín, Mendoza" />
         </div>
 
         <div className="space-y-2 border-t border-border pt-4">
           <Label className="mb-1 block">Título secundario 2</Label>
-          <p className="text-sm text-muted-foreground">El texto debajo del título principal.</p>
           <Input name="hero_subtitle" value={heroSubtitle} onChange={(e) => setHeroSubtitle(e.target.value)} placeholder="Ej: Turnos de lunes a sábado" />
         </div>
       </div>
 
       <div className="surface space-y-3 bg-card p-5">
-        <p className="type-display text-lg leading-none">Hero</p>
-        <p className="text-sm text-muted-foreground">Foto de fondo y texto del botón principal.</p>
+        <div className="flex items-center justify-between gap-2">
+          <p className="type-display text-lg leading-none">Hero</p>
+          <InfoTooltip text="La franja grande de arriba de la landing: la foto de fondo y el texto del botón que lleva a reservar." />
+        </div>
         <div>
           <Label className="mb-1 block">URL de la foto de fondo</Label>
           <Input name="hero_image_url" value={heroImageUrl} onChange={(e) => setHeroImageUrl(e.target.value)} placeholder="https://..." />
@@ -265,9 +273,7 @@ export function LandingBuilderForm({
         <div>
           <p className="kicker-label text-primary">Identidad</p>
           <p className="type-display text-lg leading-none">Estilo</p>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Paleta de colores y tipografía de la landing — un par de clics, sin tocar código.
-          </p>
+          <p className="mt-1 text-sm text-muted-foreground">Paleta de colores y tipografía de la landing.</p>
         </div>
 
         <div className="space-y-2 border-t border-border pt-4">
@@ -295,9 +301,6 @@ export function LandingBuilderForm({
 
         <div className="space-y-2 border-t border-border pt-4">
           <Label className="mb-1 block">Pareja tipográfica</Label>
-          <p className="text-sm text-muted-foreground">
-            Título y texto van de a pares pensados para combinar bien — no fuentes sueltas.
-          </p>
           <div className="grid grid-cols-1 gap-2 @sm:grid-cols-2">
             {LANDING_FONT_PAIR_IDS.map((id) => {
               const pair = LANDING_FONT_PAIRS[id];
@@ -326,7 +329,7 @@ export function LandingBuilderForm({
 
       <Block
         title="Destacados"
-        description={`Botones cortos debajo del hero, uno por línea (máx. ${BENEFIT_MAX_CHARS} caracteres cada uno). No tienen que ser 'beneficios' — pueden ser lo que quieras.`}
+        tooltip={`Botones cortos debajo del hero, uno por línea (máx. ${BENEFIT_MAX_CHARS} caracteres cada uno).`}
         enabled={showBenefits}
         onToggle={setShowBenefits}
       >
@@ -341,10 +344,6 @@ export function LandingBuilderForm({
 
       <div className="surface space-y-3 bg-card p-5">
         <p className="type-display text-lg leading-none">Servicios</p>
-        <p className="text-sm text-muted-foreground">
-          El contenido de cada servicio (precio, duración, descripción) se edita en el módulo
-          Servicios. Acá solo prendés o apagás cuáles se muestran en la landing.
-        </p>
         <div className="space-y-1">
           {services.map((service) => (
             <label key={service.id} className="flex items-center gap-2 rounded-[6px] px-2 py-1.5 text-sm hover:bg-muted">
@@ -360,12 +359,7 @@ export function LandingBuilderForm({
         </div>
       </div>
 
-      <Block
-        title="Galería"
-        description="Fotos de trabajos realizados (la primera se muestra más grande)."
-        enabled={showGallery}
-        onToggle={setShowGallery}
-      >
+      <Block title="Galería" enabled={showGallery} onToggle={setShowGallery}>
         <div className="space-y-2">
           {galleryUrls.map((url, i) => (
             <div key={`${url}-${i}`} className="flex items-center gap-2">
@@ -404,16 +398,13 @@ export function LandingBuilderForm({
 
       <Block
         title="Mapa"
-        description="Pegá el link/HTML embebido de Google Maps o dejalo vacío para que se arme solo con Título secundario 1."
+        tooltip={
+          'Pegá el link/HTML embebido de Google Maps o dejalo vacío para que se arme solo con Título secundario 1. Para conseguirlo: en Google Maps buscá la dirección → Compartir → pestaña "Insertar un mapa" → "Copiar HTML" → pegá acá solo lo que está entre comillas después de src=.'
+        }
         enabled={showMap}
         onToggle={setShowMap}
       >
         <Input name="map_embed_url" value={mapEmbedUrl} onChange={(e) => setMapEmbedUrl(e.target.value)} placeholder="https://www.google.com/maps/embed?..." />
-        <p className="mt-2 text-xs text-muted-foreground">
-          Cómo conseguirlo: en Google Maps buscá la dirección → Compartir → pestaña &quot;Insertar un
-          mapa&quot; → &quot;Copiar HTML&quot; → pegá acá solo lo que está entre comillas después de{" "}
-          <code className="rounded-[4px] bg-muted px-1">src=</code>.
-        </p>
       </Block>
 
       <div className="surface space-y-3 bg-card p-5">
@@ -433,6 +424,10 @@ export function LandingBuilderForm({
       </div>
 
       {error && <p className="text-sm text-destructive">{error}</p>}
+
+      <Button type="submit" className="w-full">
+        Guardar cambios
+      </Button>
     </form>
   );
 }

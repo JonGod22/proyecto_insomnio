@@ -21,11 +21,6 @@ export default async function LandingBuilderAdminPage() {
   return (
     <div className="space-y-6">
       <h1 className="type-display text-4xl leading-none">Landing Builder</h1>
-      <p className="max-w-2xl text-sm text-muted-foreground">
-        Cada bloque de acá abajo es una sección de la landing pública. La vista previa de la
-        derecha se actualiza al instante con el mismo componente que usa la página real — el
-        botón &quot;Guardar cambios&quot; arriba del panel es lo que lo deja publicado de verdad.
-      </p>
       {business?.slug ? (
         <LandingBuilderWorkspace config={config} slug={business.slug} business={business} services={services ?? []} />
       ) : (
