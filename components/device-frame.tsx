@@ -47,7 +47,7 @@ export function DeviceFrame({ device, children }: { device: DeviceId; children: 
   }, [frameWidth, frameHeight]);
 
   return (
-    <div ref={wrapperRef} className="flex h-full w-full items-center justify-center overflow-hidden">
+    <div ref={wrapperRef} className="flex h-full w-full items-start justify-center overflow-hidden pt-6">
       <div style={{ width: frameWidth * scale, height: frameHeight * scale }}>
         <div style={{ width: frameWidth, height: frameHeight, transform: `scale(${scale})`, transformOrigin: "top left" }}>
           {device === "desktop" ? (
