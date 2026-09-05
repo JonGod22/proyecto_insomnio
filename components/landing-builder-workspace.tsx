@@ -1,8 +1,8 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useRef, useState } from "react";
 import Link from "next/link";
-import { ExternalLinkIcon, MonitorIcon, TabletIcon, SmartphoneIcon } from "lucide-react";
+import { ExternalLinkIcon, GripVerticalIcon, MonitorIcon, TabletIcon, SmartphoneIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LandingBuilderForm } from "@/components/landing-builder-form";
 import { LandingPreview, type PreviewBusiness } from "@/components/landing-preview";
@@ -12,6 +12,8 @@ import { toggleServiceOnLanding } from "@/app/(admin)/admin/services/actions";
 import { cn } from "@/lib/utils";
 import type { LandingConfig, Service } from "@/lib/types";
 
+const MIN_PREVIEW_PCT = 30;
+const MAX_PREVIEW_PCT = 70;
 const FORM_ID = "landing-builder-form";
 const initialState: LandingFormState = { error: null };
 
@@ -33,9 +35,29 @@ export function LandingBuilderWorkspace({
   services: Service[];
 }) {
   const [state, formAction, pending] = useActionState(updateLandingConfig, initialState);
+  const [previewPct, setPreviewPct] = useState(50);
+  const [dragging, setDragging] = useState(false);
   const [liveConfig, setLiveConfig] = useState(config);
   const [servicesState, setServicesState] = useState(services);
   const [device, setDevice] = useState<DeviceId>("desktop");
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  function onPointerMove(e: React.PointerEvent<HTMLButtonElement>) {
+    if (!dragging || !containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    const pctFromRight = ((rect.right - e.clientX) / rect.width) * 100;
+    setPreviewPct(Math.min(MAX_PREVIEW_PCT, Math.max(MIN_PREVIEW_PCT, pctFromRight)));
+  }
+
+  function startDragging(e: React.PointerEvent<HTMLButtonElement>) {
+    e.currentTarget.setPointerCapture(e.pointerId);
+    setDragging(true);
+  }
+
+  function stopDragging(e: React.PointerEvent<HTMLButtonElement>) {
+    e.currentTarget.releasePointerCapture(e.pointerId);
+    setDragging(false);
+  }
 
   function handleToggleService(id: string, value: boolean) {
     setServicesState((prev) => prev.map((s) => (s.id === id ? { ...s, show_on_landing: value } : s)));
@@ -45,8 +67,8 @@ export function LandingBuilderWorkspace({
   const visibleServices = servicesState.filter((s) => s.active && s.show_on_landing);
 
   return (
-    <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
-      <div className="min-w-0 lg:w-[420px] lg:shrink-0">
+    <div ref={containerRef} className="flex flex-col gap-2 lg:flex-row lg:items-stretch lg:gap-0">
+      <div className="min-w-0 flex-1 lg:pr-4">
         <LandingBuilderForm
           formId={FORM_ID}
           formAction={formAction}
@@ -59,14 +81,34 @@ export function LandingBuilderWorkspace({
         />
       </div>
 
+      {/* Divisor arrastrable: ajusta el ancho de la vista previa (solo desktop). */}
+      <button
+        type="button"
+        onPointerDown={startDragging}
+        onPointerMove={onPointerMove}
+        onPointerUp={stopDragging}
+        aria-label="Arrastrar para cambiar el tamaño de la vista previa"
+        className={cn(
+          "relative hidden shrink-0 cursor-col-resize items-center justify-center px-2 text-muted-foreground hover:text-foreground lg:flex",
+          dragging && "text-foreground"
+        )}
+      >
+        <span className={cn("absolute inset-y-0 left-1/2 w-px -translate-x-1/2 bg-border", dragging && "bg-primary")} />
+        <GripVerticalIcon className="relative size-4 bg-card" />
+      </button>
+
       {/* Vista previa en vivo: mismo componente que renderiza la landing
           pública real, alimentado con el estado del formulario sin guardar
-          — cero desfasaje entre lo que se edita y lo que se ve. Los botones
-          Computadora/Tablet/Celular cambian el tamaño real del dispositivo
-          (no solo el ancho del panel) para que los breakpoints @container
-          respondan igual que en la pantalla real de cada uno. */}
-      <div className="min-w-0 flex-1">
-        <div className="surface flex h-[80vh] flex-col overflow-hidden bg-card lg:sticky lg:top-6 lg:h-[calc(100vh-3rem)]">
+          — cero desfasaje entre lo que se edita y lo que se ve. Siempre
+          flotante (sticky) mientras se scrollea el formulario, para no
+          perder de vista lo que se está editando. Los botones Computadora/
+          Tablet/Celular renderizan el tamaño real de cada dispositivo (no
+          solo el ancho del panel) para que los breakpoints @container
+          respondan igual que en la pantalla real de cada uno — la altura
+          se ajusta también, así el mockup completo entra siempre sin tener
+          que scrollear el bloque para verlo entero. */}
+      <div className="preview-pane shrink-0" style={{ ["--preview-pct" as string]: `${previewPct}%` }}>
+        <div className="surface flex h-[75vh] flex-col overflow-hidden bg-card lg:sticky lg:top-6 lg:h-[calc(100vh-3rem)]">
           <div className="flex items-center gap-2 border-b border-border p-3">
             <Button type="submit" form={FORM_ID} disabled={pending} className="flex-1">
               {pending ? "Guardando..." : "Guardar cambios"}
@@ -82,7 +124,7 @@ export function LandingBuilderWorkspace({
             </Button>
           </div>
 
-          <div className="flex items-center justify-center gap-1 border-b border-border p-2">
+          <div className="flex shrink-0 items-center justify-center gap-1 border-b border-border p-2">
             {DEVICE_OPTIONS.map(({ id, icon: Icon }) => (
               <button
                 key={id}
@@ -100,16 +142,29 @@ export function LandingBuilderWorkspace({
           </div>
 
           {!pending && !state.error && state !== initialState && (
-            <p className="kicker-label border-b border-border px-3 py-2 text-muted-foreground">Guardado.</p>
+            <p className="kicker-label shrink-0 border-b border-border px-3 py-2 text-muted-foreground">Guardado.</p>
           )}
 
-          <div className="min-h-0 flex-1 overflow-y-auto bg-muted/40">
+          <div className="min-h-0 flex-1 bg-muted/40">
             <DeviceFrame device={device}>
               <LandingPreview slug={slug} business={business} services={visibleServices} config={liveConfig} interactive={false} />
             </DeviceFrame>
           </div>
         </div>
       </div>
+
+      <style jsx>{`
+        .preview-pane {
+          width: 100%;
+          min-width: 0;
+        }
+        @media (min-width: 1024px) {
+          .preview-pane {
+            width: var(--preview-pct);
+            min-width: 320px;
+          }
+        }
+      `}</style>
     </div>
   );
 }

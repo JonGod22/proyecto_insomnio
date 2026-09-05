@@ -29,19 +29,25 @@ export function DeviceFrame({ device, children }: { device: DeviceId; children: 
   const chromeHeight = device === "desktop" ? 40 : 0;
   const frameHeight = spec.height + chromeHeight + (device === "desktop" ? 0 : 20);
 
+  // Escala por ancho Y alto disponibles (el que sea más chico manda) — así
+  // el mockup completo entra siempre en el panel, sin tener que scrollear
+  // para ver el dispositivo entero. El contenido de la página sigue
+  // scrolleando adentro de su propia pantalla, como en un dispositivo real.
   useEffect(() => {
     const el = wrapperRef.current;
     if (!el) return;
     const ro = new ResizeObserver((entries) => {
-      const available = entries[0].contentRect.width - 32;
-      setScale(Math.min(1, Math.max(0.25, available / frameWidth)));
+      const { width, height } = entries[0].contentRect;
+      const byWidth = (width - 32) / frameWidth;
+      const byHeight = (height - 32) / frameHeight;
+      setScale(Math.min(1, Math.max(0.15, Math.min(byWidth, byHeight))));
     });
     ro.observe(el);
     return () => ro.disconnect();
-  }, [frameWidth]);
+  }, [frameWidth, frameHeight]);
 
   return (
-    <div ref={wrapperRef} className="flex justify-center py-8">
+    <div ref={wrapperRef} className="flex h-full w-full items-center justify-center overflow-hidden">
       <div style={{ width: frameWidth * scale, height: frameHeight * scale }}>
         <div style={{ width: frameWidth, height: frameHeight, transform: `scale(${scale})`, transformOrigin: "top left" }}>
           {device === "desktop" ? (
