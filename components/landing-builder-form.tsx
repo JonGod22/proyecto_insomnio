@@ -150,6 +150,11 @@ export function LandingBuilderForm({
   const [newGalleryUrl, setNewGalleryUrl] = useState("");
 
   const [showMap, setShowMap] = useState(config.sections?.map ?? true);
+  const [showCta, setShowCta] = useState(config.sections?.cta ?? true);
+  const [servicesKind, setServicesKind] = useState(config.services_kind ?? "servicios");
+  const [servicesTitle, setServicesTitle] = useState(config.services_title ?? "");
+  const [galleryTitle, setGalleryTitle] = useState(config.gallery_title ?? "");
+  const [headerTextFallback, setHeaderTextFallback] = useState(config.header_text_fallback ?? true);
   const [mapEmbedUrl, setMapEmbedUrl] = useState(config.map_embed_url ?? "");
 
   const [whatsapp, setWhatsapp] = useState(whatsappNumber ?? "");
@@ -207,7 +212,11 @@ export function LandingBuilderForm({
       custom_font_family_body: fontId === "custom" ? customFontFamilyBody || undefined : undefined,
       benefits,
       gallery: galleryUrls,
-      sections: { benefits: showBenefits, gallery: showGallery, map: showMap },
+      services_kind: servicesKind,
+      services_title: servicesTitle || undefined,
+      gallery_title: galleryTitle || undefined,
+      header_text_fallback: headerTextFallback,
+      sections: { benefits: showBenefits, gallery: showGallery, map: showMap, cta: showCta },
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
@@ -235,6 +244,11 @@ export function LandingBuilderForm({
     showGallery,
     galleryUrls,
     showMap,
+    showCta,
+    servicesKind,
+    servicesTitle,
+    galleryTitle,
+    headerTextFallback,
   ]);
 
   function addGalleryUrl() {
@@ -277,6 +291,9 @@ export function LandingBuilderForm({
       <input type="hidden" name="section_benefits" value={showBenefits ? "on" : ""} />
       <input type="hidden" name="section_gallery" value={showGallery ? "on" : ""} />
       <input type="hidden" name="section_map" value={showMap ? "on" : ""} />
+      <input type="hidden" name="section_cta" value={showCta ? "on" : ""} />
+      <input type="hidden" name="services_kind" value={servicesKind} />
+      <input type="hidden" name="header_text_fallback" value={headerTextFallback ? "on" : ""} />
       <input type="hidden" name="theme_palette" value={themePalette} />
       <input type="hidden" name="custom_bg" value={customBg} />
       <input type="hidden" name="custom_primary" value={customPrimary} />
@@ -337,10 +354,24 @@ export function LandingBuilderForm({
           </div>
           {logoError && <p className="text-xs text-destructive">{logoError}</p>}
           {logoUrl && (
-            <div className="mt-2 flex h-16 items-center rounded-[6px] bg-foreground px-4">
+            <div className="mt-2 flex h-16 items-center justify-between rounded-[6px] bg-foreground px-4">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={logoUrl} alt="Vista previa del logo" className="h-8 w-auto max-w-40 object-contain" />
+              <button
+                type="button"
+                onClick={() => setLogoUrl("")}
+                aria-label="Quitar logo"
+                className="rounded-full p-1.5 text-background/70 hover:bg-background/10 hover:text-background"
+              >
+                <XIcon className="size-4" />
+              </button>
             </div>
+          )}
+          {!logoUrl && (
+            <label className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Checkbox checked={headerTextFallback} onCheckedChange={(v) => setHeaderTextFallback(v === true)} />
+              Si no hay logo, mostrar el nombre del negocio como texto
+            </label>
           )}
         </div>
 
@@ -405,8 +436,16 @@ export function LandingBuilderForm({
           )}
         </div>
         <div>
-          <Label className="mb-1 block">Texto del botón principal</Label>
-          <Input name="cta_label" value={ctaLabel} onChange={(e) => setCtaLabel(e.target.value)} />
+          <label className="mb-1 flex items-center gap-2 text-sm">
+            <Checkbox checked={showCta} onCheckedChange={(v) => setShowCta(v === true)} />
+            Mostrar botón de reservar
+          </label>
+          {showCta && (
+            <div className="mt-2">
+              <Label className="mb-1 block">Texto del botón</Label>
+              <Input name="cta_label" value={ctaLabel} onChange={(e) => setCtaLabel(e.target.value)} />
+            </div>
+          )}
         </div>
       </div>
 
@@ -604,6 +643,32 @@ export function LandingBuilderForm({
 
       <div className="surface space-y-3 bg-card p-5">
         <p className="type-display text-lg leading-none">Servicios</p>
+
+        <div className="flex gap-2">
+          {(["servicios", "productos"] as const).map((kind) => (
+            <button
+              key={kind}
+              type="button"
+              onClick={() => setServicesKind(kind)}
+              className={cn(
+                "rounded-[6px] border px-3 py-1.5 text-sm capitalize",
+                servicesKind === kind ? "border-primary bg-primary/10" : "border-border hover:bg-muted"
+              )}
+            >
+              {kind}
+            </button>
+          ))}
+        </div>
+
+        <div>
+          <Label className="mb-1 block">Título de la sección</Label>
+          <Input
+            value={servicesTitle}
+            onChange={(e) => setServicesTitle(e.target.value)}
+            placeholder="Ej: Qué se puede reservar"
+          />
+        </div>
+
         {services.length > FREE_SERVICES_ON_LANDING && (
           <p className="flex items-center gap-1 text-xs text-muted-foreground">
             <CrownIcon className="size-3 text-violet-600" /> los primeros {FREE_SERVICES_ON_LANDING} son gratis en la
@@ -629,6 +694,14 @@ export function LandingBuilderForm({
 
       <Block title="Galería" enabled={showGallery} onToggle={setShowGallery}>
         <div className="space-y-2">
+          <div>
+            <Label className="mb-1 block">Título de la sección</Label>
+            <Input
+              value={galleryTitle}
+              onChange={(e) => setGalleryTitle(e.target.value)}
+              placeholder="Ej: Trabajos recientes"
+            />
+          </div>
           {galleryUrls.map((url, i) => (
             <div key={`${url}-${i}`} className="flex items-center gap-2">
               {/* eslint-disable-next-line @next/next/no-img-element */}

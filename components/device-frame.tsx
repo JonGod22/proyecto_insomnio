@@ -65,14 +65,16 @@ export function DeviceFrame({ device, children }: { device: DeviceId; children: 
             <div className="rounded-[1.75rem] border-[10px] border-neutral-900 bg-neutral-900 shadow-2xl">
               <div className="relative overflow-hidden rounded-[1.1rem] bg-white" style={{ width: spec.width, height: spec.height }}>
                 <div className="absolute left-1/2 top-2 z-10 size-1.5 -translate-x-1/2 rounded-full bg-neutral-700" />
-                <div className="h-full overflow-y-auto">{children}</div>
+                {/* Sin barra de scroll — un tablet real no la muestra. */}
+                <div className="scrollbar-none h-full overflow-y-auto">{children}</div>
               </div>
             </div>
           ) : (
             <div className="rounded-[2.75rem] border-[10px] border-neutral-900 bg-neutral-900 shadow-2xl">
               <div className="relative overflow-hidden rounded-[2.1rem] bg-white" style={{ width: spec.width, height: spec.height }}>
                 <div className="absolute left-1/2 top-2.5 z-10 h-6 w-28 -translate-x-1/2 rounded-full bg-neutral-900" />
-                <div className="h-full overflow-y-auto">{children}</div>
+                {/* Sin barra de scroll — un celular real no la muestra. */}
+                <div className="scrollbar-none h-full overflow-y-auto">{children}</div>
               </div>
             </div>
           )}

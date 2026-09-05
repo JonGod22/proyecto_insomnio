@@ -230,14 +230,19 @@ export function LandingPreview({
   const computedLocation = [business.address, business.city].filter(Boolean).join(", ");
   // Título y línea de ubicación son 100% editoriales — a propósito
   // desconectados del nombre real del negocio (que sigue siendo el que se
-  // ve en el nav y en el admin). Si nunca se tocó el builder, arrancan
-  // mostrando el nombre/dirección real como valor por default razonable.
-  const heroTitle = config.hero_title || business.name;
-  const locationLabel = config.location_label ?? computedLocation;
+  // ve en el nav y en el admin). Si el dueño del negocio los deja vacíos a
+  // propósito, quedan vacíos — sin caer a un valor por default que no pidió.
+  const heroTitle = config.hero_title ?? "";
+  const locationLabel = config.location_label ?? "";
   const mapQuery = encodeURIComponent(computedLocation || business.name);
   const heroPhoto = config.hero_image_url;
   const galleryPhotos = config.gallery ?? [];
   const ctaLabel = config.cta_label || "Reservar turno";
+  const showCta = config.sections?.cta ?? true;
+  const servicesKind = config.services_kind === "productos" ? "Productos" : "Servicios";
+  const servicesTitle = config.services_title || "Qué se puede reservar";
+  const galleryTitle = config.gallery_title || "Trabajos recientes";
+  const showHeaderFallback = config.header_text_fallback ?? true;
   const showBenefits = config.sections?.benefits ?? true;
   const showGallery = config.sections?.gallery ?? true;
   const showMap = config.sections?.map ?? true;
@@ -291,8 +296,10 @@ export function LandingPreview({
           {config.logo_url ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={config.logo_url} alt={business.name} className="h-8 w-auto max-w-40 object-contain" />
-          ) : (
+          ) : showHeaderFallback ? (
             <span className={cn("type-display text-lg leading-none text-white", fontPair.heading.className)} style={headingStyle}>{business.name}</span>
+          ) : (
+            <span />
           )}
           <div className="flex items-center gap-3">
             <Button
@@ -302,7 +309,7 @@ export function LandingPreview({
               size="sm"
               className="hidden text-white hover:bg-white/10 hover:text-white @sm:inline-flex"
             >
-              Servicios
+              {servicesKind}
             </Button>
             <Button
               render={<Link href={`/${slug}/booking`} onClick={preventNav} />}
@@ -326,27 +333,31 @@ export function LandingPreview({
                 {locationLabel}
               </p>
             )}
-            <h1
-              className={cn("type-display mb-4 text-4xl leading-[0.95] text-white @sm:text-6xl", fontPair.heading.className)}
-              style={{ ...headingStyle, color: config.hero_title_color || undefined }}
-            >
-              {heroTitle}
-            </h1>
+            {heroTitle && (
+              <h1
+                className={cn("type-display mb-4 text-4xl leading-[0.95] text-white @sm:text-6xl", fontPair.heading.className)}
+                style={{ ...headingStyle, color: config.hero_title_color || undefined }}
+              >
+                {heroTitle}
+              </h1>
+            )}
             {config.hero_subtitle && (
               <p className="mb-6 max-w-xl text-lg text-white/85" style={{ color: config.hero_subtitle_color || undefined }}>
                 {config.hero_subtitle}
               </p>
             )}
-            <div className="flex flex-wrap items-center gap-3">
-              <Button
-                render={<Link href={`/${slug}/booking`} onClick={preventNav} />}
-                nativeButton={false}
-                size="lg"
-                className="halo"
-              >
-                {ctaLabel}
-              </Button>
-            </div>
+            {showCta && (
+              <div className="flex flex-wrap items-center gap-3">
+                <Button
+                  render={<Link href={`/${slug}/booking`} onClick={preventNav} />}
+                  nativeButton={false}
+                  size="lg"
+                  className="halo"
+                >
+                  {ctaLabel}
+                </Button>
+              </div>
+            )}
           </div>
         </div>
         </header>
@@ -369,8 +380,8 @@ export function LandingPreview({
 
       <section id="servicios" className="scroll-mt-20 px-6 py-16 @sm:px-12">
         <div className="mx-auto max-w-6xl">
-          <p className="kicker-label mb-2 text-muted-foreground">Servicios</p>
-          <h2 className={cn("type-display mb-8 text-3xl leading-none @sm:text-4xl", fontPair.heading.className)} style={headingStyle}>Qué se puede reservar</h2>
+          <p className="kicker-label mb-2 text-muted-foreground">{servicesKind}</p>
+          <h2 className={cn("type-display mb-8 text-3xl leading-none @sm:text-4xl", fontPair.heading.className)} style={headingStyle}>{servicesTitle}</h2>
           <div className="grid grid-cols-1 gap-4 @sm:grid-cols-2 @lg:grid-cols-3">
             {services.map((service) => (
               <Card key={service.id} className="flex h-full flex-col">
@@ -411,7 +422,7 @@ export function LandingPreview({
         <section className="py-16">
           <div className="mx-auto mb-8 max-w-6xl px-6 @sm:px-12">
             <p className="kicker-label mb-2 text-muted-foreground">Galería</p>
-            <h2 className={cn("type-display text-3xl leading-none @sm:text-4xl", fontPair.heading.className)} style={headingStyle}>Trabajos recientes</h2>
+            <h2 className={cn("type-display text-3xl leading-none @sm:text-4xl", fontPair.heading.className)} style={headingStyle}>{galleryTitle}</h2>
           </div>
           {/* Slider a todo el ancho de la pantalla (sin el max-w del resto del
               contenido), con flechas y puntitos — no depende de que se

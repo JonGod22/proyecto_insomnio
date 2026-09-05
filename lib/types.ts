@@ -521,10 +521,22 @@ export type LandingConfig = {
   custom_font_family_body?: string
   benefits?: string[]
   gallery?: string[]
+  /** "servicios" (default) o "productos" — cambia el nav, el kicker de la
+   * sección y qué botones/badges usa (algunos rubros venden productos, no
+   * servicios con turno). */
+  services_kind?: "servicios" | "productos"
+  /** Título de la sección de servicios/productos — default "Qué se puede reservar". */
+  services_title?: string
+  /** Título de la sección de galería — default "Trabajos recientes". */
+  gallery_title?: string
+  /** Si no hay logo cargado, mostrar el nombre del negocio como texto en el
+   * encabezado (default true) — en false, el encabezado queda vacío. */
+  header_text_fallback?: boolean
   sections?: {
     benefits?: boolean
     gallery?: boolean
     map?: boolean
+    cta?: boolean
   }
 }
 

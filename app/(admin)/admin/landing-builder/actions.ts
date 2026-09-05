@@ -93,6 +93,10 @@ export async function updateLandingConfig(
     .getAll("gallery_url")
     .map((v) => String(v).trim())
     .filter(Boolean);
+  const servicesKind = (formData.get("services_kind") as string) === "productos" ? "productos" : "servicios";
+  const servicesTitle = (formData.get("services_title") as string)?.trim() || undefined;
+  const galleryTitle = (formData.get("gallery_title") as string)?.trim() || undefined;
+  const headerTextFallback = formData.get("header_text_fallback") === "on";
 
   const config: LandingConfig = {
     hero_title: heroTitle,
@@ -113,10 +117,15 @@ export async function updateLandingConfig(
     custom_font_family_body: customFontFamilyBody,
     benefits: benefits.length ? benefits : undefined,
     gallery: gallery.length ? gallery : undefined,
+    services_kind: servicesKind,
+    services_title: servicesTitle,
+    gallery_title: galleryTitle,
+    header_text_fallback: headerTextFallback,
     sections: {
       benefits: formData.get("section_benefits") === "on",
       gallery: formData.get("section_gallery") === "on",
       map: formData.get("section_map") === "on",
+      cta: formData.get("section_cta") === "on",
     },
   };
 
