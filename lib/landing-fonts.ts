@@ -27,9 +27,29 @@ const permanentMarker = Permanent_Marker({ subsets: ["latin"], weight: ["400"] }
 type FontPair = {
   label: string;
   description: string;
-  heading: { className: string; sample: string; family?: string };
-  body: { className: string; family?: string };
+  heading: { className: string; sample: string; family?: string; fileUrl?: string };
+  body: { className: string; family?: string; fileUrl?: string };
 };
+
+export const CUSTOM_HEADING_FONT_FAMILY = "landing-custom-heading";
+export const CUSTOM_BODY_FONT_FAMILY = "landing-custom-body";
+
+/** Adivina el `format()` de @font-face a partir de la extensión del archivo. */
+export function fontFileFormat(url: string) {
+  const ext = url.split(".").pop()?.toLowerCase().split("?")[0];
+  switch (ext) {
+    case "woff2":
+      return "woff2";
+    case "woff":
+      return "woff";
+    case "ttf":
+      return "truetype";
+    case "otf":
+      return "opentype";
+    default:
+      return "woff2";
+  }
+}
 
 export const LANDING_FONT_PAIRS: Record<string, FontPair> = {
   default: {
@@ -80,21 +100,30 @@ export type LandingFontPairId = keyof typeof LANDING_FONT_PAIRS;
 export const LANDING_FONT_PAIR_IDS = Object.keys(LANDING_FONT_PAIRS) as LandingFontPairId[];
 
 /**
- * "custom" no es una pareja de la lista — son dos familias de Google Fonts
- * (título y texto) que el dueño del negocio escribe a mano (plan Pro). Se
- * cargan en tiempo real con un <link> a Google Fonts en vez de next/font
- * (que solo soporta fuentes elegidas en build time), y se aplican por
- * inline style en vez de className.
+ * "custom" no es una pareja de la lista — son dos tipografías (título y
+ * texto) que el dueño del negocio elige a mano (plan Pro), cada una de dos
+ * formas posibles:
+ *   - un archivo propio (woff2/woff/ttf/otf) subido por él — tiene prioridad,
+ *     se sirve vía @font-face con un nombre de familia fijo.
+ *   - o, si no subió archivo, el nombre de una familia de Google Fonts,
+ *     cargada en vivo con un <link> (next/font solo soporta fuentes
+ *     elegidas en build time).
  */
-export function getLandingFontPair(id: string | undefined, customHeadingFamily?: string, customBodyFamily?: string) {
-  if (id === "custom" && (customHeadingFamily || customBodyFamily)) {
-    const heading = customHeadingFamily || customBodyFamily;
-    const body = customBodyFamily || customHeadingFamily;
+export function getLandingFontPair(
+  id: string | undefined,
+  customHeadingFamily?: string,
+  customBodyFamily?: string,
+  customHeadingFileUrl?: string,
+  customBodyFileUrl?: string
+) {
+  if (id === "custom" && (customHeadingFamily || customBodyFamily || customHeadingFileUrl || customBodyFileUrl)) {
+    const heading = customHeadingFileUrl ? CUSTOM_HEADING_FONT_FAMILY : customHeadingFamily || customBodyFamily;
+    const body = customBodyFileUrl ? CUSTOM_BODY_FONT_FAMILY : customBodyFamily || customHeadingFamily;
     return {
       label: "Personalizada",
       description: [customHeadingFamily, customBodyFamily].filter(Boolean).join(" + "),
-      heading: { className: "", sample: "Aa", family: heading },
-      body: { className: "", family: body },
+      heading: { className: "", sample: "Aa", family: heading, fileUrl: customHeadingFileUrl },
+      body: { className: "", family: body, fileUrl: customBodyFileUrl },
     };
   }
   return LANDING_FONT_PAIRS[(id as LandingFontPairId) ?? "default"] ?? LANDING_FONT_PAIRS.default;

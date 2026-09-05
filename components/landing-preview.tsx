@@ -4,13 +4,13 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { FloatingAgentChat } from "@/components/floating-agent-chat";
 import { cn } from "@/lib/utils";
 import { getLandingPalette, buildCustomPalette } from "@/lib/landing-palettes";
-import { getLandingFontPair, googleFontsCssUrl } from "@/lib/landing-fonts";
+import { getLandingFontPair, googleFontsCssUrl, fontFileFormat } from "@/lib/landing-fonts";
 import type { LandingConfig } from "@/lib/types";
 
 export type PreviewService = {
@@ -253,7 +253,13 @@ export function LandingPreview({
     config.theme_palette === "custom" && config.custom_palette
       ? buildCustomPalette(config.custom_palette)
       : getLandingPalette(config.theme_palette);
-  const fontPair = getLandingFontPair(config.font_id, config.custom_font_family, config.custom_font_family_body);
+  const fontPair = getLandingFontPair(
+    config.font_id,
+    config.custom_font_family,
+    config.custom_font_family_body,
+    config.custom_font_file_heading,
+    config.custom_font_file_body
+  );
   const headingStyle = fontPair.heading.family ? { fontFamily: fontPair.heading.family } : undefined;
 
   function preventNav(e: React.MouseEvent) {
@@ -285,14 +291,28 @@ export function LandingPreview({
       {/* Tipografía personalizada (plan Pro): se carga en vivo desde Google
           Fonts por nombre de familia — las parejas curadas usan next/font
           (autohospedadas) y no necesitan esto. */}
-      {fontPair.body.family && <link rel="stylesheet" href={googleFontsCssUrl(fontPair.body.family)} />}
-      {fontPair.heading.family && fontPair.heading.family !== fontPair.body.family && (
+      {/* Tipografía personalizada (plan Pro): archivo propio vía @font-face,
+          o si no hay archivo, el nombre de una familia de Google Fonts
+          cargada en vivo — las parejas curadas usan next/font (autohospedadas)
+          y no necesitan nada de esto. */}
+      {(fontPair.heading.fileUrl || fontPair.body.fileUrl) && (
+        <style>
+          {fontPair.heading.fileUrl &&
+            `@font-face { font-family: "${fontPair.heading.family}"; src: url("${fontPair.heading.fileUrl}") format("${fontFileFormat(fontPair.heading.fileUrl)}"); font-display: swap; }`}
+          {fontPair.body.fileUrl &&
+            `@font-face { font-family: "${fontPair.body.family}"; src: url("${fontPair.body.fileUrl}") format("${fontFileFormat(fontPair.body.fileUrl)}"); font-display: swap; }`}
+        </style>
+      )}
+      {!fontPair.body.fileUrl && fontPair.body.family && (
+        <link rel="stylesheet" href={googleFontsCssUrl(fontPair.body.family)} />
+      )}
+      {!fontPair.heading.fileUrl && fontPair.heading.family && fontPair.heading.family !== fontPair.body.family && (
         <link rel="stylesheet" href={googleFontsCssUrl(fontPair.heading.family)} />
       )}
       <div className="relative">
         {/* Flota transparente/vidrio sobre la foto del hero, no ocupa su
             propio bloque blanco — por eso vive adentro del <header>. */}
-        <nav className="absolute inset-x-0 top-0 z-10 flex items-center justify-between bg-black/25 px-6 py-4 backdrop-blur-md @sm:px-12">
+        <nav className="absolute inset-x-0 top-0 z-10 flex items-center justify-center bg-black/25 px-6 py-4 backdrop-blur-md @sm:justify-between @sm:px-12">
           {config.logo_url ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={config.logo_url} alt={business.name} className="h-8 w-auto max-w-40 object-contain" />
@@ -301,13 +321,15 @@ export function LandingPreview({
           ) : (
             <span />
           )}
-          <div className="flex items-center gap-3">
+          {/* Solo desktop — en mobile el encabezado queda con el logo/nombre
+              solo, centrado, sin estos botones. */}
+          <div className="hidden items-center gap-3 @sm:flex">
             <Button
               render={<Link href="#servicios" onClick={preventNav} />}
               nativeButton={false}
               variant="ghost"
               size="sm"
-              className="hidden text-white hover:bg-white/10 hover:text-white @sm:inline-flex"
+              className="text-white hover:bg-white/10 hover:text-white"
             >
               {servicesKind}
             </Button>
@@ -385,31 +407,38 @@ export function LandingPreview({
           <div className="grid grid-cols-1 gap-4 @sm:grid-cols-2 @lg:grid-cols-3">
             {services.map((service) => (
               <Card key={service.id} className="flex h-full flex-col">
-                <CardHeader>
-                  <CardTitle className="text-lg leading-tight">{service.name}</CardTitle>
-                  {service.description && <p className="text-sm text-muted-foreground">{service.description}</p>}
-                  <div className="flex flex-wrap gap-2 pt-1">
-                    <Badge variant="outline">{formatDuration(service.duration_minutes, service.duration_minutes_max)}</Badge>
-                    <Badge>{formatPrice(service)}</Badge>
-                    {service.deposit_amount && (
-                      <Badge variant="secondary">
-                        seña {formatPrice({ ...service, price: service.deposit_amount, price_on_request: false })}
-                      </Badge>
-                    )}
+                <CardContent className="flex h-full flex-col gap-4">
+                  <div>
+                    <CardTitle className="text-lg leading-tight">{service.name}</CardTitle>
+                    {service.description && <p className="mt-1 text-sm text-muted-foreground">{service.description}</p>}
+                    <p className="mt-2 text-xs text-muted-foreground">
+                      Duración: {formatDuration(service.duration_minutes, service.duration_minutes_max)} aproximadamente
+                    </p>
+                    <ServiceInfoDialog service={service} />
                   </div>
-                </CardHeader>
-                <CardContent className="flex flex-1 flex-col">
-                  <div className="mt-auto flex flex-wrap items-center gap-3">
+
+                  {/* Mobile: precio arriba, reservar abajo, todo centrado.
+                      Desktop: reservar a la izquierda, precio a la derecha,
+                      misma fila — se logra reordenando con `order`, no
+                      cambiando el DOM, porque el apilado vertical necesita
+                      el precio primero y la fila horizontal lo necesita
+                      último. */}
+                  <div className="mt-auto flex flex-col items-center gap-2 @sm:flex-row @sm:items-center @sm:justify-between">
+                    <p className="order-1 text-sm font-medium text-foreground @sm:order-2">
+                      {formatPrice(service)}
+                      {service.deposit_amount
+                        ? ` · seña ${formatPrice({ ...service, price: service.deposit_amount, price_on_request: false })}`
+                        : ""}
+                    </p>
                     <Button
                       render={<Link href={`/${slug}/booking?service=${service.id}`} onClick={preventNav} />}
                       nativeButton={false}
                       variant="dark"
                       size="sm"
-                      className="w-fit"
+                      className="order-2 w-fit @sm:order-1"
                     >
                       Reservar
                     </Button>
-                    <ServiceInfoDialog service={service} />
                   </div>
                 </CardContent>
               </Card>

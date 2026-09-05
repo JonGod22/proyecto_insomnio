@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { uploadLandingLogo } from "@/app/(admin)/admin/landing-builder/actions";
+import { uploadLandingLogo, uploadLandingFont } from "@/app/(admin)/admin/landing-builder/actions";
 import { LANDING_PALETTES } from "@/lib/landing-palettes";
 import { LANDING_FONT_PAIRS, LANDING_FONT_PAIR_IDS } from "@/lib/landing-fonts";
 import { cn } from "@/lib/utils";
@@ -170,6 +170,12 @@ export function LandingBuilderForm({
   const [fontId, setFontId] = useState(config.font_id ?? "default");
   const [customFontFamily, setCustomFontFamily] = useState(config.custom_font_family ?? "");
   const [customFontFamilyBody, setCustomFontFamilyBody] = useState(config.custom_font_family_body ?? "");
+  const [customFontFileHeading, setCustomFontFileHeading] = useState(config.custom_font_file_heading ?? "");
+  const [customFontFileBody, setCustomFontFileBody] = useState(config.custom_font_file_body ?? "");
+  const [fontFileError, setFontFileError] = useState<string | null>(null);
+  const [uploadingFont, startFontUpload] = useTransition();
+  const fontFileInputRefHeading = useRef<HTMLInputElement>(null);
+  const fontFileInputRefBody = useRef<HTMLInputElement>(null);
 
   const [logoError, setLogoError] = useState<string | null>(null);
   const [uploadingLogo, startLogoUpload] = useTransition();
@@ -184,6 +190,22 @@ export function LandingBuilderForm({
       const result = await uploadLandingLogo(fd);
       if (result.error) setLogoError(result.error);
       else if (result.url) setLogoUrl(result.url);
+    });
+  }
+
+  function handleFontFile(slot: "heading" | "body", file: File | undefined) {
+    if (!file) return;
+    setFontFileError(null);
+    const fd = new FormData();
+    fd.set("file", file);
+    fd.set("slot", slot);
+    startFontUpload(async () => {
+      const result = await uploadLandingFont(fd);
+      if (result.error) setFontFileError(result.error);
+      else if (result.url) {
+        if (slot === "heading") setCustomFontFileHeading(result.url);
+        else setCustomFontFileBody(result.url);
+      }
     });
   }
 
@@ -210,6 +232,8 @@ export function LandingBuilderForm({
       font_id: fontId,
       custom_font_family: fontId === "custom" ? customFontFamily || undefined : undefined,
       custom_font_family_body: fontId === "custom" ? customFontFamilyBody || undefined : undefined,
+      custom_font_file_heading: fontId === "custom" ? customFontFileHeading || undefined : undefined,
+      custom_font_file_body: fontId === "custom" ? customFontFileBody || undefined : undefined,
       benefits,
       gallery: galleryUrls,
       services_kind: servicesKind,
@@ -239,6 +263,8 @@ export function LandingBuilderForm({
     fontId,
     customFontFamily,
     customFontFamilyBody,
+    customFontFileHeading,
+    customFontFileBody,
     showBenefits,
     benefits,
     showGallery,
@@ -302,6 +328,8 @@ export function LandingBuilderForm({
       <input type="hidden" name="font_id" value={fontId} />
       <input type="hidden" name="custom_font_family" value={customFontFamily} />
       <input type="hidden" name="custom_font_family_body" value={customFontFamilyBody} />
+      <input type="hidden" name="custom_font_file_heading" value={customFontFileHeading} />
+      <input type="hidden" name="custom_font_file_body" value={customFontFileBody} />
       {galleryUrls.map((url) => (
         <input key={url} type="hidden" name="gallery_url" value={url} />
       ))}
@@ -569,26 +597,91 @@ export function LandingBuilderForm({
             <div className="surface grid grid-cols-1 gap-3 bg-muted/30 p-3 @sm:grid-cols-2">
               <div className="space-y-1">
                 <Label className="mb-1 block text-xs">Tipografía principal (títulos)</Label>
-                <Input
-                  value={customFontFamily}
-                  onChange={(e) => setCustomFontFamily(e.target.value)}
-                  placeholder="Ej: Fraunces"
-                />
+                <div className="surface flex items-stretch overflow-hidden rounded-[6px] bg-background">
+                  <input
+                    type="text"
+                    value={customFontFileHeading ? "Archivo cargado" : customFontFamily}
+                    onChange={(e) => setCustomFontFamily(e.target.value)}
+                    placeholder="Ej: Fraunces"
+                    disabled={Boolean(customFontFileHeading)}
+                    className="h-9 min-w-0 flex-1 bg-transparent px-2.5 text-sm outline-none placeholder:text-muted-foreground disabled:text-muted-foreground"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => fontFileInputRefHeading.current?.click()}
+                    disabled={uploadingFont}
+                    title="Subir archivo de fuente (WOFF2/WOFF/TTF/OTF)"
+                    className="flex shrink-0 items-center justify-center border-l-2 border-border px-2.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+                  >
+                    <UploadIcon className="size-4" />
+                  </button>
+                  <input
+                    ref={fontFileInputRefHeading}
+                    type="file"
+                    accept=".woff2,.woff,.ttf,.otf"
+                    className="hidden"
+                    onChange={(e) => handleFontFile("heading", e.target.files?.[0])}
+                  />
+                </div>
+                {customFontFileHeading && (
+                  <button
+                    type="button"
+                    onClick={() => setCustomFontFileHeading("")}
+                    className="text-xs text-muted-foreground underline hover:text-destructive"
+                  >
+                    Quitar archivo y volver a Google Fonts
+                  </button>
+                )}
               </div>
+
               <div className="space-y-1">
                 <Label className="mb-1 block text-xs">Tipografía secundaria (texto)</Label>
-                <Input
-                  value={customFontFamilyBody}
-                  onChange={(e) => setCustomFontFamilyBody(e.target.value)}
-                  placeholder="Ej: DM Sans"
-                />
+                <div className="surface flex items-stretch overflow-hidden rounded-[6px] bg-background">
+                  <input
+                    type="text"
+                    value={customFontFileBody ? "Archivo cargado" : customFontFamilyBody}
+                    onChange={(e) => setCustomFontFamilyBody(e.target.value)}
+                    placeholder="Ej: DM Sans"
+                    disabled={Boolean(customFontFileBody)}
+                    className="h-9 min-w-0 flex-1 bg-transparent px-2.5 text-sm outline-none placeholder:text-muted-foreground disabled:text-muted-foreground"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => fontFileInputRefBody.current?.click()}
+                    disabled={uploadingFont}
+                    title="Subir archivo de fuente (WOFF2/WOFF/TTF/OTF)"
+                    className="flex shrink-0 items-center justify-center border-l-2 border-border px-2.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+                  >
+                    <UploadIcon className="size-4" />
+                  </button>
+                  <input
+                    ref={fontFileInputRefBody}
+                    type="file"
+                    accept=".woff2,.woff,.ttf,.otf"
+                    className="hidden"
+                    onChange={(e) => handleFontFile("body", e.target.files?.[0])}
+                  />
+                </div>
+                {customFontFileBody && (
+                  <button
+                    type="button"
+                    onClick={() => setCustomFontFileBody("")}
+                    className="text-xs text-muted-foreground underline hover:text-destructive"
+                  >
+                    Quitar archivo y volver a Google Fonts
+                  </button>
+                )}
               </div>
+
+              {uploadingFont && <p className="text-xs text-muted-foreground @sm:col-span-2">Subiendo…</p>}
+              {fontFileError && <p className="text-xs text-destructive @sm:col-span-2">{fontFileError}</p>}
               <p className="text-xs text-muted-foreground @sm:col-span-2">
-                Nombre exacto de una fuente de{" "}
+                Escribí el nombre exacto de una fuente de{" "}
                 <a href="https://fonts.google.com" target="_blank" rel="noreferrer" className="underline">
                   fonts.google.com
                 </a>{" "}
-                — más adelante vamos a sumar la opción de subir tu propia tipografía por archivo.
+                o subí tu propio archivo (WOFF2, WOFF, TTF u OTF) con el botón de la derecha — el
+                archivo tiene prioridad si cargás los dos.
               </p>
             </div>
           )}

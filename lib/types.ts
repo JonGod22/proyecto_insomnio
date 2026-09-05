@@ -519,6 +519,12 @@ export type LandingConfig = {
   custom_font_family?: string
   /** Familia de Google Fonts para el texto (plan Pro) — solo si font_id === "custom". */
   custom_font_family_body?: string
+  /** Archivo de fuente subido para el título (woff2/woff/ttf/otf) — si está
+   * cargado, se usa en vez de custom_font_family (Google Fonts). */
+  custom_font_file_heading?: string
+  /** Archivo de fuente subido para el texto — si está cargado, se usa en
+   * vez de custom_font_family_body (Google Fonts). */
+  custom_font_file_body?: string
   benefits?: string[]
   gallery?: string[]
   /** "servicios" (default) o "productos" — cambia el nav, el kicker de la

@@ -34,6 +34,35 @@ export async function uploadLandingLogo(formData: FormData): Promise<{ url?: str
   return { url: data.publicUrl };
 }
 
+const FONT_ALLOWED_EXT = ["woff2", "woff", "ttf", "otf"];
+
+export async function uploadLandingFont(formData: FormData): Promise<{ url?: string; error?: string }> {
+  const supabase = await createClient();
+
+  const { data: businessId, error: bizError } = await supabase.rpc("get_my_business_id");
+  if (bizError || !businessId) {
+    return { error: "No se pudo determinar tu negocio. Volvé a iniciar sesión." };
+  }
+
+  const file = formData.get("file") as File | null;
+  if (!file || file.size === 0) return { error: "No se seleccionó ningún archivo." };
+
+  const ext = file.name.split(".").pop()?.toLowerCase();
+  if (!ext || !FONT_ALLOWED_EXT.includes(ext)) {
+    return { error: "Solo se aceptan archivos WOFF2, WOFF, TTF u OTF." };
+  }
+
+  const slot = (formData.get("slot") as string) === "body" ? "body" : "heading";
+  const path = `${businessId}/font-${slot}-${Date.now()}.${ext}`;
+  const { error: uploadError } = await supabase.storage
+    .from("landing-assets")
+    .upload(path, file, { contentType: file.type, upsert: true });
+  if (uploadError) return { error: uploadError.message };
+
+  const { data } = supabase.storage.from("landing-assets").getPublicUrl(path);
+  return { url: data.publicUrl };
+}
+
 // Si alguien pega el <iframe ...> completo en vez de solo la URL, se
 // extrae el src en vez de guardar HTML roto.
 function extractMapUrl(raw: string) {
@@ -82,6 +111,10 @@ export async function updateLandingConfig(
     fontId === "custom" ? (formData.get("custom_font_family") as string)?.trim() || undefined : undefined;
   const customFontFamilyBody =
     fontId === "custom" ? (formData.get("custom_font_family_body") as string)?.trim() || undefined : undefined;
+  const customFontFileHeading =
+    fontId === "custom" ? (formData.get("custom_font_file_heading") as string)?.trim() || undefined : undefined;
+  const customFontFileBody =
+    fontId === "custom" ? (formData.get("custom_font_file_body") as string)?.trim() || undefined : undefined;
   const mapEmbedUrlRaw = (formData.get("map_embed_url") as string)?.trim();
   const mapEmbedUrl = mapEmbedUrlRaw ? extractMapUrl(mapEmbedUrlRaw) : undefined;
   const benefits = formData
@@ -114,6 +147,8 @@ export async function updateLandingConfig(
     custom_palette: customPalette,
     font_id: fontId,
     custom_font_family: customFontFamily,
+    custom_font_file_heading: customFontFileHeading,
+    custom_font_file_body: customFontFileBody,
     custom_font_family_body: customFontFamilyBody,
     benefits: benefits.length ? benefits : undefined,
     gallery: gallery.length ? gallery : undefined,
