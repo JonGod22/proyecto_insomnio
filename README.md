@@ -1,67 +1,67 @@
 # Insomnio
 
-> Una plataforma de turnos, reservas, landing pages y comunicación para profesionales y negocios que viven de la recurrencia de sus clientes.
+> A booking, sales, landing-page and communication platform for professionals and businesses that live off client recurrence.
 
-Este repositorio es una **vidriera de portfolio**: documenta la idea, el proceso y la arquitectura del proyecto. El código fuente y la base de datos viven en un repositorio privado — acá no vas a encontrar lógica de negocio, credenciales ni esquemas de datos, solo la historia y el diseño del sistema.
+This repository is a **portfolio showcase**: it documents the idea, the process, and the architecture of the project. The source code and database live in a private repository — you won't find business logic, credentials, or data schemas here, only the story and design of the system.
 
 ---
 
-## El origen: de un experimento de fin de semana a un producto
+## The origin: from a weekend experiment to a product
 
-Insomnio nació como una prueba: ver qué tan lejos se podía llevar la construcción de un producto real trabajando codo a codo con un agente de IA (Claude Code), sin escribir el código a mano. El nombre es literal — el proyecto arrancó un viernes de madrugada y se extendió durante un fin de semana entero de conversación continua con el agente para ver qué se podía construir.
+Insomnio started as an experiment: how far could a real product be taken by working side by side with an AI agent (Claude Code), without writing code by hand. The name is literal — the project began on a Friday at dawn and stretched through an entire weekend of continuous conversation with the agent to see what could be built.
 
-Pero también fue un experimento de **método**: probar si una metodología de gestión de producto podía sostener y ordenar un desarrollo hecho así, desde cero, a esa velocidad. El proceso que se siguió fue siempre el mismo, en cada etapa:
+But it was also an experiment in **method**: testing whether a product management methodology could hold and organize a build done this way, from scratch, at that speed. The process followed was always the same, at every stage:
 
 ```
-Detectar un problema
+Spot a problem
         ↓
-Entender por qué existe y qué necesidad hay detrás
+Understand why it exists and what need lies behind it
         ↓
-Formular hipótesis de solución
+Formulate a solution hypothesis
         ↓
-Construir → Probar → Observar → Corregir
+Build → Test → Observe → Fix
         ↓
 MVP
 ```
 
-La necesidad detectada fue concreta: muchos negocios y profesionales que dependen de la recurrencia de sus clientes (turnos, sesiones, citas) manejan esa recurrencia de forma desordenada, repartida entre WhatsApp, agendas de papel o herramientas que solo resuelven "sacar un turno" y nada más. La oportunidad estaba en unir en un solo sistema: **turnos, reservas, landing page y atención al cliente**.
+The need identified was concrete: many businesses and professionals whose value depends on client recurrence (appointments, sessions, bookings) handle that recurrence in a disorganized way, spread across WhatsApp, paper agendas, or tools that only solve "book a slot" and nothing else. The opportunity was to bring together, in a single system: **bookings, sales, a landing page, and client communication**.
 
-## Cómo se construyó
+## How it was built
 
-Todo el desarrollo se trazó de forma vertical con **Claude Code** como compañero de desarrollo: arquitectura, código e iteraciones sucesivas hasta llegar a la primera versión funcional (MVP v1). El stack técnico:
+The entire development was traced vertically with **Claude Code** as a development partner: architecture, code, and successive iterations up to the first working version (MVP v1). The technical stack:
 
 - **Next.js** (App Router) + **React** + **TypeScript**
-- **Supabase** (Postgres + Auth + RLS) como base de datos y backend
-- **Vercel** para deployment y preview environments
-- **Claude Code** como agente de desarrollo, con GitHub como versionado
+- **Supabase** (Postgres + Auth + RLS) as database and backend
+- **Vercel** for deployment and preview environments
+- **Claude Code** as the development agent, with GitHub for version control
 
-## Propuesta de negocio
+## Business proposal
 
-Insomnio no es solo un gestor de turnos. Está pensado para profesionales y negocios cuya propuesta de valor depende de que sus clientes **vuelvan** — y que hoy tienen ese proceso desorganizado o quieren profesionalizarlo.
+Insomnio isn't just a booking manager. It's built for professionals and businesses whose value proposition depends on their clients **coming back** — and who today have that process disorganized, or want to professionalize it.
 
-La diferencia frente a los gestores de turnos tradicionales es que Insomnio también funciona como **base comunicacional de la marca**: de ahí surgieron dos módulos que van más allá de la agenda —
+The difference from traditional booking tools is that Insomnio also works as the **communication base of the brand**: that's where two modules beyond the agenda came from —
 
-- **Landing Builder**: cada profesional/negocio arma su propia página de presentación, sin depender de un desarrollador.
-- **Insomnio Link**: un módulo tipo "link in bio" (similar a Linktree) para centralizar en un solo enlace todos los canales de contacto y reserva.
+- **Landing Builder**: each professional/business builds their own presentation page, without depending on a developer.
+- **Insomnio Link**: a "link in bio" style module (similar to Linktree) to centralize every contact and booking channel in a single link.
 
-El producto se ofrece en **tres planes** distintos, pensados para acompañar desde el profesional independiente hasta negocios con más volumen.
+The product is offered across **three different plans**, designed to serve everyone from independent professionals to higher-volume businesses.
 
-## Arquitectura (a alto nivel)
+## Architecture (high level)
 
 ```mermaid
 flowchart TB
-    subgraph Publico["Área pública (multi-tenant)"]
-        Landing["Landing page del negocio"]
-        Booking["Flujo de reserva de turnos"]
+    subgraph Public["Public area (multi-tenant)"]
+        Landing["Business landing page"]
+        Booking["Booking flow"]
         Link["Insomnio Link\n(bio link)"]
     end
 
-    subgraph Gestion["Panel de gestión del negocio"]
-        AdminPanel["Turnos, clientes,\nlanding y landing builder"]
+    subgraph Management["Business management panel"]
+        AdminPanel["Bookings, clients,\nlanding and landing builder"]
     end
 
-    subgraph Plataforma["Panel interno de plataforma"]
-        SA["Administración de negocios\ny estructura de datos"]
+    subgraph Platform["Internal platform panel"]
+        SA["Business administration\nand data structure"]
     end
 
     subgraph Backend["Supabase"]
@@ -75,25 +75,25 @@ flowchart TB
     AdminPanel --> Backend
     SA --> Backend
 
-    Backend --> Vercel["Vercel\n(deploy + preview por rama)"]
+    Backend --> Vercel["Vercel\n(deploy + preview per branch)"]
 ```
 
-Puntos distintivos del diseño:
+Distinctive design points:
 
-- **Multi-tenant real**: cada negocio tiene su propia landing pública y flujo de reserva aislado por Row Level Security en Supabase — un solo código base sirve a todos los negocios.
-- **Tres niveles de acceso**: el visitante público, el dueño del negocio y un nivel interno de administración de la plataforma, cada uno con su propio alcance de permisos.
-- **Landing Builder propio**: en vez de integrar un builder externo, la edición de landing vive dentro del mismo producto.
+- **Real multi-tenancy**: each business has its own public landing page and booking flow, isolated via Row Level Security in Supabase — a single codebase serves every business.
+- **Three access levels**: the public visitor, the business owner, and an internal platform administration level, each with its own permission scope.
+- **Built-in Landing Builder**: instead of integrating a third-party builder, landing page editing lives inside the product itself.
 
-## Hacia dónde va
+## Where it's headed
 
-La idea original no nació buscando ser un negocio — nació como una prueba de concepto. Pero a medida que fue tomando forma, apareció una oportunidad real: competir con las plataformas de turnos existentes, que hoy resuelven bien "sacar un turno" pero muy poco de todo lo demás — interfaz, comunicación con el suscriptor, identidad de marca.
+The original idea wasn't born to become a business — it started as a proof of concept. But as it took shape, a real opportunity appeared: competing with existing booking platforms, which today handle "book a slot" well but very little else — interface, communication with subscribers, brand identity.
 
-La visión a mediano plazo es que la plataforma se transforme en algo más integral: un módulo de **gestión de contenido y marca** donde, desde un solo lugar, el negocio pueda publicar simultáneamente en sus redes (Instagram, Facebook, X, etc.), integrando turnos + comunicación + branding en un mismo sistema.
+The mid-term vision is for the platform to become something more integral: a **content and brand management module** where, from a single place, a business can publish simultaneously across its social channels (Instagram, Facebook, X, etc.), integrating bookings + communication + branding into one system.
 
-## Objetivos y cómo se va a medir
+## Goals and how success will be measured
 
-Todavía no hay un modelo de negocio ni KPIs formalmente trazados — el proyecto arrancó como una prueba técnica y recién ahora se está evaluando su potencial real como producto. La primera hipótesis a validar es de adopción: liberar temporalmente el plan intermedio (Fly) para que los negocios lo prueben sin fricción, y medir cuántos continúan en un plan pago (Fly o Pro) versus cuántos vuelven al plan gratuito. A partir de esos primeros datos se van a definir hitos y métricas más formales.
+There's no formal business model or KPIs yet — the project started as a technical experiment, and its real potential as a product is only now being evaluated. The first hypothesis to validate is adoption: temporarily unlocking the mid-tier plan (Fly) so businesses can try it with no friction, and measuring how many continue on a paid plan (Fly or Pro) versus how many go back to the free tier. Once that first data comes in, more formal milestones and metrics will be defined.
 
 ---
 
-*Este documento describe la idea y el proceso, no el producto en producción. Si te interesa el enfoque o querés charlar sobre el proyecto, [contacto].*
+*This document describes the idea and the process, not the product in production. If the approach interests you or you'd like to talk about the project, reach out at **godoyjonathan51@gmail.com**.*
